@@ -9,6 +9,8 @@ export type Location = {
   id: number;
   name: string;
   city: string | null;
+  address: string | null;
+  coords: [number, number] | null;
 };
 
 export type Program = {

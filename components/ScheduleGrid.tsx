@@ -1,8 +1,10 @@
 "use client";
 
-import type { Program } from "@/lib/types";
+import { useState } from "react";
+import type { Location, Program } from "@/lib/types";
 import { formatTime } from "@/lib/schedule";
 import { categoryColor } from "@/lib/categoryColors";
+import { VenueInfoModal } from "./VenueInfoModal";
 
 const PX_PER_MIN = 1.4;
 const MIN_BLOCK_HEIGHT = 34;
@@ -34,7 +36,7 @@ function layoutLanes(programs: Program[]): LaneItem[] {
 }
 
 type Props = {
-  venues: { id: number; name: string }[];
+  venues: Location[];
   programsByVenue: Map<number, Program[]>;
   rangeStartTs: number;
   rangeEndTs: number;
@@ -56,6 +58,9 @@ export function ScheduleGrid({
   onToggle,
   onToggleFavorite,
 }: Props) {
+  const [openVenueId, setOpenVenueId] = useState<number | null>(null);
+  const openVenue = venues.find((v) => v.id === openVenueId) ?? null;
+
   const totalMinutes = (rangeEndTs - rangeStartTs) / 60000;
   const gridHeight = totalMinutes * PX_PER_MIN;
 
@@ -118,7 +123,12 @@ export function ScheduleGrid({
               >
                 {isFavorite ? "★" : "☆"}
               </button>
-              <span className="truncate">{venue.name}</span>
+              <button
+                onClick={() => setOpenVenueId(venue.id)}
+                className="truncate text-left hover:underline"
+              >
+                {venue.name}
+              </button>
             </div>
             <div className="relative" style={{ height: gridHeight }}>
               {hourMarks.map((ts) => (
@@ -172,6 +182,12 @@ export function ScheduleGrid({
           </div>
         );
       })}
+      {openVenue && (
+        <VenueInfoModal
+          venue={openVenue}
+          onClose={() => setOpenVenueId(null)}
+        />
+      )}
     </div>
   );
 }

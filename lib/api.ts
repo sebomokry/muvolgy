@@ -16,6 +16,17 @@ type RawLocation = {
   city: { name: string } | null;
 };
 
+type RawMapLocation = {
+  id: number;
+  address: string | null;
+  location: [number, number] | null;
+};
+
+type LocationDetails = {
+  address: string | null;
+  coords: [number, number] | null;
+};
+
 type RawProgram = {
   id: number;
   slug: string;
@@ -46,7 +57,10 @@ function dayKey(raw: string): string {
   return raw.split(" ")[0];
 }
 
-function normalizeProgram(raw: RawProgram): Program | null {
+function normalizeProgram(
+  raw: RawProgram,
+  locationDetails: Map<number, LocationDetails>,
+): Program | null {
   if (raw.is_invalid) return null;
 
   const location: Location | null = raw.location
@@ -54,6 +68,8 @@ function normalizeProgram(raw: RawProgram): Program | null {
         id: raw.location.id,
         name: raw.location.name,
         city: raw.location.city?.name ?? null,
+        address: locationDetails.get(raw.location.id)?.address ?? null,
+        coords: locationDetails.get(raw.location.id)?.coords ?? null,
       }
     : null;
 
@@ -112,14 +128,32 @@ async function fetchDates(): Promise<string[]> {
   return json.dates;
 }
 
+/** Address/coordinates live on the map endpoint, not on /programs — merged in by location id. */
+async function fetchLocationDetails(): Promise<Map<number, LocationDetails>> {
+  const res = await fetch(`${API_BASE}/map`, {
+    next: { revalidate: 3600 },
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch map: ${res.status}`);
+  }
+  const json: { data: { locations: RawMapLocation[] } } = await res.json();
+  return new Map(
+    json.data.locations.map((loc) => [
+      loc.id,
+      { address: loc.address, coords: loc.location },
+    ]),
+  );
+}
+
 export async function getFestivalData(): Promise<FestivalData> {
-  const [rawPrograms, days] = await Promise.all([
+  const [rawPrograms, days, locationDetails] = await Promise.all([
     fetchAllRawPrograms(),
     fetchDates(),
+    fetchLocationDetails(),
   ]);
 
   const programs = rawPrograms
-    .map(normalizeProgram)
+    .map((raw) => normalizeProgram(raw, locationDetails))
     .filter((p): p is Program => p !== null)
     .sort((a, b) => a.startTs - b.startTs);
 

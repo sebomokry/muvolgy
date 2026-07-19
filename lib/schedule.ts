@@ -1,4 +1,4 @@
-import type { Program } from "./types";
+import type { Location, Program } from "./types";
 
 export function formatTime(ts: number): string {
   const d = new Date(ts);
@@ -42,23 +42,19 @@ export function splitAllDay(programs: Program[]): {
   return { timed, allDay };
 }
 
-export function venuesForPrograms(
-  programs: Program[],
-): { id: number; name: string }[] {
-  const byId = new Map<number, string>();
+export function venuesForPrograms(programs: Program[]): Location[] {
+  const byId = new Map<number, Location>();
   for (const p of programs) {
-    if (p.location) byId.set(p.location.id, p.location.name);
+    if (p.location) byId.set(p.location.id, p.location);
   }
-  return [...byId.entries()]
-    .map(([id, name]) => ({ id, name }))
-    .sort((a, b) => a.name.localeCompare(b.name, "hu"));
+  return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name, "hu"));
 }
 
 /** Stable-partitions favorited venues to the front so they never scroll out of view. */
 export function sortVenuesWithFavoritesFirst(
-  venues: { id: number; name: string }[],
+  venues: Location[],
   favoriteIds: Set<number>,
-): { id: number; name: string }[] {
+): Location[] {
   const favorites = venues.filter((v) => favoriteIds.has(v.id));
   const rest = venues.filter((v) => !favoriteIds.has(v.id));
   return [...favorites, ...rest];
