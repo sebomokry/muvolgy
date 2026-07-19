@@ -32,6 +32,7 @@ function defaultCategoryIds(categories: FestivalData["categories"]): Set<number>
 
 export function FestivalApp({ data }: { data: FestivalData }) {
   const [view, setView] = useState<"grid" | "mine">("grid");
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState(() => defaultDay(data.days));
   const [activeCategoryIds, setActiveCategoryIds] = useState<Set<number>>(
     () => defaultCategoryIds(data.categories),
@@ -122,15 +123,24 @@ export function FestivalApp({ data }: { data: FestivalData }) {
             selectedDay={selectedDay}
             onSelect={setSelectedDay}
           />
-          <CategoryFilter
-            categories={data.categories}
-            activeIds={activeCategoryIds}
-            onToggle={toggleCategory}
-            onAll={() =>
-              setActiveCategoryIds(new Set(data.categories.map((c) => c.id)))
-            }
-            onNone={() => setActiveCategoryIds(new Set())}
-          />
+          <button
+            onClick={() => setCategoriesOpen((prev) => !prev)}
+            className="flex items-center gap-1.5 self-start font-mono text-xs text-ink/50 hover:text-ink sm:hidden"
+          >
+            <span>{categoriesOpen ? "▾" : "▸"}</span>
+            Kategóriák ({activeCategoryIds.size})
+          </button>
+          <div className={`${categoriesOpen ? "block" : "hidden"} sm:block`}>
+            <CategoryFilter
+              categories={data.categories}
+              activeIds={activeCategoryIds}
+              onToggle={toggleCategory}
+              onAll={() =>
+                setActiveCategoryIds(new Set(data.categories.map((c) => c.id)))
+              }
+              onNone={() => setActiveCategoryIds(new Set())}
+            />
+          </div>
         </div>
       )}
 
