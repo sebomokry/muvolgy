@@ -109,6 +109,11 @@ export function ScheduleGrid({
         const laneCount = lanes[0]?.laneCount ?? 1;
         const rowHeight = laneCount * LANE_HEIGHT;
         const isFavorite = favoriteIds.has(venue.id);
+        const hasSelectedProgram =
+          !isFavorite &&
+          (programsByVenue.get(venue.id) ?? []).some((p) =>
+            selectedIds.has(p.id),
+          );
         return (
           <div
             key={venue.id}
@@ -118,7 +123,9 @@ export function ScheduleGrid({
               className={`sticky left-0 z-10 flex shrink-0 flex-col items-center justify-center gap-0.5 border-r px-1 py-1 text-center font-display ${
                 isFavorite
                   ? "border-accent bg-accent-soft text-accent"
-                  : "border-line bg-paper text-ink"
+                  : hasSelectedProgram
+                    ? "border-pin bg-pin-soft text-pin"
+                    : "border-line bg-paper text-ink"
               }`}
               style={{ width: VENUE_COL_WIDTH, height: rowHeight }}
             >

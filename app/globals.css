@@ -8,6 +8,8 @@
   --line: #d9d2c4;
   --danger: #b23a2e;
   --danger-soft: #f5e0dc;
+  --pin: #3e5c8a;
+  --pin-soft: #e3e7ee;
 }
 
 @theme inline {
@@ -18,6 +20,8 @@
   --color-line: var(--line);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-pin: var(--pin);
+  --color-pin-soft: var(--pin-soft);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);

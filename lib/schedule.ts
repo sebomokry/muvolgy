@@ -57,14 +57,24 @@ export function allSettlements(locations: Location[]): string[] {
   return [...cities].sort((a, b) => a.localeCompare(b, "hu"));
 }
 
-/** Stable-partitions favorited venues to the front so they never scroll out of view. */
+/**
+ * Stable-partitions venues into three tiers so they never scroll out of view:
+ * starred venues first, then unstarred venues that happen to host a saved
+ * program today, then everything else — each tier alphabetical internally.
+ */
 export function sortVenuesWithFavoritesFirst(
   venues: Location[],
   favoriteIds: Set<number>,
+  venuesWithSelectedProgram: Set<number> = new Set(),
 ): Location[] {
   const favorites = venues.filter((v) => favoriteIds.has(v.id));
-  const rest = venues.filter((v) => !favoriteIds.has(v.id));
-  return [...favorites, ...rest];
+  const withSelectedProgram = venues.filter(
+    (v) => !favoriteIds.has(v.id) && venuesWithSelectedProgram.has(v.id),
+  );
+  const rest = venues.filter(
+    (v) => !favoriteIds.has(v.id) && !venuesWithSelectedProgram.has(v.id),
+  );
+  return [...favorites, ...withSelectedProgram, ...rest];
 }
 
 /** Rounds the visible time range out to whole hours so the grid starts/ends cleanly. */

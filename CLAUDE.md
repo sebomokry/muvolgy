@@ -114,17 +114,26 @@ obvious effect-based approach; it also sidesteps SSR/hydration mismatches
 since `getServerSnapshot` always returns an empty set.
 
 **Derived scheduling logic** lives in `lib/schedule.ts` as pure functions:
-grouping programs by day, splitting all-day vs. timed programs, sorting
-venues with starred ones pinned first (`sortVenuesWithFavoritesFirst`), and
+grouping programs by day, splitting all-day vs. timed programs, and
 overlap/conflict detection (`overlaps`, `conflictingIds`) used both for the
 grid's conflict highlighting and the "Sajátjaim" (My programs) tab.
+`sortVenuesWithFavoritesFirst` pins venue rows in three tiers, not two:
+starred venues, then *unstarred* venues that merely host a saved
+(`selectedIds`) program that day (so a favorited concert never gets lost
+scrolling through an alphabetical venue list just because you never starred
+its venue), then everything else — each tier alphabetical internally. The
+middle tier is recomputed per day in `FestivalApp.tsx` from the already
+day/filter-scoped `timed` list, so it naturally only pins on the day the
+saved concert actually occurs.
 
 **Visual identity**: category colors are a hand-picked palette in
 `lib/categoryColors.ts` that deliberately overrides the festival API's own
 `color` field per category — the API's colors are pale pastels that don't
 stay visually distinct in a dense grid. Design tokens (`--paper`, `--ink`,
-`--accent`, `--line`, `--danger`) live in `app/globals.css`; the three-typeface
-system (Space Grotesk / IBM Plex Sans / IBM Plex Mono) is set up in
+`--accent`/`--accent-soft` for starred venues & selection, `--pin`/
+`--pin-soft` for the "unstarred venue with a saved concert" case above,
+`--line`, `--danger`) live in `app/globals.css`; the three-typeface system
+(Space Grotesk / IBM Plex Sans / IBM Plex Mono) is set up in
 `app/layout.tsx` via `next/font/google` — Plex Mono is used specifically for
 times/dates for a "timetable board" feel.
 

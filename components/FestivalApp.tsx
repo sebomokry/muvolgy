@@ -91,10 +91,22 @@ export function FestivalApp({ data }: { data: FestivalData }) {
     [visiblePrograms],
   );
 
+  const venueIdsWithSelectedProgram = useMemo(() => {
+    const ids = new Set<number>();
+    for (const p of timed) {
+      if (p.location && selectedIds.has(p.id)) ids.add(p.location.id);
+    }
+    return ids;
+  }, [timed, selectedIds]);
+
   const venues = useMemo(() => {
     const found = venuesForPrograms(timed);
-    return sortVenuesWithFavoritesFirst(found, favoriteIds);
-  }, [timed, favoriteIds]);
+    return sortVenuesWithFavoritesFirst(
+      found,
+      favoriteIds,
+      venueIdsWithSelectedProgram,
+    );
+  }, [timed, favoriteIds, venueIdsWithSelectedProgram]);
 
   const programsByVenue = useMemo(() => {
     const map = new Map<number, Program[]>();
