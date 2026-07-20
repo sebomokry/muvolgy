@@ -13,8 +13,14 @@ export function VenueDetails({ venue }: { venue: Location }) {
       )}
 
       <p className="mt-1 text-sm text-ink/80">
-        {venue.address ?? "Pontos cím nincs megadva ehhez a helyszínhez."}
+        {venue.address ?? "Nincs pontos cím, de kattints a Google általában megtalálja :)"}
       </p>
+
+      {venue.coords && (
+        <p className="mt-0.5 font-mono text-xs text-ink/50">
+          {venue.coords[0].toFixed(5)}, {venue.coords[1].toFixed(5)}
+        </p>
+      )}
 
       <a
         href={mapsLink(venue)}

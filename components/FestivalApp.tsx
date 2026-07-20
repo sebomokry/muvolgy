@@ -43,6 +43,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
   const [activeCategoryIds, setActiveCategoryIds] = useState<Set<number>>(
     () => defaultCategoryIds(data.categories),
   );
+  const [showUncategorized, setShowUncategorized] = useState(false);
   const settlements = useMemo(
     () => allSettlements(data.locations),
     [data.locations],
@@ -83,11 +84,18 @@ export function FestivalApp({ data }: { data: FestivalData }) {
     const dayPrograms = programsForDay(data.programs, selectedDay);
     return dayPrograms.filter(
       (p) =>
-        (p.categories.length === 0 ||
-          p.categories.some((c) => activeCategoryIds.has(c.id))) &&
+        (p.categories.length === 0
+          ? showUncategorized
+          : p.categories.some((c) => activeCategoryIds.has(c.id))) &&
         (!p.location?.city || activeSettlements.has(p.location.city)),
     );
-  }, [data.programs, selectedDay, activeCategoryIds, activeSettlements]);
+  }, [
+    data.programs,
+    selectedDay,
+    activeCategoryIds,
+    activeSettlements,
+    showUncategorized,
+  ]);
 
   const { timed, allDay } = useMemo(
     () => splitAllDay(visiblePrograms),
@@ -188,7 +196,9 @@ export function FestivalApp({ data }: { data: FestivalData }) {
             <span>{categoriesOpen ? "▾" : "▸"}</span>
             Kategóriák ({activeCategoryIds.size})
           </button>
-          <div className={`${categoriesOpen ? "block" : "hidden"} sm:block`}>
+          <div
+            className={`${categoriesOpen ? "flex" : "hidden"} flex-col gap-1.5 sm:flex`}
+          >
             <CategoryFilter
               categories={data.categories}
               activeIds={activeCategoryIds}
@@ -198,6 +208,16 @@ export function FestivalApp({ data }: { data: FestivalData }) {
               }
               onNone={() => setActiveCategoryIds(new Set())}
             />
+            <button
+              onClick={() => setShowUncategorized((prev) => !prev)}
+              className={`self-start rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                showUncategorized
+                  ? "border-transparent bg-ink text-paper"
+                  : "border-line text-ink/50 hover:text-ink"
+              }`}
+            >
+              Kategória nélküli
+            </button>
           </div>
         </div>
       )}

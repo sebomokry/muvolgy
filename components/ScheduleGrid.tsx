@@ -130,20 +130,13 @@ export function ScheduleGrid({
               style={{ width: VENUE_COL_WIDTH, height: rowHeight }}
             >
               <button
-                onClick={() => onToggleFavorite(venue.id)}
-                className={`shrink-0 text-xs leading-none ${isFavorite ? "text-accent" : "text-ink/25 hover:text-ink/60"}`}
-                aria-label={
-                  isFavorite ? "Eltávolítás a kedvencekből" : "Kedvencekhez adás"
-                }
-                title={isFavorite ? "Eltávolítás a kedvencekből" : "Kedvencekhez adás"}
-              >
-                {isFavorite ? "★" : "☆"}
-              </button>
-              <button
                 onClick={() => setOpenVenueId(venue.id)}
-                className="whitespace-normal text-[11px] leading-tight font-medium hover:underline"
+                className="flex flex-col items-center gap-0.5 whitespace-normal text-[11px] leading-tight font-medium hover:underline"
                 title={venue.name}
               >
+                <span className="text-xs leading-none">
+                  {isFavorite ? "★" : "☆"}
+                </span>
                 {venue.name}
               </button>
             </div>
@@ -213,6 +206,8 @@ export function ScheduleGrid({
       {openVenue && (
         <VenueInfoModal
           venue={openVenue}
+          isFavorite={favoriteIds.has(openVenue.id)}
+          onToggleFavorite={() => onToggleFavorite(openVenue.id)}
           onClose={() => setOpenVenueId(null)}
         />
       )}

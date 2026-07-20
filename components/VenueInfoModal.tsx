@@ -5,10 +5,17 @@ import { VenueDetails } from "./VenueDetails";
 
 type Props = {
   venue: Location;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
   onClose: () => void;
 };
 
-export function VenueInfoModal({ venue, onClose }: Props) {
+export function VenueInfoModal({
+  venue,
+  isFavorite,
+  onToggleFavorite,
+  onClose,
+}: Props) {
   return (
     <div
       className="fixed inset-0 z-30 flex items-center justify-center bg-ink/40 p-4"
@@ -32,6 +39,19 @@ export function VenueInfoModal({ venue, onClose }: Props) {
         </div>
 
         <VenueDetails venue={venue} />
+
+        <button
+          onClick={onToggleFavorite}
+          className={`mt-4 flex w-full items-center justify-center gap-2 rounded border px-4 py-2 font-display text-sm font-medium transition-colors ${
+            isFavorite
+              ? "border-accent bg-accent-soft text-accent"
+              : "border-line text-ink hover:bg-ink/5"
+          }`}
+        >
+          {isFavorite
+            ? "★ Eltávolítás a kedvencekből"
+            : "☆ Hozzáadás a kedvencekhez"}
+        </button>
       </div>
     </div>
   );

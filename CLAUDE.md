@@ -41,11 +41,28 @@ quirks specific to this sandbox:
 `lib/api.ts`, which paginates the festival's public API
 (`backend.muveszetekvolgye.hu/api/v1/programs`, 100/page) to pull all ~4300
 programs, merges in address/coordinates from the separate `/api/v1/map`
-endpoint (only ~44% of venues have precise geo data — the rest fall back to a
-text search), and normalizes everything into the `Program`/`Location`/
-`Category` shapes in `lib/types.ts`. Every `fetch` uses `next: { revalidate:
-3600 }` (Next's pre-Cache-Components model — `cacheComponents` is *not*
-enabled in `next.config.ts`). Programs also carry an `artists: { id, name
+endpoint, and normalizes everything into the `Program`/`Location`/`Category`
+shapes in `lib/types.ts`. Every `fetch` uses `next: { revalidate: 3600 }`
+(Next's pre-Cache-Components model — `cacheComponents` is *not* enabled in
+`next.config.ts`).
+
+Only ~44% of venues have precise real-world GPS `location` data from
+`/api/v1/map` — the rest fall back to a text search in `lib/maps.ts`'s
+`mapsLink()` (venue name + city, handed to Google's own search/geocoding,
+which resolves surprisingly well for venues with an independently
+real-world-searchable name like "Közlekedési Múzeum", less so for
+festival-only invented names). Every one of the 104 venues *does* have
+`marker_x`/`marker_y` — a pixel position on the festival's own
+hand-illustrated map image — but that's deliberately never used as a
+stand-in for GPS: fitting a linear transform from the 46 venues that have
+both pixel position and real GPS gives a median error of ~600m and a max of
+~2.5km against the other 58, i.e. the illustrated map isn't drawn to real
+geographic scale, so an estimated coordinate would be actively misleading
+rather than just imprecise. `components/VenueDetails.tsx` shows the raw
+coordinates as text when present, and a light "maybe Google will find it
+anyway" fallback line when not, rather than implying anything authoritative.
+
+Programs also carry an `artists: { id, name
 }[]` field (from the API's `artists` relation — the `id` is kept
 specifically so the same performer can be matched across different
 programs/days, not just by name). `lib/schedule.ts`'s
@@ -63,7 +80,12 @@ interactive state (selected day, active categories, active settlements, view
 tab) and filters/groups the in-memory dataset — there's no per-filter
 refetching. Category filter (`CategoryFilter.tsx`) and settlement/town filter
 (`SettlementFilter.tsx`, the festival spans only 3 villages) are independent
-AND-combined filters over the same program list.
+AND-combined filters over the same program list. Programs with zero
+categories (~6% of all programs, e.g. "Chill Zone", "Visa Taxi") are a
+special case: they don't participate in `activeCategoryIds` at all — they're
+shown only when a separate `showUncategorized` toggle is on (default off),
+so the Könnyűzene-default view doesn't get diluted with uncategorized
+miscellany.
 
 **Grid rendering** (`components/ScheduleGrid.tsx`): rows = venues (sticky
 left column, narrow/near-square, venue name wraps 2-4 lines rather than
@@ -93,10 +115,16 @@ them, hiding the line wherever a block crossed it.
 **Info modals, not direct toggling**: clicking a program block (grid or the
 "Sajátjaim" list) does *not* directly select/deselect it — it opens
 `ProgramInfoModal` (name, artists, venue + `VenueDetails`, and a star button
-that's the *only* place favoriting actually happens), matching
-`VenueInfoModal` for venues. Both modals share the venue name/city/address/
-"Megnyitás térképen" block via `components/VenueDetails.tsx` rather than
-duplicating it. Clicking one of the artist's other appearances inside the
+that's the *only* place favoriting actually happens). Venue headers in
+`ScheduleGrid` work the same way: the whole header cell is a single button
+that opens `VenueInfoModal` (the ☆/★ glyph inside it is now just a static
+indicator, not a separate click target) — this was a deliberate change from
+an earlier version with two adjacent small buttons (star + name), which was
+prone to mis-taps in the ~96px-wide header cell; `VenueInfoModal` itself
+gained the same "star toggles inside the modal" favorite button
+`ProgramInfoModal` already had. Both modals share the venue name/city/
+address/"Megnyitás térképen" block via `components/VenueDetails.tsx` rather
+than duplicating it. Clicking one of the artist's other appearances inside the
 modal calls the same open-handler with a different program id — the modal
 re-renders in place showing that program instead of stacking/navigating to a
 new screen. Because both `ScheduleGrid` and `SelectedPanel` need this same
