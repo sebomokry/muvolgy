@@ -50,6 +50,13 @@ export function venuesForPrograms(programs: Program[]): Location[] {
   return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name, "hu"));
 }
 
+export function allSettlements(locations: Location[]): string[] {
+  const cities = new Set(
+    locations.map((l) => l.city).filter((c): c is string => c !== null),
+  );
+  return [...cities].sort((a, b) => a.localeCompare(b, "hu"));
+}
+
 /** Stable-partitions favorited venues to the front so they never scroll out of view. */
 export function sortVenuesWithFavoritesFirst(
   venues: Location[],
@@ -75,6 +82,18 @@ export function timeRangeFor(programs: Program[]): {
     startTs: Math.floor(minStart / hour) * hour,
     endTs: Math.ceil(maxEnd / hour) * hour,
   };
+}
+
+function normalizeForComparison(s: string): string {
+  return s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+}
+
+/** Drops artist names already implied by the program title (e.g. "ESTI KORNÉL" / "Esti Kornél") so they aren't shown twice. */
+export function extraArtists(programName: string, artists: string[]): string[] {
+  const normalizedName = normalizeForComparison(programName);
+  return artists.filter(
+    (artist) => !normalizedName.includes(normalizeForComparison(artist)),
+  );
 }
 
 export function overlaps(a: Program, b: Program): boolean {

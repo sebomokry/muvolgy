@@ -28,6 +28,7 @@ export type Program = {
   description: string | null;
   location: Location | null;
   categories: Category[];
+  artists: string[];
 };
 
 export type FestivalData = {

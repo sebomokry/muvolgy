@@ -2,18 +2,19 @@
 
 import { useState } from "react";
 import type { Location, Program } from "@/lib/types";
-import { formatTime } from "@/lib/schedule";
+import { extraArtists, formatTime } from "@/lib/schedule";
 import { categoryColor } from "@/lib/categoryColors";
 import { VenueInfoModal } from "./VenueInfoModal";
 
 const PX_PER_MIN = 1.4;
-const MIN_BLOCK_HEIGHT = 34;
-const MIN_COLUMN_WIDTH = 200;
-const LANE_WIDTH = 110;
+const MIN_BLOCK_WIDTH = 130;
+const LANE_HEIGHT = 64;
+const VENUE_COL_WIDTH = 96;
+const HEADER_HEIGHT = 36;
 
 type LaneItem = { program: Program; lane: number; laneCount: number };
 
-/** Greedy interval-graph lane assignment so overlapping programs in the same venue render side by side instead of stacked. */
+/** Greedy interval-graph lane assignment so overlapping programs in the same venue render stacked instead of overlapping. */
 function layoutLanes(programs: Program[]): LaneItem[] {
   const sorted = [...programs].sort((a, b) => a.startTs - b.startTs);
   const active: { endTs: number; lane: number }[] = [];
@@ -62,7 +63,7 @@ export function ScheduleGrid({
   const openVenue = venues.find((v) => v.id === openVenueId) ?? null;
 
   const totalMinutes = (rangeEndTs - rangeStartTs) / 60000;
-  const gridHeight = totalMinutes * PX_PER_MIN;
+  const gridWidth = totalMinutes * PX_PER_MIN;
 
   const hourMarks: number[] = [];
   for (let ts = rangeStartTs; ts <= rangeEndTs; ts += 60 * 60 * 1000) {
@@ -78,44 +79,52 @@ export function ScheduleGrid({
   }
 
   return (
-    <div className="flex h-full overflow-auto">
+    <div className="flex h-full flex-col overflow-auto">
       <div
-        className="sticky left-0 z-20 shrink-0 border-r border-line bg-paper"
-        style={{ width: 56, height: gridHeight + 36 }}
+        className="sticky top-0 z-20 flex w-max shrink-0 bg-paper"
+        style={{ height: HEADER_HEIGHT }}
       >
-        <div className="sticky top-0 z-10 h-9 bg-paper" />
-        {hourMarks.map((ts) => (
-          <div
-            key={ts}
-            className="absolute left-0 w-14 -translate-y-1/2 pr-2 text-right font-mono text-xs text-ink/40"
-            style={{ top: 36 + ((ts - rangeStartTs) / 60000) * PX_PER_MIN }}
-          >
-            {formatTime(ts)}
-          </div>
-        ))}
+        <div
+          className="sticky left-0 z-10 shrink-0 border-b border-r border-line bg-paper"
+          style={{ width: VENUE_COL_WIDTH }}
+        />
+        <div
+          className="relative shrink-0 border-b border-line"
+          style={{ width: gridWidth }}
+        >
+          {hourMarks.map((ts) => (
+            <div
+              key={ts}
+              className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 font-mono text-xs text-ink/40"
+              style={{ left: ((ts - rangeStartTs) / 60000) * PX_PER_MIN }}
+            >
+              {formatTime(ts)}
+            </div>
+          ))}
+        </div>
       </div>
 
       {venues.map((venue) => {
         const lanes = layoutLanes(programsByVenue.get(venue.id) ?? []);
         const laneCount = lanes[0]?.laneCount ?? 1;
-        const columnWidth = Math.max(MIN_COLUMN_WIDTH, laneCount * LANE_WIDTH);
+        const rowHeight = laneCount * LANE_HEIGHT;
         const isFavorite = favoriteIds.has(venue.id);
         return (
           <div
             key={venue.id}
-            className="relative shrink-0 border-r border-line/60 last:border-r-0"
-            style={{ width: columnWidth }}
+            className="flex w-max shrink-0 border-b border-line/60 last:border-b-0"
           >
             <div
-              className={`sticky top-0 z-10 flex h-9 items-center gap-1.5 border-b px-2 font-display text-sm font-medium ${
+              className={`sticky left-0 z-10 flex shrink-0 flex-col items-center justify-center gap-0.5 border-r px-1 py-1 text-center font-display ${
                 isFavorite
                   ? "border-accent bg-accent-soft text-accent"
                   : "border-line bg-paper text-ink"
               }`}
+              style={{ width: VENUE_COL_WIDTH, height: rowHeight }}
             >
               <button
                 onClick={() => onToggleFavorite(venue.id)}
-                className={`shrink-0 leading-none ${isFavorite ? "text-accent" : "text-ink/25 hover:text-ink/60"}`}
+                className={`shrink-0 text-xs leading-none ${isFavorite ? "text-accent" : "text-ink/25 hover:text-ink/60"}`}
                 aria-label={
                   isFavorite ? "Eltávolítás a kedvencekből" : "Kedvencekhez adás"
                 }
@@ -125,24 +134,21 @@ export function ScheduleGrid({
               </button>
               <button
                 onClick={() => setOpenVenueId(venue.id)}
-                className="truncate text-left hover:underline"
+                className="whitespace-normal text-[11px] leading-tight font-medium hover:underline"
+                title={venue.name}
               >
                 {venue.name}
               </button>
             </div>
-            <div className="relative" style={{ height: gridHeight }}>
-              {hourMarks.map((ts) => (
-                <div
-                  key={ts}
-                  className="absolute left-0 right-0 border-t border-line/50"
-                  style={{ top: ((ts - rangeStartTs) / 60000) * PX_PER_MIN }}
-                />
-              ))}
-              {lanes.map(({ program, lane, laneCount }) => {
-                const top =
+            <div
+              className="relative shrink-0"
+              style={{ width: gridWidth, height: rowHeight }}
+            >
+              {lanes.map(({ program, lane }) => {
+                const left =
                   ((program.startTs - rangeStartTs) / 60000) * PX_PER_MIN;
-                const height = Math.max(
-                  MIN_BLOCK_HEIGHT,
+                const width = Math.max(
+                  MIN_BLOCK_WIDTH,
                   ((program.endTs - program.startTs) / 60000) * PX_PER_MIN,
                 );
                 const isSelected = selectedIds.has(program.id);
@@ -150,6 +156,7 @@ export function ScheduleGrid({
                 const color = categoryColor(
                   program.categories[0]?.name ?? "",
                 );
+                const artists = extraArtists(program.name, program.artists);
                 return (
                   <button
                     key={program.id}
@@ -162,22 +169,36 @@ export function ScheduleGrid({
                           : "shadow-[0_0_0_1px_var(--line)]"
                     }`}
                     style={{
-                      top,
-                      height,
-                      left: `${(lane / laneCount) * 100}%`,
-                      width: `${100 / laneCount}%`,
+                      left,
+                      width,
+                      top: `${(lane / laneCount) * 100}%`,
+                      height: `${100 / laneCount}%`,
                       borderLeftColor: color,
                       backgroundColor: `${color}14`,
                     }}
                     title={program.name}
                   >
-                    <div className="font-mono text-ink/60">
+                    <div className="truncate whitespace-nowrap font-mono text-ink/60">
                       {formatTime(program.startTs)}–{formatTime(program.endTs)}
                     </div>
-                    <div className="font-medium text-ink">{program.name}</div>
+                    <div className="truncate whitespace-nowrap font-medium text-ink">
+                      {program.name}
+                    </div>
+                    {artists.length > 0 && (
+                      <div className="truncate whitespace-nowrap text-ink/50">
+                        {artists.join(", ")}
+                      </div>
+                    )}
                   </button>
                 );
               })}
+              {hourMarks.map((ts) => (
+                <div
+                  key={ts}
+                  className="pointer-events-none absolute top-0 bottom-0 border-l border-line/50"
+                  style={{ left: ((ts - rangeStartTs) / 60000) * PX_PER_MIN }}
+                />
+              ))}
             </div>
           </div>
         );

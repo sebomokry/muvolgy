@@ -27,6 +27,10 @@ type LocationDetails = {
   coords: [number, number] | null;
 };
 
+type RawArtist = {
+  name: string;
+};
+
 type RawProgram = {
   id: number;
   slug: string;
@@ -38,6 +42,7 @@ type RawProgram = {
   description: string | null;
   location: RawLocation | null;
   program_categories: RawCategory[];
+  artists: RawArtist[];
 };
 
 type RawProgramsPage = {
@@ -93,6 +98,7 @@ function normalizeProgram(
     description: raw.description,
     location,
     categories,
+    artists: raw.artists.map((a) => a.name),
   };
 }
 

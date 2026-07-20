@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { FestivalData, Program } from "@/lib/types";
 import {
+  allSettlements,
   conflictingIds,
   programsForDay,
   sortVenuesWithFavoritesFirst,
@@ -15,6 +16,7 @@ import { useSelectedPrograms } from "@/hooks/useSelectedPrograms";
 import { useFavoriteVenues } from "@/hooks/useFavoriteVenues";
 import { DateTabs } from "./DateTabs";
 import { CategoryFilter } from "./CategoryFilter";
+import { SettlementFilter } from "./SettlementFilter";
 import { ScheduleGrid } from "./ScheduleGrid";
 import { SelectedPanel } from "./SelectedPanel";
 
@@ -37,6 +39,13 @@ export function FestivalApp({ data }: { data: FestivalData }) {
   const [activeCategoryIds, setActiveCategoryIds] = useState<Set<number>>(
     () => defaultCategoryIds(data.categories),
   );
+  const settlements = useMemo(
+    () => allSettlements(data.locations),
+    [data.locations],
+  );
+  const [activeSettlements, setActiveSettlements] = useState<Set<string>>(
+    () => new Set(settlements),
+  );
   const { selectedIds, toggle } = useSelectedPrograms();
   const { favoriteIds, toggle: toggleFavorite } = useFavoriteVenues();
 
@@ -49,14 +58,24 @@ export function FestivalApp({ data }: { data: FestivalData }) {
     });
   };
 
+  const toggleSettlement = (settlement: string) => {
+    setActiveSettlements((prev) => {
+      const next = new Set(prev);
+      if (next.has(settlement)) next.delete(settlement);
+      else next.add(settlement);
+      return next;
+    });
+  };
+
   const visiblePrograms = useMemo(() => {
     const dayPrograms = programsForDay(data.programs, selectedDay);
     return dayPrograms.filter(
       (p) =>
-        p.categories.length === 0 ||
-        p.categories.some((c) => activeCategoryIds.has(c.id)),
+        (p.categories.length === 0 ||
+          p.categories.some((c) => activeCategoryIds.has(c.id))) &&
+        (!p.location?.city || activeSettlements.has(p.location.city)),
     );
-  }, [data.programs, selectedDay, activeCategoryIds]);
+  }, [data.programs, selectedDay, activeCategoryIds, activeSettlements]);
 
   const { timed, allDay } = useMemo(
     () => splitAllDay(visiblePrograms),
@@ -122,6 +141,13 @@ export function FestivalApp({ data }: { data: FestivalData }) {
             days={data.days}
             selectedDay={selectedDay}
             onSelect={setSelectedDay}
+          />
+          <SettlementFilter
+            settlements={settlements}
+            activeSettlements={activeSettlements}
+            onToggle={toggleSettlement}
+            onAll={() => setActiveSettlements(new Set(settlements))}
+            onNone={() => setActiveSettlements(new Set())}
           />
           <button
             onClick={() => setCategoriesOpen((prev) => !prev)}

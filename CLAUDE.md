@@ -45,20 +45,44 @@ endpoint (only ~44% of venues have precise geo data — the rest fall back to a
 text search), and normalizes everything into the `Program`/`Location`/
 `Category` shapes in `lib/types.ts`. Every `fetch` uses `next: { revalidate:
 3600 }` (Next's pre-Cache-Components model — `cacheComponents` is *not*
-enabled in `next.config.ts`). The fully-loaded dataset is passed as a prop
+enabled in `next.config.ts`). Programs also carry an `artists: string[]`
+field (from the API's `artists` relation) — `lib/schedule.ts`'s
+`extraArtists(programName, artists)` filters out artist names already
+implied by the program title (normalized, punctuation/case-insensitive
+substring check) so e.g. "ESTI KORNÉL" + artist "Esti Kornél" isn't shown
+twice, while genuinely different names (title "Buli DJ - dj Snoopy", artist
+"Momentán Társulat") still show. The fully-loaded dataset is passed as a prop
 into `components/FestivalApp.tsx`, a single client component that owns all
-interactive state (selected day, active categories, view tab) and filters/
-groups the in-memory dataset — there's no per-filter refetching.
+interactive state (selected day, active categories, active settlements, view
+tab) and filters/groups the in-memory dataset — there's no per-filter
+refetching. Category filter (`CategoryFilter.tsx`) and settlement/town filter
+(`SettlementFilter.tsx`, the festival spans only 3 villages) are independent
+AND-combined filters over the same program list.
 
-**Grid rendering** (`components/ScheduleGrid.tsx`): the schedule is *not* a
-CSS grid. Each program is absolutely positioned (`top`/`height` in pixels
-computed from a pixel-per-minute constant) within its venue's column, because
-programs have irregular durations that a row-based grid can't represent
+**Grid rendering** (`components/ScheduleGrid.tsx`): rows = venues (sticky
+left column, narrow/near-square, venue name wraps 2-4 lines rather than
+truncating), columns = a continuous horizontal time axis (sticky top header)
+— *not* a CSS grid. Each program is absolutely positioned (`left`/`width` in
+pixels from a pixel-per-minute constant) within its venue's row, because
+programs have irregular durations a column-based grid can't represent
 cleanly. When multiple programs in the same venue overlap in time, a greedy
-interval-graph lane assignment (in `ScheduleGrid.tsx`) lays them out
-side-by-side instead of stacking; a column's width grows with its peak
-concurrency (some venues like "Főtér" have 25+ simultaneous market-stall
-programs) so text stays readable instead of being squeezed into slivers.
+interval-graph lane assignment lays them out stacked in sub-rows (`top`/
+`height` by lane index) instead of overlapping; a row's height grows with its
+peak concurrency (some venues like "Főtér" have 25+ simultaneous
+market-stall programs) so text stays readable instead of being squeezed.
+Hour gridlines are deliberately rendered *after* (on top of, `pointer-events-
+none`) the program blocks — drawing them first let opaque blocks paint over
+them, hiding the line wherever a block crossed it.
+
+> **Flexbox gotcha that already bit this layout twice**: the outer scroll
+> container is `flex flex-col overflow-auto`. Every direct child (the sticky
+> header row, each venue row) needs both `shrink-0` (otherwise flexbox
+> compresses rows to fit the container instead of overflowing+scrolling —
+> collapsed the header to ~1px) and `w-max` (otherwise a child with no
+> explicit width stretches to the *container's* width instead of its actual
+> content width — truncated row-separator borders at the viewport edge when
+> scrolled right). If you add new direct children to that scroll container,
+> they need both classes too.
 
 **Persistence**: selected programs and starred venues are both backed by the
 same localStorage-synced store factory, `hooks/idSetStore.ts`
