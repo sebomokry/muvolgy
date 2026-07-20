@@ -5,6 +5,7 @@ import type { Location, Program } from "@/lib/types";
 import { extraArtists, formatTime } from "@/lib/schedule";
 import { categoryColor } from "@/lib/categoryColors";
 import { VenueInfoModal } from "./VenueInfoModal";
+import { ProgramInfoModal } from "./ProgramInfoModal";
 
 const PX_PER_MIN = 1.4;
 const MIN_BLOCK_WIDTH = 130;
@@ -61,6 +62,11 @@ export function ScheduleGrid({
 }: Props) {
   const [openVenueId, setOpenVenueId] = useState<number | null>(null);
   const openVenue = venues.find((v) => v.id === openVenueId) ?? null;
+  const [openProgramId, setOpenProgramId] = useState<number | null>(null);
+  const openProgram =
+    [...programsByVenue.values()]
+      .flat()
+      .find((p) => p.id === openProgramId) ?? null;
 
   const totalMinutes = (rangeEndTs - rangeStartTs) / 60000;
   const gridWidth = totalMinutes * PX_PER_MIN;
@@ -160,7 +166,7 @@ export function ScheduleGrid({
                 return (
                   <button
                     key={program.id}
-                    onClick={() => onToggle(program.id)}
+                    onClick={() => setOpenProgramId(program.id)}
                     className={`absolute overflow-hidden border-l-[3px] bg-paper px-1.5 py-1 text-left text-[11px] leading-tight transition-shadow hover:shadow-md ${
                       isConflict
                         ? "shadow-[0_0_0_2px_var(--danger)]"
@@ -207,6 +213,14 @@ export function ScheduleGrid({
         <VenueInfoModal
           venue={openVenue}
           onClose={() => setOpenVenueId(null)}
+        />
+      )}
+      {openProgram && (
+        <ProgramInfoModal
+          program={openProgram}
+          isFavorite={selectedIds.has(openProgram.id)}
+          onToggleFavorite={() => onToggle(openProgram.id)}
+          onClose={() => setOpenProgramId(null)}
         />
       )}
     </div>
