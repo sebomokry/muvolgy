@@ -45,13 +45,19 @@ endpoint (only ~44% of venues have precise geo data — the rest fall back to a
 text search), and normalizes everything into the `Program`/`Location`/
 `Category` shapes in `lib/types.ts`. Every `fetch` uses `next: { revalidate:
 3600 }` (Next's pre-Cache-Components model — `cacheComponents` is *not*
-enabled in `next.config.ts`). Programs also carry an `artists: string[]`
-field (from the API's `artists` relation) — `lib/schedule.ts`'s
+enabled in `next.config.ts`). Programs also carry an `artists: { id, name
+}[]` field (from the API's `artists` relation — the `id` is kept
+specifically so the same performer can be matched across different
+programs/days, not just by name). `lib/schedule.ts`'s
 `extraArtists(programName, artists)` filters out artist names already
 implied by the program title (normalized, punctuation/case-insensitive
 substring check) so e.g. "ESTI KORNÉL" + artist "Esti Kornél" isn't shown
 twice, while genuinely different names (title "Buli DJ - dj Snoopy", artist
-"Momentán Társulat") still show. The fully-loaded dataset is passed as a prop
+"Momentán Társulat") still show; `otherProgramsByArtists(program,
+allPrograms)` uses the artist `id`s to find every other program (any
+day/venue) featuring the same performer(s), regardless of the currently
+active filters — this powers the "more appearances by this artist" section
+in the program info modal. The fully-loaded dataset is passed as a prop
 into `components/FestivalApp.tsx`, a single client component that owns all
 interactive state (selected day, active categories, active settlements, view
 tab) and filters/groups the in-memory dataset — there's no per-filter
@@ -83,6 +89,21 @@ them, hiding the line wherever a block crossed it.
 > content width — truncated row-separator borders at the viewport edge when
 > scrolled right). If you add new direct children to that scroll container,
 > they need both classes too.
+
+**Info modals, not direct toggling**: clicking a program block (grid or the
+"Sajátjaim" list) does *not* directly select/deselect it — it opens
+`ProgramInfoModal` (name, artists, venue + `VenueDetails`, and a star button
+that's the *only* place favoriting actually happens), matching
+`VenueInfoModal` for venues. Both modals share the venue name/city/address/
+"Megnyitás térképen" block via `components/VenueDetails.tsx` rather than
+duplicating it. Clicking one of the artist's other appearances inside the
+modal calls the same open-handler with a different program id — the modal
+re-renders in place showing that program instead of stacking/navigating to a
+new screen. Because both `ScheduleGrid` and `SelectedPanel` need this same
+modal fed from the *full*, unfiltered `data.programs` (an artist's other
+show might be outside today's filters), the open/close state and the modal
+itself live in `FestivalApp.tsx`, not in either child — they just call an
+`onOpenProgram(id)` prop passed down.
 
 **Persistence**: selected programs and starred venues are both backed by the
 same localStorage-synced store factory, `hooks/idSetStore.ts`

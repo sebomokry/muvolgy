@@ -28,6 +28,7 @@ type LocationDetails = {
 };
 
 type RawArtist = {
+  id: number;
   name: string;
 };
 
@@ -98,7 +99,7 @@ function normalizeProgram(
     description: raw.description,
     location,
     categories,
-    artists: raw.artists.map((a) => a.name),
+    artists: raw.artists.map((a) => ({ id: a.id, name: a.name })),
   };
 }
 

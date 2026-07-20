@@ -1,20 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import type { Program } from "@/lib/types";
 import { formatDay, formatTime } from "@/lib/schedule";
-import { ProgramInfoModal } from "./ProgramInfoModal";
 
 type Props = {
   programs: Program[];
   conflictIds: Set<number>;
-  onToggle: (id: number) => void;
+  onOpenProgram: (id: number) => void;
 };
 
-export function SelectedPanel({ programs, conflictIds, onToggle }: Props) {
-  const [openProgramId, setOpenProgramId] = useState<number | null>(null);
-  const openProgram = programs.find((p) => p.id === openProgramId) ?? null;
-
+export function SelectedPanel({ programs, conflictIds, onOpenProgram }: Props) {
   if (programs.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -54,7 +49,7 @@ export function SelectedPanel({ programs, conflictIds, onToggle }: Props) {
                 return (
                   <li key={p.id}>
                     <button
-                      onClick={() => setOpenProgramId(p.id)}
+                      onClick={() => onOpenProgram(p.id)}
                       className={`flex w-full items-start gap-3 py-2.5 text-left ${
                         isConflict ? "border-l-2 border-danger pl-2" : ""
                       }`}
@@ -78,17 +73,6 @@ export function SelectedPanel({ programs, conflictIds, onToggle }: Props) {
           </div>
         ))}
       </div>
-      {openProgram && (
-        <ProgramInfoModal
-          program={openProgram}
-          isFavorite={true}
-          onToggleFavorite={() => {
-            onToggle(openProgram.id);
-            setOpenProgramId(null);
-          }}
-          onClose={() => setOpenProgramId(null)}
-        />
-      )}
     </div>
   );
 }

@@ -89,11 +89,32 @@ function normalizeForComparison(s: string): string {
 }
 
 /** Drops artist names already implied by the program title (e.g. "ESTI KORNÉL" / "Esti Kornél") so they aren't shown twice. */
-export function extraArtists(programName: string, artists: string[]): string[] {
+export function extraArtists(
+  programName: string,
+  artists: Program["artists"],
+): Program["artists"] {
   const normalizedName = normalizeForComparison(programName);
   return artists.filter(
-    (artist) => !normalizedName.includes(normalizeForComparison(artist)),
+    (artist) => !normalizedName.includes(normalizeForComparison(artist.name)),
   );
+}
+
+/** Every other program (any day/venue) sharing at least one artist with this one, earliest first. */
+export function otherProgramsByArtists(
+  program: Program,
+  allPrograms: Program[],
+): Program[] {
+  const artistIds = new Set(program.artists.map((a) => a.id));
+  if (artistIds.size === 0) return [];
+
+  const related: Program[] = [];
+  for (const p of allPrograms) {
+    if (p.id === program.id) continue;
+    if (p.artists.some((a) => artistIds.has(a.id))) {
+      related.push(p);
+    }
+  }
+  return related.sort((a, b) => a.startTs - b.startTs);
 }
 
 export function overlaps(a: Program, b: Program): boolean {

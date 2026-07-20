@@ -9,6 +9,8 @@ type Props = {
   isFavorite: boolean;
   onToggleFavorite: () => void;
   onClose: () => void;
+  relatedPrograms: Program[];
+  onOpenProgram: (id: number) => void;
 };
 
 export function ProgramInfoModal({
@@ -16,6 +18,8 @@ export function ProgramInfoModal({
   isFavorite,
   onToggleFavorite,
   onClose,
+  relatedPrograms,
+  onOpenProgram,
 }: Props) {
   const artists = extraArtists(program.name, program.artists);
 
@@ -42,7 +46,9 @@ export function ProgramInfoModal({
         </div>
 
         {artists.length > 0 && (
-          <p className="mt-1 text-sm text-ink/70">{artists.join(", ")}</p>
+          <p className="mt-1 text-sm text-ink/70">
+            {artists.map((a) => a.name).join(", ")}
+          </p>
         )}
 
         <p className="mt-1 font-mono text-xs text-ink/50">
@@ -75,6 +81,32 @@ export function ProgramInfoModal({
             ? "★ Eltávolítás a kedvencekből"
             : "☆ Hozzáadás a kedvencekhez"}
         </button>
+
+        {relatedPrograms.length > 0 && (
+          <div className="mt-4 border-t border-line pt-3">
+            <p className="mb-1.5 font-mono text-xs uppercase tracking-wide text-ink/40">
+              Az előadó további fellépései
+            </p>
+            <ul className="max-h-40 divide-y divide-line overflow-y-auto">
+              {relatedPrograms.map((rp) => (
+                <li key={rp.id}>
+                  <button
+                    onClick={() => onOpenProgram(rp.id)}
+                    className="flex w-full flex-col py-1.5 text-left"
+                  >
+                    <span className="font-mono text-xs text-ink/50">
+                      {formatDay(rp.day)} · {formatTime(rp.startTs)}
+                      {rp.location ? ` · ${rp.location.name}` : ""}
+                    </span>
+                    <span className="truncate text-sm font-medium text-ink">
+                      {rp.name}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import type { FestivalData, Program } from "@/lib/types";
 import {
   allSettlements,
   conflictingIds,
+  otherProgramsByArtists,
   programsForDay,
   sortVenuesWithFavoritesFirst,
   splitAllDay,
@@ -19,6 +20,7 @@ import { CategoryFilter } from "./CategoryFilter";
 import { SettlementFilter } from "./SettlementFilter";
 import { ScheduleGrid } from "./ScheduleGrid";
 import { SelectedPanel } from "./SelectedPanel";
+import { ProgramInfoModal } from "./ProgramInfoModal";
 
 const DEFAULT_CATEGORY = "Könnyűzene";
 
@@ -48,6 +50,13 @@ export function FestivalApp({ data }: { data: FestivalData }) {
   );
   const { selectedIds, toggle } = useSelectedPrograms();
   const { favoriteIds, toggle: toggleFavorite } = useFavoriteVenues();
+  const [openProgramId, setOpenProgramId] = useState<number | null>(null);
+  const openProgram =
+    data.programs.find((p) => p.id === openProgramId) ?? null;
+  const relatedPrograms = useMemo(
+    () => (openProgram ? otherProgramsByArtists(openProgram, data.programs) : []),
+    [openProgram, data.programs],
+  );
 
   const toggleCategory = (id: number) => {
     setActiveCategoryIds((prev) => {
@@ -206,8 +215,8 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                 selectedIds={selectedIds}
                 conflictIds={conflicts}
                 favoriteIds={favoriteIds}
-                onToggle={toggle}
                 onToggleFavorite={toggleFavorite}
+                onOpenProgram={setOpenProgramId}
               />
             </div>
           </div>
@@ -215,10 +224,20 @@ export function FestivalApp({ data }: { data: FestivalData }) {
           <SelectedPanel
             programs={selectedPrograms}
             conflictIds={conflicts}
-            onToggle={toggle}
+            onOpenProgram={setOpenProgramId}
           />
         )}
       </div>
+      {openProgram && (
+        <ProgramInfoModal
+          program={openProgram}
+          isFavorite={selectedIds.has(openProgram.id)}
+          onToggleFavorite={() => toggle(openProgram.id)}
+          onClose={() => setOpenProgramId(null)}
+          relatedPrograms={relatedPrograms}
+          onOpenProgram={setOpenProgramId}
+        />
+      )}
     </div>
   );
 }
