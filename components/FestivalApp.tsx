@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { FestivalData, Program } from "@/lib/types";
 import {
+  allArtists,
   allSettlements,
   conflictingIds,
   otherProgramsByArtists,
@@ -20,6 +21,7 @@ import { CategoryFilter } from "./CategoryFilter";
 import { SettlementFilter } from "./SettlementFilter";
 import { ScheduleGrid } from "./ScheduleGrid";
 import { SelectedPanel } from "./SelectedPanel";
+import { ArtistsView } from "./ArtistsView";
 import { ProgramInfoModal } from "./ProgramInfoModal";
 
 const DEFAULT_CATEGORY = "Könnyűzene";
@@ -35,7 +37,7 @@ function defaultCategoryIds(categories: FestivalData["categories"]): Set<number>
 }
 
 export function FestivalApp({ data }: { data: FestivalData }) {
-  const [view, setView] = useState<"grid" | "mine">("grid");
+  const [view, setView] = useState<"grid" | "mine" | "artists">("grid");
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState(() => defaultDay(data.days));
   const [activeCategoryIds, setActiveCategoryIds] = useState<Set<number>>(
@@ -57,6 +59,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
     () => (openProgram ? otherProgramsByArtists(openProgram, data.programs) : []),
     [openProgram, data.programs],
   );
+  const artists = useMemo(() => allArtists(data.programs), [data.programs]);
 
   const toggleCategory = (id: number) => {
     setActiveCategoryIds((prev) => {
@@ -153,6 +156,14 @@ export function FestivalApp({ data }: { data: FestivalData }) {
           >
             Sajátjaim{selectedPrograms.length > 0 ? ` (${selectedPrograms.length})` : ""}
           </button>
+          <button
+            onClick={() => setView("artists")}
+            className={`rounded-full px-3 py-1 font-display text-sm transition-colors ${
+              view === "artists" ? "bg-ink text-paper" : "text-ink/50 hover:text-ink"
+            }`}
+          >
+            Előadók
+          </button>
         </div>
       </header>
 
@@ -232,12 +243,14 @@ export function FestivalApp({ data }: { data: FestivalData }) {
               />
             </div>
           </div>
-        ) : (
+        ) : view === "mine" ? (
           <SelectedPanel
             programs={selectedPrograms}
             conflictIds={conflicts}
             onOpenProgram={setOpenProgramId}
           />
+        ) : (
+          <ArtistsView artists={artists} onOpenProgram={setOpenProgramId} />
         )}
       </div>
       {openProgram && (

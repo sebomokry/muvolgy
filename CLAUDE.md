@@ -105,6 +105,24 @@ show might be outside today's filters), the open/close state and the modal
 itself live in `FestivalApp.tsx`, not in either child — they just call an
 `onOpenProgram(id)` prop passed down.
 
+**Artists view** (`components/ArtistsView.tsx`, third tab alongside Rács/
+Sajátjaim): a searchable, alphabetical directory built by
+`lib/schedule.ts`'s `allArtists(programs)`, which is not simply "one row per
+API artist" — the source data is inconsistent about whether a band/act gets
+its own artist record or only its individual members do (e.g. the concert
+"Bala Marea" has artists `["Dely Viktória", "Horváth Máté", ...]` but no
+"Bala Marea" artist record at all). For music-category programs where the
+title doesn't match any of its tagged artists, `allArtists` adds the
+program's own title as a synthetic stand-in entry (keyed `title:<name>`
+instead of `artist:<id>`) so the act is still findable by its own name — a
+known limitation is that such entries' "other appearances" (via
+`otherProgramsByArtists`) match by the individual members' ids, not a
+stable band id, since none exists. Each entry also carries the `categoryColor`/
+`categoryName` of its earliest program's first category (same
+`lib/categoryColors.ts` palette used elsewhere) shown as a small dot per row.
+Clicking any entry opens the same shared `ProgramInfoModal` via
+`onOpenProgram`, targeted at that artist's earliest program.
+
 **Persistence**: selected programs and starred venues are both backed by the
 same localStorage-synced store factory, `hooks/idSetStore.ts`
 (`createIdSetStore(key)`), built on `useSyncExternalStore` rather than

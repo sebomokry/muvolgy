@@ -1,4 +1,5 @@
 import type { Location, Program } from "./types";
+import { categoryColor } from "./categoryColors";
 
 export function formatTime(ts: number): string {
   const d = new Date(ts);
@@ -125,6 +126,84 @@ export function otherProgramsByArtists(
     }
   }
   return related.sort((a, b) => a.startTs - b.startTs);
+}
+
+export type ArtistSummary = {
+  id: string;
+  name: string;
+  firstProgramId: number;
+  categoryColor: string;
+  categoryName: string;
+};
+
+const MUSIC_CATEGORIES = new Set([
+  "Könnyűzene",
+  "Jazz",
+  "Komolyzene",
+  "Népzene, Világzene",
+]);
+
+/**
+ * Every distinct artist across all programs, alphabetical, each pointing at
+ * their earliest appearance. Also adds the program's own title as a
+ * stand-in "artist" for music-category shows where the band itself was
+ * never tagged as an artist in the source data — only its individual
+ * members were (e.g. "Bala Marea" has artists ["Dely Viktória", "Horváth
+ * Máté", ...] but no "Bala Marea" artist record) — otherwise such acts
+ * would never be findable by their own name.
+ */
+export function allArtists(programs: Program[]): ArtistSummary[] {
+  const byKey = new Map<
+    string,
+    {
+      name: string;
+      startTs: number;
+      programId: number;
+      categoryColor: string;
+      categoryName: string;
+    }
+  >();
+
+  const upsert = (key: string, name: string, p: Program) => {
+    const existing = byKey.get(key);
+    if (!existing || p.startTs < existing.startTs) {
+      const category = p.categories[0];
+      byKey.set(key, {
+        name,
+        startTs: p.startTs,
+        programId: p.id,
+        categoryColor: categoryColor(category?.name ?? ""),
+        categoryName: category?.name ?? "Egyéb",
+      });
+    }
+  };
+
+  for (const p of programs) {
+    for (const artist of p.artists) {
+      upsert(`artist:${artist.id}`, artist.name, p);
+    }
+
+    const isMusic = p.categories.some((c) => MUSIC_CATEGORIES.has(c.name));
+    if (isMusic) {
+      const normalizedTitle = normalizeForComparison(p.name);
+      const titleRepresented = p.artists.some((a) =>
+        normalizedTitle.includes(normalizeForComparison(a.name)),
+      );
+      if (!titleRepresented) {
+        upsert(`title:${normalizedTitle}`, p.name, p);
+      }
+    }
+  }
+
+  return [...byKey.entries()]
+    .map(([id, v]) => ({
+      id,
+      name: v.name,
+      firstProgramId: v.programId,
+      categoryColor: v.categoryColor,
+      categoryName: v.categoryName,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, "hu"));
 }
 
 export function overlaps(a: Program, b: Program): boolean {
