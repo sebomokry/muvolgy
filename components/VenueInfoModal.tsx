@@ -49,8 +49,8 @@ export function VenueInfoModal({
           }`}
         >
           {isFavorite
-            ? "★ Eltávolítás a kedvenc helyszínek közül"
-            : "☆ Hozzáadás a kedvenc helyszínekhez"}
+            ? "★ Eltávolítás a Kedvenc helyszínek közül"
+            : "☆ Hozzáadás a Kedvenc helyszínekhez"}
         </button>
       </div>
     </div>
