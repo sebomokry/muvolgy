@@ -103,6 +103,26 @@ not a second one-off. Default state is unaffected: `defaultCategoryIds`
 only ever matches the real "Könnyűzene" category, so the sentinel starts
 unselected.
 
+A separate "Csak Kedvenceim" chip sits at the end of the same filter row
+(`CategoryFilter.tsx`'s optional `extraChip` prop) but is deliberately
+**not** folded into `activeCategoryIds` the way the uncategorized entry is:
+it's a cross-cutting override (only show programs already in
+`selectedIds`), not another OR-able category, so treating it as a peer set
+member would break "mind"'s meaning ("mind" = every category active, which
+would then also flip on an override that hides almost everything). It's its
+own `onlyFavorites` boolean in `FestivalApp.tsx`, wired in ahead of the
+category branch in the `visiblePrograms` filter — when active, category
+matching (and the `UNCATEGORIZED_ID` branch) is bypassed entirely and only
+`selectedIds.has(p.id)` decides visibility, while the settlement filter
+still applies via AND (it's an orthogonal, location-based axis, not a
+category one). While the override is active, `CategoryFilter` visually
+`disabled`s and dims (`opacity-40`) the real category chips and the "mind"/
+"egyik sem" links, since they have no effect until it's turned back off —
+turning it off doesn't lose the prior category selection, it was never
+touched. The chip itself uses `--pin` (gold) rather than a category color,
+matching the same "has a saved program" visual language as the pin-tier
+half-star in `ScheduleGrid.tsx` and the "Kedvenceim" tab.
+
 **Grid rendering** (`components/ScheduleGrid.tsx`): rows = venues (sticky
 left column, narrow/near-square, venue name wraps 2-4 lines rather than
 truncating), columns = a continuous horizontal time axis (sticky top header)

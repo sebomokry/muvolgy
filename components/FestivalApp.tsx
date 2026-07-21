@@ -44,6 +44,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
   const [activeCategoryIds, setActiveCategoryIds] = useState<Set<number>>(
     () => defaultCategoryIds(data.categories),
   );
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
   const categoriesWithUncategorized = useMemo(
     () => [
       ...data.categories,
@@ -91,12 +92,21 @@ export function FestivalApp({ data }: { data: FestivalData }) {
     const dayPrograms = programsForDay(data.programs, selectedDay);
     return dayPrograms.filter(
       (p) =>
-        (p.categories.length === 0
-          ? activeCategoryIds.has(UNCATEGORIZED_ID)
-          : p.categories.some((c) => activeCategoryIds.has(c.id))) &&
+        (onlyFavorites
+          ? selectedIds.has(p.id)
+          : p.categories.length === 0
+            ? activeCategoryIds.has(UNCATEGORIZED_ID)
+            : p.categories.some((c) => activeCategoryIds.has(c.id))) &&
         (!p.location?.city || activeSettlements.has(p.location.city)),
     );
-  }, [data.programs, selectedDay, activeCategoryIds, activeSettlements]);
+  }, [
+    data.programs,
+    selectedDay,
+    activeCategoryIds,
+    activeSettlements,
+    onlyFavorites,
+    selectedIds,
+  ]);
 
   const { timed, allDay } = useMemo(
     () => splitAllDay(visiblePrograms),
@@ -210,6 +220,11 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                 )
               }
               onNone={() => setActiveCategoryIds(new Set())}
+              extraChip={{
+                label: "Csak Kedvenceim",
+                active: onlyFavorites,
+                onClick: () => setOnlyFavorites((prev) => !prev),
+              }}
             />
           </div>
         </div>
