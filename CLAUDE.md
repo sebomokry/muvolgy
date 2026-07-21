@@ -206,6 +206,20 @@ stay visually distinct in a dense grid. Design tokens (`--paper`, `--ink`,
 `app/layout.tsx` via `next/font/google` — Plex Mono is used specifically for
 times/dates for a "timetable board" feel.
 
+Settlement colors are a separate palette, `lib/settlementColors.ts`
+(`settlementColor(city)` → `{ solid, soft }`), for the festival's 3 villages
+— exact hex values the user chose directly (not sampled/derived), so don't
+adjust them without asking. Used in three places: `SettlementFilter.tsx`
+chips (same active/inactive chip pattern as `CategoryFilter`), the venue
+header's `border-t-[3px]` stripe in `ScheduleGrid.tsx` (always visible,
+independent of the favorite/pin background state — same layering idea as
+category colors on program blocks), and the city name inside
+`VenueDetails.tsx` (a filled pill instead of plain text). If the
+favorite/pin background states are ever reworked, keep the settlement
+stripe as a separate, always-on visual channel rather than folding it into
+the same background — that's why it's a top border rather than competing
+for the cell's fill color.
+
 **Mobile**: the category filter row collapses behind a toggle below the `sm`
 breakpoint (state in `FestivalApp.tsx`) to leave more vertical space for the
 grid; above `sm` it's always shown regardless of that state.

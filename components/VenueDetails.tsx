@@ -2,18 +2,22 @@
 
 import type { Location } from "@/lib/types";
 import { mapsLink } from "@/lib/maps";
+import { settlementColor } from "@/lib/settlementColors";
 
 export function VenueDetails({ venue }: { venue: Location }) {
   return (
     <>
       {venue.city && (
-        <p className="font-mono text-xs uppercase tracking-wide text-ink/50">
+        <span
+          className="inline-block rounded-full px-2.5 py-0.5 text-xs font-medium text-paper"
+          style={{ backgroundColor: settlementColor(venue.city).solid }}
+        >
           {venue.city}
-        </p>
+        </span>
       )}
 
       <p className="mt-1 text-sm text-ink/80">
-        {venue.address ?? "Nincs pontos cím, de kattints a Google általában megtalálja :)"}
+        {venue.address ?? "Nincs pontos cím, de kattints, a Google általában megtalálja :)"}
       </p>
 
       {venue.coords && (

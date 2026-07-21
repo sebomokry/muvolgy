@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Location, Program } from "@/lib/types";
 import { extraArtists, formatTime, isMusicProgram } from "@/lib/schedule";
 import { categoryColor } from "@/lib/categoryColors";
+import { settlementColor } from "@/lib/settlementColors";
 import { VenueInfoModal } from "./VenueInfoModal";
 
 const PX_PER_MIN = 1.4;
@@ -117,20 +118,29 @@ export function ScheduleGrid({
           (programsByVenue.get(venue.id) ?? []).some((p) =>
             selectedIds.has(p.id),
           );
+        const settlement = settlementColor(venue.city);
         return (
           <div
             key={venue.id}
             className="flex w-max shrink-0 border-b border-line/60 last:border-b-0"
           >
             <div
-              className={`sticky left-0 z-10 flex shrink-0 flex-col items-center justify-center gap-0.5 border-r px-1 py-1 text-center font-display ${
+              className={`sticky left-0 z-10 flex shrink-0 flex-col items-center justify-center gap-0.5 border-t-[3px] border-r px-1 py-1 text-center font-display ${
                 isFavorite
-                  ? "border-accent bg-accent-soft text-accent"
+                  ? "border-r-accent bg-accent-soft text-accent"
                   : hasSelectedProgram
-                    ? "border-pin bg-pin-soft text-pin"
-                    : "border-line bg-paper text-ink"
+                    ? "border-r-pin bg-pin-soft text-pin"
+                    : "border-r-line text-ink"
               }`}
-              style={{ width: VENUE_COL_WIDTH, height: rowHeight }}
+              style={{
+                width: VENUE_COL_WIDTH,
+                height: rowHeight,
+                borderTopColor: settlement.solid,
+                backgroundColor:
+                  !isFavorite && !hasSelectedProgram
+                    ? settlement.soft
+                    : undefined,
+              }}
             >
               <button
                 onClick={() => setOpenVenueId(venue.id)}

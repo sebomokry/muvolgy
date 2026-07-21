@@ -1,5 +1,7 @@
 "use client";
 
+import { settlementColor } from "@/lib/settlementColors";
+
 type Props = {
   settlements: string[];
   activeSettlements: Set<string>;
@@ -19,16 +21,22 @@ export function SettlementFilter({
     <div className="flex flex-wrap items-center gap-1.5">
       {settlements.map((settlement) => {
         const active = activeSettlements.has(settlement);
+        const color = settlementColor(settlement).solid;
         return (
           <button
             key={settlement}
             onClick={() => onToggle(settlement)}
-            className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
               active
-                ? "border-transparent bg-accent text-paper"
+                ? "border-transparent text-paper"
                 : "border-line text-ink/50 hover:text-ink"
             }`}
+            style={active ? { backgroundColor: color } : undefined}
           >
+            <span
+              className={`h-2 w-2 rounded-full ${active ? "bg-paper" : ""}`}
+              style={active ? undefined : { backgroundColor: color }}
+            />
             {settlement}
           </button>
         );
