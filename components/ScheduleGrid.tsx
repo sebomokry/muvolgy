@@ -125,21 +125,12 @@ export function ScheduleGrid({
             className="flex w-max shrink-0 border-b border-line/60 last:border-b-0"
           >
             <div
-              className={`sticky left-0 z-10 flex shrink-0 flex-col items-center justify-center gap-0.5 border-t-[3px] border-r px-1 py-1 text-center font-display ${
-                isFavorite
-                  ? "border-r-accent bg-accent-soft text-accent"
-                  : hasSelectedProgram
-                    ? "border-r-pin bg-pin-soft text-pin"
-                    : "border-r-line text-ink"
-              }`}
+              className="sticky left-0 z-10 flex shrink-0 flex-col items-center justify-center gap-0.5 border-t-[3px] border-r border-r-line px-1 py-1 text-center font-display text-ink"
               style={{
                 width: VENUE_COL_WIDTH,
                 height: rowHeight,
                 borderTopColor: settlement.solid,
-                backgroundColor:
-                  !isFavorite && !hasSelectedProgram
-                    ? settlement.soft
-                    : undefined,
+                backgroundColor: settlement.soft,
               }}
             >
               <button
@@ -147,14 +138,28 @@ export function ScheduleGrid({
                 className="flex flex-col items-center gap-0.5 whitespace-normal text-[11px] leading-tight font-medium hover:underline"
                 title={venue.name}
               >
-                <span className="text-xs leading-none">
-                  {isFavorite ? "★" : "☆"}
+                <span className="relative inline-block text-xs leading-none">
+                  <span aria-hidden="true">☆</span>
+                  {isFavorite && (
+                    <span aria-hidden="true" className="absolute inset-0">
+                      ★
+                    </span>
+                  )}
+                  {!isFavorite && hasSelectedProgram && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 overflow-hidden text-pin"
+                      style={{ clipPath: "inset(0 50% 0 0)" }}
+                    >
+                      ★
+                    </span>
+                  )}
                 </span>
                 {venue.name}
               </button>
             </div>
             <div
-              className="relative shrink-0"
+              className="relative shrink-0 overflow-hidden"
               style={{ width: gridWidth, height: rowHeight }}
             >
               {lanes.map(({ program, lane }) => {
@@ -205,7 +210,7 @@ export function ScheduleGrid({
                       top: `${(lane / laneCount) * 100}%`,
                       height: `${100 / laneCount}%`,
                       borderLeftColor: color,
-                      backgroundColor: `${color}14`,
+                      backgroundColor: `${color}40`,
                     }}
                     title={program.name}
                   >

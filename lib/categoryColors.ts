@@ -4,7 +4,7 @@
  * mostly similar pale pastels and don't separate well in a dense grid.
  */
 const CATEGORY_COLORS: Record<string, string> = {
-  Könnyűzene: "#C7332B",
+  Könnyűzene: "#C9A0DC",
   Jazz: "#1F5C8A",
   Komolyzene: "#6B4A9E",
   "Népzene, Világzene": "#B8781E",

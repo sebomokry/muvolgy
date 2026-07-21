@@ -135,6 +135,16 @@ the single most common duration.
 > scrolled right). If you add new direct children to that scroll container,
 > they need both classes too.
 
+Each venue row's timeline container (the sibling of the sticky venue-header
+cell) has `overflow-hidden`: a selected/conflicting program's `box-shadow`
+ring extends a couple pixels past the block's own edges, and without a clip
+boundary that ring bled visually onto the sticky venue-header column
+whenever the row scrolled horizontally underneath it (very visible on
+mobile, where horizontally panning the grid is the normal way to see later
+hours). `overflow-hidden` on that container clips the ring at the timeline's
+own edge instead, so it can never render over the sticky column regardless
+of scroll position.
+
 **Info modals, not direct toggling**: clicking a program block (grid or the
 "Sajátjaim" list) does *not* directly select/deselect it — it opens
 `ProgramInfoModal` (name, artists, venue + `VenueDetails`, and a star button
@@ -198,13 +208,34 @@ saved concert actually occurs.
 **Visual identity**: category colors are a hand-picked palette in
 `lib/categoryColors.ts` that deliberately overrides the festival API's own
 `color` field per category — the API's colors are pale pastels that don't
-stay visually distinct in a dense grid. Design tokens (`--paper`, `--ink`,
-`--accent`/`--accent-soft` for starred venues & selection, `--pin`/
-`--pin-soft` for the "unstarred venue with a saved concert" case above,
-`--line`, `--danger`) live in `app/globals.css`; the three-typeface system
-(Space Grotesk / IBM Plex Sans / IBM Plex Mono) is set up in
-`app/layout.tsx` via `next/font/google` — Plex Mono is used specifically for
-times/dates for a "timetable board" feel.
+stay visually distinct in a dense grid; program blocks tint their
+background with the category color at 25% alpha (`${color}40` as a hex
+alpha suffix) rather than the ~8% (`${color}14`) used earlier, since the
+lighter tint didn't separate categories clearly enough at a glance. Design
+tokens (`--paper: #f7f7ff`, `--ink: #023047`, `--accent: #3f826d`,
+`--pin: #ffb703`, `--danger: #fb8500`, plus derived `-soft` tint variants
+mixed toward `--paper`) live in `app/globals.css` — these are the user's own
+exact hex choices, not sampled/derived, so don't adjust the 5 base values
+without asking; the three-typeface system (Space Grotesk / IBM Plex Sans /
+IBM Plex Mono) is set up in `app/layout.tsx` via `next/font/google` — Plex
+Mono is used specifically for times/dates for a "timetable board" feel.
+
+The venue header cell in `ScheduleGrid.tsx` deliberately does **not** tint
+its background for starred or pin-tier venues — it always shows the plain
+settlement color (`settlement.soft`), the same as any other venue. Favorite/
+pin state is carried *only* by the ☆/★ glyph: empty outline (☆) for a
+plain venue, a solid ink-colored ★ for a starred venue, and — for the
+"unstarred venue that merely hosts a saved concert today" pin tier — a
+vertically-split half star (a `★` clipped to its left 50% via
+`clipPath: inset(0 50% 0 0)`, colored `--pin`, layered over the base ☆
+outline) rather than a full star or a background tint. This replaced an
+earlier version where the pin tier got a solid `--pin-soft` background
+(and, before that, starred venues got an `--accent-soft` background) — both
+were dropped because a colored header background competed visually with
+the always-on settlement-color stripe (see below) for the same cell; the
+glyph is now the only channel for favorite/pin state, so `--pin-soft` is
+currently unused (kept defined in `globals.css` for palette symmetry, not
+referenced by any component).
 
 Settlement colors are a separate palette, `lib/settlementColors.ts`
 (`settlementColor(city)` → `{ solid, soft }`), for the festival's 3 villages
@@ -212,13 +243,13 @@ Settlement colors are a separate palette, `lib/settlementColors.ts`
 adjust them without asking. Used in three places: `SettlementFilter.tsx`
 chips (same active/inactive chip pattern as `CategoryFilter`), the venue
 header's `border-t-[3px]` stripe in `ScheduleGrid.tsx` (always visible,
-independent of the favorite/pin background state — same layering idea as
-category colors on program blocks), and the city name inside
-`VenueDetails.tsx` (a filled pill instead of plain text). If the
-favorite/pin background states are ever reworked, keep the settlement
-stripe as a separate, always-on visual channel rather than folding it into
-the same background — that's why it's a top border rather than competing
-for the cell's fill color.
+independent of favorite/pin state — same layering idea as category colors
+on program blocks), and the city name inside `VenueDetails.tsx` (a filled
+pill instead of plain text). Keep the settlement stripe as a separate,
+always-on visual channel rather than folding it into the cell's background
+— that's why it's a top border rather than competing for the cell's fill
+color, which is exactly the reasoning that later also pushed favorite/pin
+state off the background and onto the star glyph.
 
 **Mobile**: the category filter row collapses behind a toggle below the `sm`
 breakpoint (state in `FestivalApp.tsx`) to leave more vertical space for the
