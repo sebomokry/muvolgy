@@ -25,6 +25,7 @@ import { ArtistsView } from "./ArtistsView";
 import { ProgramInfoModal } from "./ProgramInfoModal";
 
 const DEFAULT_CATEGORY = "Könnyűzene";
+const UNCATEGORIZED_ID = -1;
 
 function defaultDay(days: string[]): string {
   const today = new Date().toISOString().slice(0, 10);
@@ -43,7 +44,13 @@ export function FestivalApp({ data }: { data: FestivalData }) {
   const [activeCategoryIds, setActiveCategoryIds] = useState<Set<number>>(
     () => defaultCategoryIds(data.categories),
   );
-  const [showUncategorized, setShowUncategorized] = useState(false);
+  const categoriesWithUncategorized = useMemo(
+    () => [
+      ...data.categories,
+      { id: UNCATEGORIZED_ID, name: "Kategória nélküli", color: "", order: Infinity },
+    ],
+    [data.categories],
+  );
   const settlements = useMemo(
     () => allSettlements(data.locations),
     [data.locations],
@@ -85,17 +92,11 @@ export function FestivalApp({ data }: { data: FestivalData }) {
     return dayPrograms.filter(
       (p) =>
         (p.categories.length === 0
-          ? showUncategorized
+          ? activeCategoryIds.has(UNCATEGORIZED_ID)
           : p.categories.some((c) => activeCategoryIds.has(c.id))) &&
         (!p.location?.city || activeSettlements.has(p.location.city)),
     );
-  }, [
-    data.programs,
-    selectedDay,
-    activeCategoryIds,
-    activeSettlements,
-    showUncategorized,
-  ]);
+  }, [data.programs, selectedDay, activeCategoryIds, activeSettlements]);
 
   const { timed, allDay } = useMemo(
     () => splitAllDay(visiblePrograms),
@@ -154,7 +155,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
               view === "grid" ? "bg-ink text-paper" : "text-ink/50 hover:text-ink"
             }`}
           >
-            Rács
+            Programtábla
           </button>
           <button
             onClick={() => setView("mine")}
@@ -162,7 +163,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
               view === "mine" ? "bg-ink text-paper" : "text-ink/50 hover:text-ink"
             }`}
           >
-            Sajátjaim{selectedPrograms.length > 0 ? ` (${selectedPrograms.length})` : ""}
+            Kedvenceim{selectedPrograms.length > 0 ? ` (${selectedPrograms.length})` : ""}
           </button>
           <button
             onClick={() => setView("artists")}
@@ -200,24 +201,16 @@ export function FestivalApp({ data }: { data: FestivalData }) {
             className={`${categoriesOpen ? "flex" : "hidden"} flex-col gap-1.5 sm:flex`}
           >
             <CategoryFilter
-              categories={data.categories}
+              categories={categoriesWithUncategorized}
               activeIds={activeCategoryIds}
               onToggle={toggleCategory}
               onAll={() =>
-                setActiveCategoryIds(new Set(data.categories.map((c) => c.id)))
+                setActiveCategoryIds(
+                  new Set(categoriesWithUncategorized.map((c) => c.id)),
+                )
               }
               onNone={() => setActiveCategoryIds(new Set())}
             />
-            <button
-              onClick={() => setShowUncategorized((prev) => !prev)}
-              className={`self-start rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-                showUncategorized
-                  ? "border-transparent bg-ink text-paper"
-                  : "border-line text-ink/50 hover:text-ink"
-              }`}
-            >
-              Kategória nélküli
-            </button>
           </div>
         </div>
       )}

@@ -81,11 +81,27 @@ tab) and filters/groups the in-memory dataset — there's no per-filter
 refetching. Category filter (`CategoryFilter.tsx`) and settlement/town filter
 (`SettlementFilter.tsx`, the festival spans only 3 villages) are independent
 AND-combined filters over the same program list. Programs with zero
-categories (~6% of all programs, e.g. "Chill Zone", "Visa Taxi") are a
-special case: they don't participate in `activeCategoryIds` at all — they're
-shown only when a separate `showUncategorized` toggle is on (default off),
-so the Könnyűzene-default view doesn't get diluted with uncategorized
-miscellany.
+categories (~6% of all programs, e.g. "Chill Zone", "Visa Taxi") are folded
+into the same `activeCategoryIds: Set<number>` via a sentinel
+`UNCATEGORIZED_ID = -1` (guaranteed not to collide with the API's own,
+always-positive category ids): `FestivalApp.tsx` builds
+`categoriesWithUncategorized` by appending a synthetic `{ id:
+UNCATEGORIZED_ID, name: "Kategória nélküli" }` entry to `data.categories`
+before handing the list to `CategoryFilter`, so it renders as an ordinary
+chip alongside the real categories rather than a separate toggle outside
+the filter row. This was a deliberate fix — an earlier version used a
+standalone `showUncategorized` boolean and its own button next to
+`CategoryFilter`, which meant the filter's "mind"/"egyik sem" (all/none)
+buttons silently skipped it. Folding it into the same set means
+`CategoryFilter.tsx` itself needed no changes at all (it already handles an
+arbitrary `{id, name}` list generically); the synthetic name deliberately
+isn't in `lib/categoryColors.ts`'s `CATEGORY_COLORS` map, so it falls back
+to the same neutral `FALLBACK_COLOR` already used for zero-category program
+blocks (`categoryColor(program.categories[0]?.name ?? "")` in
+`ScheduleGrid.tsx`) — one shared neutral color for "no category" everywhere,
+not a second one-off. Default state is unaffected: `defaultCategoryIds`
+only ever matches the real "Könnyűzene" category, so the sentinel starts
+unselected.
 
 **Grid rendering** (`components/ScheduleGrid.tsx`): rows = venues (sticky
 left column, narrow/near-square, venue name wraps 2-4 lines rather than
@@ -146,7 +162,7 @@ own edge instead, so it can never render over the sticky column regardless
 of scroll position.
 
 **Info modals, not direct toggling**: clicking a program block (grid or the
-"Sajátjaim" list) does *not* directly select/deselect it — it opens
+"Kedvenceim" list) does *not* directly select/deselect it — it opens
 `ProgramInfoModal` (name, artists, venue + `VenueDetails`, and a star button
 that's the *only* place favoriting actually happens). Venue headers in
 `ScheduleGrid` work the same way: the whole header cell is a single button
@@ -166,8 +182,20 @@ show might be outside today's filters), the open/close state and the modal
 itself live in `FestivalApp.tsx`, not in either child — they just call an
 `onOpenProgram(id)` prop passed down.
 
-**Artists view** (`components/ArtistsView.tsx`, third tab alongside Rács/
-Sajátjaim): a searchable, alphabetical directory built by
+`VenueInfoModal` and `ProgramInfoModal`'s favorite buttons look identical
+but toggle two unrelated stores (`favoriteVenues` vs. `selectedPrograms`),
+so their copy is deliberately worded to name what each one actually does
+rather than sharing generic "kedvenc" text: the venue modal says
+"Hozzáadás a kedvenc helyszínekhez" / "Eltávolítás a kedvenc helyszínek
+közül", the program modal says "Hozzáadás a Kedvenceimhez" / "Eltávolítás a
+Kedvenceim közül" — the latter names the destination tab directly (see
+below) so the button says exactly what it does. Both buttons also switch
+from `--accent` (green) to `--danger` (orange) styling once `isFavorite` is
+true: the button *removes* at that point, and a removal action shouldn't
+look identical to the "add" state it started from.
+
+**Artists view** (`components/ArtistsView.tsx`, third tab alongside
+Programtábla/Kedvenceim): a searchable, alphabetical directory built by
 `lib/schedule.ts`'s `allArtists(programs)`, which is not simply "one row per
 API artist" — the source data is inconsistent about whether a band/act gets
 its own artist record or only its individual members do (e.g. the concert
@@ -195,7 +223,7 @@ since `getServerSnapshot` always returns an empty set.
 **Derived scheduling logic** lives in `lib/schedule.ts` as pure functions:
 grouping programs by day, splitting all-day vs. timed programs, and
 overlap/conflict detection (`overlaps`, `conflictingIds`) used both for the
-grid's conflict highlighting and the "Sajátjaim" (My programs) tab.
+grid's conflict highlighting and the "Kedvenceim" (saved programs) tab.
 `sortVenuesWithFavoritesFirst` pins venue rows in three tiers, not two:
 starred venues, then *unstarred* venues that merely host a saved
 (`selectedIds`) program that day (so a favorited concert never gets lost

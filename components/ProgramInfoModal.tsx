@@ -73,13 +73,13 @@ export function ProgramInfoModal({
           onClick={onToggleFavorite}
           className={`mt-4 flex w-full items-center justify-center gap-2 rounded border px-4 py-2 font-display text-sm font-medium transition-colors ${
             isFavorite
-              ? "border-accent bg-accent-soft text-accent"
+              ? "border-danger bg-danger-soft text-danger"
               : "border-line text-ink hover:bg-ink/5"
           }`}
         >
           {isFavorite
-            ? "★ Eltávolítás a kedvencekből"
-            : "☆ Hozzáadás a kedvencekhez"}
+            ? "★ Eltávolítás a Kedvenceim közül"
+            : "☆ Hozzáadás a Kedvenceimhez"}
         </button>
 
         {relatedPrograms.length > 0 && (

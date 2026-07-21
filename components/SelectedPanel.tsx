@@ -14,8 +14,8 @@ export function SelectedPanel({ programs, conflictIds, onOpenProgram }: Props) {
     return (
       <div className="flex h-full items-center justify-center">
         <p className="max-w-sm text-center font-body text-ink/50">
-          Még nincs kiválasztott program. Válts a Rács fülre, és kattints egy
-          programra a hozzáadáshoz.
+          Még nincs kiválasztott program. Válts a Programtábla fülre, és
+          kattints egy programra a hozzáadáshoz.
         </p>
       </div>
     );
