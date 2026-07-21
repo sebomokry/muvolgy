@@ -143,6 +143,11 @@ const MUSIC_CATEGORIES = new Set([
   "Népzene, Világzene",
 ]);
 
+/** True if any of the program's categories is a music category — the title is then treated as the act's own name. */
+export function isMusicProgram(categories: Program["categories"]): boolean {
+  return categories.some((c) => MUSIC_CATEGORIES.has(c.name));
+}
+
 /**
  * Every distinct artist across all programs, alphabetical, each pointing at
  * their earliest appearance. Also adds the program's own title as a
@@ -183,8 +188,7 @@ export function allArtists(programs: Program[]): ArtistSummary[] {
       upsert(`artist:${artist.id}`, artist.name, p);
     }
 
-    const isMusic = p.categories.some((c) => MUSIC_CATEGORIES.has(c.name));
-    if (isMusic) {
+    if (isMusicProgram(p.categories)) {
       const normalizedTitle = normalizeForComparison(p.name);
       const titleRepresented = p.artists.some((a) =>
         normalizedTitle.includes(normalizeForComparison(a.name)),

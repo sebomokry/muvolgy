@@ -91,9 +91,16 @@ miscellany.
 left column, narrow/near-square, venue name wraps 2-4 lines rather than
 truncating), columns = a continuous horizontal time axis (sticky top header)
 — *not* a CSS grid. Each program is absolutely positioned (`left`/`width` in
-pixels from a pixel-per-minute constant) within its venue's row, because
-programs have irregular durations a column-based grid can't represent
-cleanly. When multiple programs in the same venue overlap in time, a greedy
+pixels from a pixel-per-minute constant, `PX_PER_MIN`) within its venue's
+row, because programs have irregular durations a column-based grid can't
+represent cleanly. **Block width always equals the program's real duration**
+— `MIN_BLOCK_WIDTH` is a 6px floor purely against zero/negative-duration bad
+data, not a readability padding: it used to be 130px "so short programs
+still show text," but that silently stretched blocks past their real end
+time (a 60-min show could visually look ~90 min long) — accuracy of the
+overlap picture matters more here than always-fitting text, so short blocks
+now just truncate harder (title tooltip + click-through modal cover the
+rest). When multiple programs in the same venue overlap in time, a greedy
 interval-graph lane assignment lays them out stacked in sub-rows (`top`/
 `height` by lane index) instead of overlapping; a row's height grows with its
 peak concurrency (some venues like "Főtér" have 25+ simultaneous
@@ -101,6 +108,22 @@ market-stall programs) so text stays readable instead of being squeezed.
 Hour gridlines are deliberately rendered *after* (on top of, `pointer-events-
 none`) the program blocks — drawing them first let opaque blocks paint over
 them, hiding the line wherever a block crossed it.
+
+Each block's three text lines are **headline / subtitle / time**, sized 13px
+bold / 9px / 9px respectively. Which of {`program.name`, the deduped artist
+list} is the headline depends on `lib/schedule.ts`'s `isMusicProgram`: for
+music-category programs the *title* is the headline (festival data
+sometimes tags only individual band members as `artists`, not the band
+itself — e.g. "Zækar" has artists `["Ambrus Andris", ...]` with no "Zækar"
+artist record — so the title is the only reliably-correct act name), with
+any distinct artist names as the subtitle; non-music programs keep the
+named speaker/artist as the headline and the title as the subtitle (e.g. a
+themed talk where who's speaking matters more than that day's title). The
+9px time size is not arbitrary — it's the largest size that still fits
+"HH:MM–HH:MM" inside an 84px-wide block, which is what a plain 60-minute
+program renders as (`60 * PX_PER_MIN`); re-measure against that exact width
+(`scrollWidth` vs `clientWidth`) before changing it, since 1-hour shows are
+the single most common duration.
 
 > **Flexbox gotcha that already bit this layout twice**: the outer scroll
 > container is `flex flex-col overflow-auto`. Every direct child (the sticky

@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import type { Location, Program } from "@/lib/types";
-import { extraArtists, formatTime } from "@/lib/schedule";
+import { extraArtists, formatTime, isMusicProgram } from "@/lib/schedule";
 import { categoryColor } from "@/lib/categoryColors";
 import { VenueInfoModal } from "./VenueInfoModal";
 
 const PX_PER_MIN = 1.4;
-const MIN_BLOCK_WIDTH = 130;
+// Only a guard against zero/negative-duration bad data — real block widths
+// always reflect the program's actual duration, never padded out further,
+// so the block never visually overruns its real end time.
+const MIN_BLOCK_WIDTH = 6;
 const LANE_HEIGHT = 64;
 const VENUE_COL_WIDTH = 96;
 const HEADER_HEIGHT = 36;
@@ -157,11 +160,29 @@ export function ScheduleGrid({
                   program.categories[0]?.name ?? "",
                 );
                 const artists = extraArtists(program.name, program.artists);
+                const artistText =
+                  artists.length > 0
+                    ? artists.map((a) => a.name).join(", ")
+                    : null;
+                // For music programs the title is usually the act's own name (even
+                // when the source data only tags individual members as artists, e.g.
+                // "Zækar" / ["Ambrus Andris", ...]) — so it's the headline there,
+                // with any distinct artist names as a smaller subtitle. Non-music
+                // programs keep the named speaker/artist as the headline instead.
+                const musicProgram = isMusicProgram(program.categories);
+                const headline = musicProgram
+                  ? program.name
+                  : (artistText ?? program.name);
+                const subtitle = musicProgram
+                  ? artistText
+                  : artistText
+                    ? program.name
+                    : null;
                 return (
                   <button
                     key={program.id}
                     onClick={() => onOpenProgram(program.id)}
-                    className={`absolute overflow-hidden border-l-[3px] bg-paper px-1.5 py-1 text-left text-[11px] leading-tight transition-shadow hover:shadow-md ${
+                    className={`absolute overflow-hidden border-l-[3px] bg-paper px-1.5 py-1 text-left text-[9px] leading-tight transition-shadow hover:shadow-md ${
                       isConflict
                         ? "shadow-[0_0_0_2px_var(--danger)]"
                         : isSelected
@@ -178,17 +199,17 @@ export function ScheduleGrid({
                     }}
                     title={program.name}
                   >
-                    <div className="truncate whitespace-nowrap font-mono text-ink/60">
-                      {formatTime(program.startTs)}–{formatTime(program.endTs)}
+                    <div className="truncate whitespace-nowrap text-[13px] font-bold text-ink">
+                      {headline}
                     </div>
-                    <div className="truncate whitespace-nowrap font-medium text-ink">
-                      {program.name}
-                    </div>
-                    {artists.length > 0 && (
-                      <div className="truncate whitespace-nowrap text-ink/50">
-                        {artists.map((a) => a.name).join(", ")}
+                    {subtitle && (
+                      <div className="mt-0.5 truncate whitespace-nowrap font-medium text-ink">
+                        {subtitle}
                       </div>
                     )}
+                    <div className="mt-0.5 truncate whitespace-nowrap font-mono text-ink/70">
+                      {formatTime(program.startTs)}–{formatTime(program.endTs)}
+                    </div>
                   </button>
                 );
               })}
