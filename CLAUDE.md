@@ -290,21 +290,46 @@ rather than going through `createIdSetStore` — it persists a single boolean,
 not an id set, so reusing that factory would've meant forcing a
 `Set<number>` shape onto a single flag for no benefit.
 
-**App info modal** (`components/AppInfoModal.tsx`): opened from a small dark
-circular ⓘ button (`bg-ink`, deliberately just the button itself and not
-the whole sticky corner cell behind it — the cell stays `bg-paper` like the
-rest of the header) in the schedule grid's top-left corner cell
-(`components/ScheduleGrid.tsx`), the one cell that's otherwise empty (sits
-above the venue column, to the left of the time axis). Auto-opens on a
-visitor's first-ever visit via `useHasSeenIntro`, but the auto-open logic
-needs *no* `useEffect`: `FestivalApp.tsx` derives visibility for render as
-`introManuallyOpened || (!hasSeenIntro && !introDismissed)`, so a fresh
-visitor sees it simply because `hasSeenIntro` reads `false` on the first
-render — no imperative "open it on mount" step required. `markSeen()` (a
-plain store write, called from the modal's `onClose` handler, not from an
-effect) is what prevents it from reappearing on the next visit; the ⓘ
-button independently sets `introManuallyOpened`, so it stays available as a
-manual entry point regardless of `hasSeenIntro`.
+**App info modal** (`components/AppInfoModal.tsx`, `max-h-[85vh]
+overflow-y-auto` on its inner box so it stays reachable — including its
+bottom "Értem" button — on short viewports like a landscape phone): opened
+from a small dark circular ⓘ button (`bg-ink`, deliberately just the
+button itself and not the whole sticky corner cell behind it — the cell
+stays `bg-paper` like the rest of the header) in the schedule grid's
+top-left corner cell (`components/ScheduleGrid.tsx`), the one cell that's
+otherwise empty (sits above the venue column, to the left of the time
+axis). Auto-opens on a visitor's first-ever visit via `useHasSeenIntro`,
+but the auto-open logic needs *no* `useEffect`: `FestivalApp.tsx` derives
+visibility for render as `introManuallyOpened || (!hasSeenIntro &&
+!introDismissed)`. `markSeen()` (a plain store write, called from the
+modal's `onClose` handler, not from an effect) is what prevents it from
+reappearing on the next visit; the ⓘ button independently sets
+`introManuallyOpened`, so it stays available as a manual entry point
+regardless of `hasSeenIntro`.
+
+`useHasSeenIntro.ts`'s `getServerSnapshot()` deliberately returns `true`
+("already seen"), not `false` — this bit the opposite way round from every
+other `getServerSnapshot` in this codebase, worth remembering if touched
+again. `getServerSnapshot`'s value isn't just an SSR-only concern: it's
+also what the client's first hydration pass renders, before
+`localStorage` can be read at all (that only happens once `getSnapshot`
+runs post-mount). For `hooks/idSetStore.ts`, defaulting to "empty set" is
+visually neutral either way, so a `false`-ish default costs nothing. Here
+it isn't neutral: a `false` default means the intro modal is present in
+the raw server-rendered HTML for *every* visitor, including returning
+ones, and only disappears once hydration corrects it — a visible flash on
+every single load, not just the first. Defaulting to `true` inverts who
+pays for that gap: returning visitors (the common case) match on first
+paint and never see anything, while a first-time visitor's modal simply
+appears a beat after load instead of being present immediately — a
+one-time, once-per-browser trade-off decidedly worth making.
+
+The mobile-only "Kategóriák" accordion (`categoriesOpen` in
+`FestivalApp.tsx`) auto-collapses when "Csak a Kedvenceim" is turned on
+(but not when turned off) — with the override active the category chips
+underneath are already disabled and dimmed (see above), so leaving the
+accordion open just wastes screen space showing inert chips on a small
+screen.
 
 **Derived scheduling logic** lives in `lib/schedule.ts` as pure functions:
 grouping programs by day, splitting all-day vs. timed programs, and

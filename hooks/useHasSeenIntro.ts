@@ -25,7 +25,16 @@ function getSnapshot(): boolean {
 }
 
 function getServerSnapshot(): boolean {
-  return false;
+  // Assume "already seen" for SSR/hydration: this value is what the server
+  // actually renders and what the client must match on its first paint,
+  // before localStorage can be read at all. A false default would make the
+  // intro modal appear in that raw HTML for every visitor, including
+  // returning ones, until hydration corrects it a beat later — a visible
+  // flash. Defaulting true instead means returning visitors (the common
+  // case) never see anything, at the cost of a first-time visitor's modal
+  // appearing slightly after load instead of immediately, which only ever
+  // happens once per browser.
+  return true;
 }
 
 function markSeen() {
