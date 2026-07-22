@@ -1,10 +1,36 @@
 "use client";
 
+import { useState } from "react";
 import type { Location } from "@/lib/types";
 import { mapsLink } from "@/lib/maps";
 import { settlementColor } from "@/lib/settlementColors";
 
-export function VenueDetails({ venue }: { venue: Location }) {
+type Props = {
+  venue: Location;
+  showOfficialLink?: boolean;
+};
+
+function CopyButton({ value, label }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        navigator.clipboard.writeText(value);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      }}
+      aria-label={label}
+      title={label}
+      className="shrink-0 text-ink/50 hover:text-ink"
+    >
+      {copied ? "✓" : "⧉"}
+    </button>
+  );
+}
+
+export function VenueDetails({ venue, showOfficialLink = true }: Props) {
   return (
     <>
       {venue.city && (
@@ -16,14 +42,25 @@ export function VenueDetails({ venue }: { venue: Location }) {
         </span>
       )}
 
-      <p className="mt-1 text-sm text-ink/80">
-        {venue.address ?? "Nincs pontos cím, de kattints, a Google általában megtalálja :)"}
-      </p>
+      <div className="mt-1 flex items-start gap-1.5">
+        <p className="text-sm text-ink/80">
+          {venue.address ?? "Nincs pontos cím, de kattints, a Google általában megtalálja :)"}
+        </p>
+        {venue.address && (
+          <CopyButton value={venue.address} label="Cím másolása" />
+        )}
+      </div>
 
       {venue.coords && (
-        <p className="mt-0.5 font-mono text-xs text-ink/70">
-          {venue.coords[0].toFixed(5)}, {venue.coords[1].toFixed(5)}
-        </p>
+        <div className="mt-0.5 flex items-center gap-1.5">
+          <p className="font-mono text-xs text-ink/70">
+            {venue.coords[0].toFixed(5)}, {venue.coords[1].toFixed(5)}
+          </p>
+          <CopyButton
+            value={`${venue.coords[0]}, ${venue.coords[1]}`}
+            label="Koordináták másolása"
+          />
+        </div>
       )}
 
       <a
@@ -34,6 +71,17 @@ export function VenueDetails({ venue }: { venue: Location }) {
       >
         Megnyitás térképen
       </a>
+
+      {showOfficialLink && (
+        <a
+          href={`https://www.muveszetekvolgye.hu/location/${venue.id}`}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-2 flex items-center justify-center gap-2 rounded border border-ink px-4 py-2 font-display text-sm font-medium text-ink transition-colors hover:bg-ink/5"
+        >
+          Helyszín a hivatalos oldalon
+        </a>
+      )}
     </>
   );
 }

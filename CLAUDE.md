@@ -61,6 +61,26 @@ geographic scale, so an estimated coordinate would be actively misleading
 rather than just imprecise. `components/VenueDetails.tsx` shows the raw
 coordinates as text when present, and a light "maybe Google will find it
 anyway" fallback line when not, rather than implying anything authoritative.
+A small `⧉`/`✓` copy-to-clipboard button (local `CopyButton`, its own
+`useState` for the 1.5s "copied" flip — a plain in-place UI toggle, not
+persisted state, so it doesn't need the `useSyncExternalStore` treatment
+other stores in this app get) sits next to both the address and the
+coordinates line, copying the exact displayed address text or the raw
+(non-rounded) coordinate pair respectively; it's only rendered when there's
+a real value to copy, not next to the "no address" fallback line.
+
+`VenueDetails.tsx` also links out to the festival's own official page for
+that venue (`muveszetekvolgye.hu/location/{id}`, `border-ink` outline
+button, below the "Megnyitás térképen" accent button) — real detail pages
+the official site already serves, just not fetched/scraped, purely linked.
+This is gated by an optional `showOfficialLink` prop (default `true`)
+because `ProgramInfoModal.tsx` renders its own separate
+`muveszetekvolgye.hu/program/{id}` link and deliberately passes
+`showOfficialLink={false}` to the shared `VenueDetails` instance it embeds
+— otherwise the program modal would show both a venue-page link and a
+program-page link stacked, when only the program one is relevant there;
+`VenueInfoModal.tsx` (which has no program of its own) keeps the venue
+link at its default `true`.
 
 Of the 49 venues that actually host a program, 24 had neither address nor
 coords from `/api/v1/map` (always both-or-neither, never just one), plus

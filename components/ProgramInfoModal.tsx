@@ -61,13 +61,22 @@ export function ProgramInfoModal({
             <p className="font-display text-sm font-medium text-ink">
               {program.location.name}
             </p>
-            <VenueDetails venue={program.location} />
+            <VenueDetails venue={program.location} showOfficialLink={false} />
           </div>
         ) : (
           <p className="mt-3 text-sm text-ink/70">
             Nincs megadva helyszín ehhez a programhoz.
           </p>
         )}
+
+        <a
+          href={`https://www.muveszetekvolgye.hu/program/${program.id}`}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-2 flex items-center justify-center gap-2 rounded border border-ink px-4 py-2 font-display text-sm font-medium text-ink transition-colors hover:bg-ink/5"
+        >
+          Program a hivatalos oldalon
+        </a>
 
         <button
           onClick={onToggleFavorite}
