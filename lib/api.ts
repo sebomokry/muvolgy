@@ -1,5 +1,6 @@
 import type { Category, FestivalData, Location, Program } from "./types";
 import { LOCATION_OVERRIDES } from "./locationOverrides";
+import { CATEGORY_OVERRIDES } from "./categoryOverrides";
 
 const API_BASE = "https://backend.muveszetekvolgye.hu/api/v1";
 const PER_PAGE = 100;
@@ -89,12 +90,15 @@ function normalizeProgram(
       }
     : null;
 
-  const categories: Category[] = raw.program_categories.map((c) => ({
-    id: c.id,
-    name: c.name,
-    color: c.color,
-    order: c.order,
-  }));
+  const categories: Category[] =
+    raw.program_categories.length > 0
+      ? raw.program_categories.map((c) => ({
+          id: c.id,
+          name: c.name,
+          color: c.color,
+          order: c.order,
+        }))
+      : (CATEGORY_OVERRIDES[raw.id] ?? []);
 
   return {
     id: raw.id,

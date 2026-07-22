@@ -83,6 +83,19 @@ for coordinates on Visa KözTér — extend the file the same way (venue id →
 if more verified data turns up later; don't add an entry without a
 citable source.
 
+The same gap-filling pattern exists for categories: `lib/categoryOverrides.ts`
+holds a `Record<programId, Category[]>` for programs the API tags with zero
+`program_categories` despite being clearly identifiable live music (found
+so far by the user recognizing an act by name, not by any automated
+detection) — e.g. "STREET SIXTEEN" and "Parno Graszt" (program ids `3393`/
+`3392`), both hard-coded to the exact real "Könnyűzene" category object
+(`id: 1, color: "#feb737", order: 300`, taken directly from other programs'
+real API data, not invented). `normalizeProgram` in `lib/api.ts` only
+consults `CATEGORY_OVERRIDES[raw.id]` when `raw.program_categories` is
+empty, so — same as the location overrides — an eventual upstream fix
+supersedes it with no code change. Find a program's id the same way as a
+venue's, against `/api/v1/programs` instead of `/map`.
+
 Programs also carry an `artists: { id, name
 }[]` field (from the API's `artists` relation — the `id` is kept
 specifically so the same performer can be matched across different
