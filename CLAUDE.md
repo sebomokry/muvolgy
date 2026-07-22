@@ -166,6 +166,16 @@ Hour gridlines are deliberately rendered *after* (on top of, `pointer-events-
 none`) the program blocks — drawing them first let opaque blocks paint over
 them, hiding the line wherever a block crossed it.
 
+The sticky header's hour labels (e.g. "15:00") are centered on their
+gridline (`-translate-x-1/2`) for every hour *except* the first and last:
+the first is left-aligned (no translate) and the last is right-aligned
+(`-translate-x-full`), so their text grows away from the timeline's own
+edges instead of across them. Centering the very first label put its left
+half at negative x, directly under the opaque sticky venue-header column
+(z-10) — invisible, not just visually crowded — and centering the last
+put its right half past the timeline's own declared width. Only the two
+extremes need this; every label in between has room on both sides.
+
 Each block's three text lines are **headline / subtitle / time**, sized 13px
 bold / 9px / 9px respectively. Which of {`program.name`, the deduped artist
 list} is the headline depends on `lib/schedule.ts`'s `isMusicProgram`: for

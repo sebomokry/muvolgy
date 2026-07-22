@@ -96,15 +96,25 @@ export function ScheduleGrid({
           className="relative shrink-0 border-b border-line"
           style={{ width: gridWidth }}
         >
-          {hourMarks.map((ts) => (
-            <div
-              key={ts}
-              className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 font-mono text-xs text-ink/40"
-              style={{ left: ((ts - rangeStartTs) / 60000) * PX_PER_MIN }}
-            >
-              {formatTime(ts)}
-            </div>
-          ))}
+          {hourMarks.map((ts, i) => {
+            const isFirst = i === 0;
+            const isLast = i === hourMarks.length - 1;
+            return (
+              <div
+                key={ts}
+                className={`absolute top-1/2 -translate-y-1/2 font-mono text-xs text-ink/40 ${
+                  isFirst
+                    ? ""
+                    : isLast
+                      ? "-translate-x-full"
+                      : "-translate-x-1/2"
+                }`}
+                style={{ left: ((ts - rangeStartTs) / 60000) * PX_PER_MIN }}
+              >
+                {formatTime(ts)}
+              </div>
+            );
+          })}
         </div>
       </div>
 
