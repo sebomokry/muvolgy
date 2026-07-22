@@ -76,7 +76,7 @@ export function ScheduleGrid({
 
   if (venues.length === 0) {
     return (
-      <p className="py-12 text-center font-body text-ink/50">
+      <p className="py-12 text-center font-body text-ink/70">
         Nincs megjeleníthető program ezen a napon a kiválasztott szűrőkkel.
       </p>
     );
@@ -102,7 +102,7 @@ export function ScheduleGrid({
             return (
               <div
                 key={ts}
-                className={`absolute top-1/2 -translate-y-1/2 font-mono text-xs text-ink/40 ${
+                className={`absolute top-1/2 -translate-y-1/2 font-mono text-xs text-ink/70 ${
                   isFirst
                     ? ""
                     : isLast

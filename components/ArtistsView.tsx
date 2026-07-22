@@ -28,7 +28,7 @@ export function ArtistsView({ artists, onOpenProgram }: Props) {
       />
       <div className="min-h-0 flex-1 overflow-y-auto">
         {filtered.length === 0 ? (
-          <p className="text-center font-body text-ink/50">
+          <p className="text-center font-body text-ink/70">
             Nincs a keresésnek megfelelő előadó.
           </p>
         ) : (

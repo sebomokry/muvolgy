@@ -51,7 +51,7 @@ export function ProgramInfoModal({
           </p>
         )}
 
-        <p className="mt-1 font-mono text-xs text-ink/50">
+        <p className="mt-1 font-mono text-xs text-ink/70">
           {formatDay(program.day)} ({formatWeekday(program.day)}) ·{" "}
           {formatTime(program.startTs)}–{formatTime(program.endTs)}
         </p>
@@ -64,7 +64,7 @@ export function ProgramInfoModal({
             <VenueDetails venue={program.location} />
           </div>
         ) : (
-          <p className="mt-3 text-sm text-ink/50">
+          <p className="mt-3 text-sm text-ink/70">
             Nincs megadva helyszín ehhez a programhoz.
           </p>
         )}
@@ -94,7 +94,7 @@ export function ProgramInfoModal({
                     onClick={() => onOpenProgram(rp.id)}
                     className="flex w-full flex-col py-1.5 text-left"
                   >
-                    <span className="font-mono text-xs text-ink/50">
+                    <span className="font-mono text-xs text-ink/70">
                       {formatDay(rp.day)} · {formatTime(rp.startTs)}
                       {rp.location ? ` · ${rp.location.name}` : ""}
                     </span>

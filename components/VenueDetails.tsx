@@ -21,7 +21,7 @@ export function VenueDetails({ venue }: { venue: Location }) {
       </p>
 
       {venue.coords && (
-        <p className="mt-0.5 font-mono text-xs text-ink/50">
+        <p className="mt-0.5 font-mono text-xs text-ink/70">
           {venue.coords[0].toFixed(5)}, {venue.coords[1].toFixed(5)}
         </p>
       )}

@@ -298,7 +298,11 @@ szerda/szombat, "Cs" for csütörtök, not just the first character, since
 Hungarian digraphs count as one letter. `formatWeekdayInitial` doesn't
 disambiguate szerda from szombat (both "Sz"); that's fine, the date itself
 is what's actually unique in that row, the letter is just a quick visual
-hint.
+hint. `SelectedPanel.tsx`'s per-day group headers use the same full-name
+pattern as `ProgramInfoModal.tsx` ("júl. 24. (péntek)") rather than the
+initial — there's a whole heading row's worth of space there, unlike the
+narrow `DateTabs.tsx` tabs.
+
 `sortVenuesWithFavoritesFirst` pins venue rows in three tiers, not two:
 starred venues, then *unstarred* venues that merely host a saved
 (`selectedIds`) program that day (so a favorited concert never gets lost
@@ -326,6 +330,22 @@ Mono is used specifically for times/dates for a "timetable board" feel.
 Kedvenceim" filter chip only (see above) — not one of the 5 core tokens,
 doesn't need the same by-hand-only rule, but was still chosen deliberately
 to avoid colliding with any existing token or settlement color.
+
+There's no dedicated "muted text" token — secondary/de-emphasized text
+throughout the app is plain `--ink` at reduced Tailwind opacity
+(`text-ink/NN`), not a separate color. `text-ink/50`, the most-used tier by
+far, measured out at only ~2.97:1 contrast against `--paper` (`#7d93a3`
+once blended) — well under WCAG AA's 4.5:1 for normal text — so every
+`text-ink/50` in the codebase (times, subtitles, inactive tab/chip text,
+empty-state copy, related-program metadata) was bumped to `text-ink/70`
+(~5.27:1, blends to `#4b6b7e`). Two specific `/40` spots that came up as
+separately-reported readability complaints got the same `/70` treatment:
+the grid's hour-axis labels (`ScheduleGrid.tsx`) and `SelectedPanel.tsx`'s
+per-day headers. The remaining `/40` uses (placeholder text, modal close
+buttons, a couple of uppercase eyebrow labels) are untouched — they weren't
+flagged, so don't reflexively bump every `/40` you find; treat `/70` as the
+standard for *readable* secondary text going forward, but leave the
+deliberately-faint `/40` tier alone unless it's specifically called out.
 
 The venue header cell in `ScheduleGrid.tsx` deliberately does **not** tint
 its background for starred or pin-tier venues — it always shows the plain

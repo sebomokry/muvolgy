@@ -1,7 +1,7 @@
 "use client";
 
 import type { Program } from "@/lib/types";
-import { formatDay, formatTime } from "@/lib/schedule";
+import { formatDay, formatTime, formatWeekday } from "@/lib/schedule";
 
 type Props = {
   programs: Program[];
@@ -13,7 +13,7 @@ export function SelectedPanel({ programs, conflictIds, onOpenProgram }: Props) {
   if (programs.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="max-w-sm text-center font-body text-ink/50">
+        <p className="max-w-sm text-center font-body text-ink/70">
           Még nincs kiválasztott program. Válts a Programtábla fülre, és
           kattints egy programra a hozzáadáshoz.
         </p>
@@ -40,8 +40,8 @@ export function SelectedPanel({ programs, conflictIds, onOpenProgram }: Props) {
       <div className="space-y-6">
         {[...byDay.entries()].map(([day, dayPrograms]) => (
           <div key={day}>
-            <h3 className="mb-2 font-mono text-xs uppercase tracking-wide text-ink/40">
-              {formatDay(day)}
+            <h3 className="mb-2 font-mono text-xs uppercase tracking-wide text-ink/70">
+              {formatDay(day)} ({formatWeekday(day)})
             </h3>
             <ul className="divide-y divide-line">
               {dayPrograms.map((p) => {
@@ -56,7 +56,7 @@ export function SelectedPanel({ programs, conflictIds, onOpenProgram }: Props) {
                     >
                       <div className="min-w-0">
                         <div
-                          className={`font-mono text-xs ${isConflict ? "text-danger" : "text-ink/50"}`}
+                          className={`font-mono text-xs ${isConflict ? "text-danger" : "text-ink/70"}`}
                         >
                           {formatTime(p.startTs)}–{formatTime(p.endTs)}
                           {p.location ? ` · ${p.location.name}` : ""}

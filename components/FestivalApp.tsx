@@ -162,7 +162,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
           <button
             onClick={() => setView("grid")}
             className={`rounded-full px-3 py-1 font-display text-sm transition-colors ${
-              view === "grid" ? "bg-ink text-paper" : "text-ink/50 hover:text-ink"
+              view === "grid" ? "bg-ink text-paper" : "text-ink/70 hover:text-ink"
             }`}
           >
             Programtábla
@@ -170,7 +170,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
           <button
             onClick={() => setView("mine")}
             className={`rounded-full px-3 py-1 font-display text-sm transition-colors ${
-              view === "mine" ? "bg-ink text-paper" : "text-ink/50 hover:text-ink"
+              view === "mine" ? "bg-ink text-paper" : "text-ink/70 hover:text-ink"
             }`}
           >
             Kedvenceim{selectedPrograms.length > 0 ? ` (${selectedPrograms.length})` : ""}
@@ -178,7 +178,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
           <button
             onClick={() => setView("artists")}
             className={`rounded-full px-3 py-1 font-display text-sm transition-colors ${
-              view === "artists" ? "bg-ink text-paper" : "text-ink/50 hover:text-ink"
+              view === "artists" ? "bg-ink text-paper" : "text-ink/70 hover:text-ink"
             }`}
           >
             Előadók
@@ -215,7 +215,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
               className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
                 onlyFavorites
                   ? "border-transparent text-paper"
-                  : "border-line text-ink/50 hover:text-ink"
+                  : "border-line text-ink/70 hover:text-ink"
               }`}
               style={onlyFavorites ? { backgroundColor: "var(--saved)" } : undefined}
             >
@@ -261,7 +261,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                     }`}
                     title={p.name}
                   >
-                    <span className="font-mono text-ink/50">
+                    <span className="font-mono text-ink/70">
                       {formatTime(p.startTs)}–{formatTime(p.endTs)}
                     </span>{" "}
                     <span className="font-medium text-ink">{p.name}</span>
