@@ -124,25 +124,39 @@ not a second one-off. Default state is unaffected: `defaultCategoryIds`
 only ever matches the real "Könnyűzene" category, so the sentinel starts
 unselected.
 
-A separate "Csak Kedvenceim" chip sits at the end of the same filter row
-(`CategoryFilter.tsx`'s optional `extraChip` prop) but is deliberately
-**not** folded into `activeCategoryIds` the way the uncategorized entry is:
-it's a cross-cutting override (only show programs already in
-`selectedIds`), not another OR-able category, so treating it as a peer set
-member would break "mind"'s meaning ("mind" = every category active, which
-would then also flip on an override that hides almost everything). It's its
-own `onlyFavorites` boolean in `FestivalApp.tsx`, wired in ahead of the
-category branch in the `visiblePrograms` filter — when active, category
-matching (and the `UNCATEGORIZED_ID` branch) is bypassed entirely and only
+A "Csak a Kedvenceim" chip sits in `FestivalApp.tsx`, next to the
+mobile-only "Kategóriák" collapse toggle (both above `CategoryFilter`, not
+inside it) but is deliberately **not** folded into `activeCategoryIds` the
+way the uncategorized entry is: it's a cross-cutting override (only show
+programs already in `selectedIds`), not another OR-able category, so
+treating it as a peer set member would break "mind"'s meaning ("mind" =
+every category active, which would then also flip on an override that
+hides almost everything). It's its own `onlyFavorites` boolean in
+`FestivalApp.tsx`, wired in ahead of the category branch in the
+`visiblePrograms` filter — when active, category matching (and the
+`UNCATEGORIZED_ID` branch) is bypassed entirely and only
 `selectedIds.has(p.id)` decides visibility, while the settlement filter
 still applies via AND (it's an orthogonal, location-based axis, not a
-category one). While the override is active, `CategoryFilter` visually
-`disabled`s and dims (`opacity-40`) the real category chips and the "mind"/
-"egyik sem" links, since they have no effect until it's turned back off —
-turning it off doesn't lose the prior category selection, it was never
-touched. The chip itself uses `--pin` (gold) rather than a category color,
-matching the same "has a saved program" visual language as the pin-tier
-half-star in `ScheduleGrid.tsx` and the "Kedvenceim" tab.
+category one). While the override is active, `CategoryFilter` takes a
+`disabled` prop and visually dims (`opacity-40`) the real category chips
+and the "mind"/"egyik sem" links, since they have no effect until it's
+turned back off — turning it off doesn't lose the prior category
+selection, it was never touched. The chip uses its own token, `--saved`
+(`app/globals.css`) — not `--pin` (gold), which reads as visually identical
+to Taliándörögd's settlement color (`#ffb636` vs. `#ffb703`, see below) once
+both are on screen at once; `--saved` is a cobalt blue chosen specifically
+to sit outside every other color family already in use (accent green,
+danger, pin/Taliándörögd gold, Kapolcs teal, Vigántpetend mauve).
+
+`SettlementFilter.tsx` intentionally has no "mind"/"egyik sem" bulk actions
+— with only 3 settlements, toggling them individually is already as fast;
+`CategoryFilter.tsx` keeps its own "mind"/"egyik sem" since that list is
+much longer. The mobile-only "Kategóriák (N)" toggle button
+(`FestivalApp.tsx`, `sm:hidden`) is styled as a pill (`rounded-full border`)
+like every other filter chip so it visually reads as clickable, and turns
+solid `bg-ink text-paper` while expanded (`categoriesOpen`) — the same
+active-state pattern as the Programtábla/Kedvenceim/Előadók view tabs — so
+its open/closed state is legible at a glance, not just from the ▸/▾ glyph.
 
 **Grid rendering** (`components/ScheduleGrid.tsx`): rows = venues (sticky
 left column, narrow/near-square, venue name wraps 2-4 lines rather than
@@ -302,12 +316,16 @@ background with the category color at 25% alpha (`${color}40` as a hex
 alpha suffix) rather than the ~8% (`${color}14`) used earlier, since the
 lighter tint didn't separate categories clearly enough at a glance. Design
 tokens (`--paper: #f7f7ff`, `--ink: #023047`, `--accent: #3f826d`,
-`--pin: #ffb703`, `--danger: #fb8500`, plus derived `-soft` tint variants
+`--pin: #ffb703`, `--danger: #6d1a36`, plus derived `-soft` tint variants
 mixed toward `--paper`) live in `app/globals.css` — these are the user's own
 exact hex choices, not sampled/derived, so don't adjust the 5 base values
 without asking; the three-typeface system (Space Grotesk / IBM Plex Sans /
 IBM Plex Mono) is set up in `app/layout.tsx` via `next/font/google` — Plex
 Mono is used specifically for times/dates for a "timetable board" feel.
+`--saved` (`#3557c0`) is a later, single-purpose addition for the "Csak a
+Kedvenceim" filter chip only (see above) — not one of the 5 core tokens,
+doesn't need the same by-hand-only rule, but was still chosen deliberately
+to avoid colliding with any existing token or settlement color.
 
 The venue header cell in `ScheduleGrid.tsx` deliberately does **not** tint
 its background for starred or pin-tier venues — it always shows the plain

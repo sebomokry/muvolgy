@@ -10,6 +10,7 @@
   --danger-soft: #f7ece6;
   --pin: #ffb703;
   --pin-soft: #f8f1e6;
+  --saved: #3557c0;
 }
 
 @theme inline {
@@ -22,6 +23,7 @@
   --color-danger-soft: var(--danger-soft);
   --color-pin: var(--pin);
   --color-pin-soft: var(--pin-soft);
+  --color-saved: var(--saved);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);

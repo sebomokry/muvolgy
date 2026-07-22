@@ -197,16 +197,35 @@ export function FestivalApp({ data }: { data: FestivalData }) {
             settlements={settlements}
             activeSettlements={activeSettlements}
             onToggle={toggleSettlement}
-            onAll={() => setActiveSettlements(new Set(settlements))}
-            onNone={() => setActiveSettlements(new Set())}
           />
-          <button
-            onClick={() => setCategoriesOpen((prev) => !prev)}
-            className="flex items-center gap-1.5 self-start font-mono text-xs text-ink/50 hover:text-ink sm:hidden"
-          >
-            <span>{categoriesOpen ? "▾" : "▸"}</span>
-            Kategóriák ({activeCategoryIds.size})
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setCategoriesOpen((prev) => !prev)}
+              className={`flex items-center gap-1.5 self-start rounded-full border px-2.5 py-1 font-mono text-xs font-medium transition-colors sm:hidden ${
+                categoriesOpen
+                  ? "border-transparent bg-ink text-paper"
+                  : "border-line text-ink/60 hover:border-ink/30 hover:text-ink"
+              }`}
+            >
+              <span>{categoriesOpen ? "▾" : "▸"}</span>
+              Kategóriák ({activeCategoryIds.size})
+            </button>
+            <button
+              onClick={() => setOnlyFavorites((prev) => !prev)}
+              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                onlyFavorites
+                  ? "border-transparent text-paper"
+                  : "border-line text-ink/50 hover:text-ink"
+              }`}
+              style={onlyFavorites ? { backgroundColor: "var(--saved)" } : undefined}
+            >
+              <span
+                className={`h-2 w-2 rounded-full ${onlyFavorites ? "bg-paper" : ""}`}
+                style={onlyFavorites ? undefined : { backgroundColor: "var(--saved)" }}
+              />
+              Csak a Kedvenceim
+            </button>
+          </div>
           <div
             className={`${categoriesOpen ? "flex" : "hidden"} flex-col gap-1.5 sm:flex`}
           >
@@ -220,11 +239,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                 )
               }
               onNone={() => setActiveCategoryIds(new Set())}
-              extraChip={{
-                label: "Csak Kedvenceim",
-                active: onlyFavorites,
-                onClick: () => setOnlyFavorites((prev) => !prev),
-              }}
+              disabled={onlyFavorites}
             />
           </div>
         </div>
