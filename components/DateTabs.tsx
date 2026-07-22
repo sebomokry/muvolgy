@@ -1,6 +1,6 @@
 "use client";
 
-import { formatDay } from "@/lib/schedule";
+import { formatDay, formatWeekdayInitial } from "@/lib/schedule";
 
 type Props = {
   days: string[];
@@ -23,7 +23,7 @@ export function DateTabs({ days, selectedDay, onSelect }: Props) {
                 : "text-ink/60 hover:bg-ink/5 hover:text-ink"
             }`}
           >
-            {formatDay(day)}
+            {formatDay(day)} {formatWeekdayInitial(day)}
           </button>
         );
       })}

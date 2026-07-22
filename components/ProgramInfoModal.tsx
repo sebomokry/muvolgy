@@ -1,7 +1,7 @@
 "use client";
 
 import type { Program } from "@/lib/types";
-import { extraArtists, formatDay, formatTime } from "@/lib/schedule";
+import { extraArtists, formatDay, formatTime, formatWeekday } from "@/lib/schedule";
 import { VenueDetails } from "./VenueDetails";
 
 type Props = {
@@ -52,8 +52,8 @@ export function ProgramInfoModal({
         )}
 
         <p className="mt-1 font-mono text-xs text-ink/50">
-          {formatDay(program.day)} · {formatTime(program.startTs)}–
-          {formatTime(program.endTs)}
+          {formatDay(program.day)} ({formatWeekday(program.day)}) ·{" "}
+          {formatTime(program.startTs)}–{formatTime(program.endTs)}
         </p>
 
         {program.location ? (

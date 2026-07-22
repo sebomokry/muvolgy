@@ -27,6 +27,32 @@ export function formatDay(day: string): string {
   return `${months[Number(month) - 1]}. ${Number(date)}.`;
 }
 
+const WEEKDAYS = [
+  "vasárnap",
+  "hétfő",
+  "kedd",
+  "szerda",
+  "csütörtök",
+  "péntek",
+  "szombat",
+];
+
+export function formatWeekday(day: string): string {
+  const [year, month, date] = day.split("-").map(Number);
+  return WEEKDAYS[new Date(Date.UTC(year, month - 1, date)).getUTCDay()];
+}
+
+// Hungarian digraphs (sz, cs) count as one letter, so "szerda"/"szombat" ->
+// "Sz" and "csütörtök" -> "Cs", not just their first character.
+const WEEKDAY_INITIALS = ["V", "H", "K", "Sz", "Cs", "P", "Sz"];
+
+export function formatWeekdayInitial(day: string): string {
+  const [year, month, date] = day.split("-").map(Number);
+  return WEEKDAY_INITIALS[
+    new Date(Date.UTC(year, month - 1, date)).getUTCDay()
+  ];
+}
+
 export function programsForDay(programs: Program[], day: string): Program[] {
   return programs.filter((p) => p.day === day);
 }

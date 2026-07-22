@@ -265,6 +265,16 @@ since `getServerSnapshot` always returns an empty set.
 grouping programs by day, splitting all-day vs. timed programs, and
 overlap/conflict detection (`overlaps`, `conflictingIds`) used both for the
 grid's conflict highlighting and the "Kedvenceim" (saved programs) tab.
+`formatWeekday`/`formatWeekdayInitial` sit alongside `formatDay`/
+`formatTime` for showing which day of the week a date falls on: the full
+Hungarian name next to the date in `ProgramInfoModal.tsx`
+("júl. 24. (péntek)"), and just a digraph-aware initial in `DateTabs.tsx`
+("júl. 24. P") where there's no room for the full name — "Sz" for
+szerda/szombat, "Cs" for csütörtök, not just the first character, since
+Hungarian digraphs count as one letter. `formatWeekdayInitial` doesn't
+disambiguate szerda from szombat (both "Sz"); that's fine, the date itself
+is what's actually unique in that row, the letter is just a quick visual
+hint.
 `sortVenuesWithFavoritesFirst` pins venue rows in three tiers, not two:
 starred venues, then *unstarred* venues that merely host a saved
 (`selectedIds`) program that day (so a favorited concert never gets lost
