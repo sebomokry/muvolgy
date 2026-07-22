@@ -2,6 +2,7 @@
 
 import type { Program } from "@/lib/types";
 import { formatDay, formatTime, formatWeekday } from "@/lib/schedule";
+import { settlementColor } from "@/lib/settlementColors";
 
 type Props = {
   programs: Program[];
@@ -50,7 +51,7 @@ export function SelectedPanel({ programs, conflictIds, onOpenProgram }: Props) {
                   <li key={p.id}>
                     <button
                       onClick={() => onOpenProgram(p.id)}
-                      className={`flex w-full items-start gap-3 py-2.5 text-left ${
+                      className={`flex w-full items-start justify-between gap-3 py-2.5 text-left ${
                         isConflict ? "border-l-2 border-danger pl-2" : ""
                       }`}
                     >
@@ -65,6 +66,16 @@ export function SelectedPanel({ programs, conflictIds, onOpenProgram }: Props) {
                           {p.name}
                         </div>
                       </div>
+                      {p.location?.city && (
+                        <span
+                          className="mt-1 h-3.5 w-3.5 shrink-0 full"
+                          style={{
+                            backgroundColor: settlementColor(p.location.city)
+                              .solid,
+                          }}
+                          aria-hidden="true"
+                        />
+                      )}
                     </button>
                   </li>
                 );

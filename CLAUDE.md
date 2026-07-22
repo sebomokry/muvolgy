@@ -152,11 +152,38 @@ danger, pin/Taliándörögd gold, Kapolcs teal, Vigántpetend mauve).
 — with only 3 settlements, toggling them individually is already as fast;
 `CategoryFilter.tsx` keeps its own "mind"/"egyik sem" since that list is
 much longer. The mobile-only "Kategóriák (N)" toggle button
-(`FestivalApp.tsx`, `sm:hidden`) is styled as a pill (`rounded-full border`)
-like every other filter chip so it visually reads as clickable, and turns
-solid `bg-ink text-paper` while expanded (`categoriesOpen`) — the same
+(`FestivalApp.tsx`) is styled as a pill (`rounded-full border`) like every
+other filter chip so it visually reads as clickable, and turns solid
+`bg-ink text-paper` while expanded (`categoriesOpen`) — the same
 active-state pattern as the Programtábla/Kedvenceim/Előadók view tabs — so
 its open/closed state is legible at a glance, not just from the ▸/▾ glyph.
+
+Its show/hide breakpoint is deliberately **not** plain Tailwind `sm:`
+(width-only, `min-width: 640px`): a landscape phone crosses 640px in width
+while still being very short vertically (e.g. ~390-430px), so a
+width-only check would misclassify it as "desktop" and force the full,
+always-expanded category list into a viewport with no room for it. Both
+the toggle button and the category-list wrapper instead use the same
+compound arbitrary variant, `[@media(min-width:640px)_and_(min-height:500px)]:`
+— comfortably separating actual landscape phones from tablets/desktop
+(both wide *and* tall) — and must always change together (each has a code
+comment pointing at the other). As a second-line defense, the whole filter
+block (`DateTabs`/`SettlementFilter`/toggle row/category list) is now
+`max-h-[60vh] overflow-y-auto` on its own, so if its content still
+outgrows the available height for any reason, it scrolls internally
+instead of shoving `ScheduleGrid` off-screen with no way back (the outer
+`<body>` is `overflow-hidden` by design — see below).
+
+`SettlementFilter` and the "Kategóriák"/"Csak a Kedvenceim" buttons are
+siblings inside one `flex flex-wrap` row (not two separate rows) —
+deliberately not gated by a breakpoint at all. Whether they end up on one
+line or two falls out of ordinary flex-wrap width math: on a landscape
+phone (wide) they merge onto a single row, saving the vertical space that
+matters there; on a portrait phone (narrow) they naturally wrap onto two,
+matching the original two-row layout. This also merges them on desktop
+(also wide), which wasn't the original ask but reads fine, since
+"Kategóriák" is hidden there anyway (compound breakpoint above) and only
+"Csak a Kedvenceim" ends up sharing the row.
 
 **Grid rendering** (`components/ScheduleGrid.tsx`): rows = venues (sticky
 left column, narrow/near-square, venue name wraps 2-4 lines rather than
@@ -422,8 +449,12 @@ pill instead of plain text). Keep the settlement stripe as a separate,
 always-on visual channel rather than folding it into the cell's background
 — that's why it's a top border rather than competing for the cell's fill
 color, which is exactly the reasoning that later also pushed favorite/pin
-state off the background and onto the star glyph.
+state off the background and onto the star glyph. `SelectedPanel.tsx`'s
+"Kedvenceim" list reuses the same palette too: a `h-3.5 w-3.5` solid dot on
+the right edge of each saved program shows the settlement color of its
+venue, at a glance, without repeating the settlement name as text.
 
-**Mobile**: the category filter row collapses behind a toggle below the `sm`
-breakpoint (state in `FestivalApp.tsx`) to leave more vertical space for the
-grid; above `sm` it's always shown regardless of that state.
+**Mobile**: the category filter row collapses behind a toggle below the
+compound "spacious" breakpoint (state in `FestivalApp.tsx` — see above for
+why it's not plain `sm:`) to leave more vertical space for the grid; above
+that breakpoint it's always shown regardless of that state.

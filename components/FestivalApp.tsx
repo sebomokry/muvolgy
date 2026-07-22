@@ -194,21 +194,25 @@ export function FestivalApp({ data }: { data: FestivalData }) {
       </header>
 
       {view === "grid" && (
-        <div className="flex shrink-0 flex-col gap-2 border-b border-line px-4 py-2.5">
+        <div className="flex max-h-[60vh] shrink-0 flex-col gap-2 overflow-y-auto border-b border-line px-4 py-2.5">
           <DateTabs
             days={data.days}
             selectedDay={selectedDay}
             onSelect={setSelectedDay}
           />
-          <SettlementFilter
-            settlements={settlements}
-            activeSettlements={activeSettlements}
-            onToggle={toggleSettlement}
-          />
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <SettlementFilter
+              settlements={settlements}
+              activeSettlements={activeSettlements}
+              onToggle={toggleSettlement}
+            />
             <button
               onClick={() => setCategoriesOpen((prev) => !prev)}
-              className={`flex items-center gap-1.5 self-start rounded-full border px-2.5 py-1 font-mono text-xs font-medium transition-colors sm:hidden ${
+              // Width-only `sm:` would misfire on a landscape phone (wide
+              // enough to cross 640px, but far too short vertically for an
+              // always-expanded category list) — this needs both width AND
+              // height, so it stays in sync with the wrapper div below.
+              className={`flex items-center gap-1.5 self-start rounded-full border px-2.5 py-1 font-mono text-xs font-medium transition-colors [@media(min-width:640px)_and_(min-height:500px)]:hidden ${
                 categoriesOpen
                   ? "border-transparent bg-ink text-paper"
                   : "border-line text-ink/60 hover:border-ink/30 hover:text-ink"
@@ -237,7 +241,8 @@ export function FestivalApp({ data }: { data: FestivalData }) {
             </button>
           </div>
           <div
-            className={`${categoriesOpen ? "flex" : "hidden"} flex-col gap-1.5 sm:flex`}
+            // Must match the compound breakpoint on the "Kategóriák" toggle above.
+            className={`${categoriesOpen ? "flex" : "hidden"} flex-col gap-1.5 [@media(min-width:640px)_and_(min-height:500px)]:flex`}
           >
             <CategoryFilter
               categories={categoriesWithUncategorized}
