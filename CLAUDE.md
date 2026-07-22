@@ -283,7 +283,28 @@ same localStorage-synced store factory, `hooks/idSetStore.ts`
 `useState` + `useEffect` — this was a deliberate choice after
 `eslint-plugin-react-hooks`'s `set-state-in-effect` rule flagged the more
 obvious effect-based approach; it also sidesteps SSR/hydration mismatches
-since `getServerSnapshot` always returns an empty set.
+since `getServerSnapshot` always returns an empty set. `hooks/useHasSeenIntro.ts`
+follows the exact same shape (module-level state, `subscribe`/`getSnapshot`/
+`getServerSnapshot`, localStorage key `mv-seen-intro`) but as a one-off hook
+rather than going through `createIdSetStore` — it persists a single boolean,
+not an id set, so reusing that factory would've meant forcing a
+`Set<number>` shape onto a single flag for no benefit.
+
+**App info modal** (`components/AppInfoModal.tsx`): opened from a small dark
+circular ⓘ button (`bg-ink`, deliberately just the button itself and not
+the whole sticky corner cell behind it — the cell stays `bg-paper` like the
+rest of the header) in the schedule grid's top-left corner cell
+(`components/ScheduleGrid.tsx`), the one cell that's otherwise empty (sits
+above the venue column, to the left of the time axis). Auto-opens on a
+visitor's first-ever visit via `useHasSeenIntro`, but the auto-open logic
+needs *no* `useEffect`: `FestivalApp.tsx` derives visibility for render as
+`introManuallyOpened || (!hasSeenIntro && !introDismissed)`, so a fresh
+visitor sees it simply because `hasSeenIntro` reads `false` on the first
+render — no imperative "open it on mount" step required. `markSeen()` (a
+plain store write, called from the modal's `onClose` handler, not from an
+effect) is what prevents it from reappearing on the next visit; the ⓘ
+button independently sets `introManuallyOpened`, so it stays available as a
+manual entry point regardless of `hasSeenIntro`.
 
 **Derived scheduling logic** lives in `lib/schedule.ts` as pure functions:
 grouping programs by day, splitting all-day vs. timed programs, and

@@ -50,6 +50,7 @@ type Props = {
   favoriteIds: Set<number>;
   onToggleFavorite: (venueId: number) => void;
   onOpenProgram: (id: number) => void;
+  onOpenInfo: () => void;
 };
 
 export function ScheduleGrid({
@@ -62,6 +63,7 @@ export function ScheduleGrid({
   favoriteIds,
   onToggleFavorite,
   onOpenProgram,
+  onOpenInfo,
 }: Props) {
   const [openVenueId, setOpenVenueId] = useState<number | null>(null);
   const openVenue = venues.find((v) => v.id === openVenueId) ?? null;
@@ -89,9 +91,17 @@ export function ScheduleGrid({
         style={{ height: HEADER_HEIGHT }}
       >
         <div
-          className="sticky left-0 z-10 shrink-0 border-b border-r border-line bg-paper"
+          className="sticky left-0 z-10 flex shrink-0 items-center justify-center border-b border-r border-line bg-paper"
           style={{ width: VENUE_COL_WIDTH }}
-        />
+        >
+          <button
+            onClick={onOpenInfo}
+            aria-label="Az alkalmazásról"
+            className="flex h-6 w-6 items-center justify-center rounded-full bg-ink text-sm text-paper transition-opacity hover:opacity-90"
+          >
+            ⓘ
+          </button>
+        </div>
         <div
           className="relative shrink-0 border-b border-line"
           style={{ width: gridWidth }}

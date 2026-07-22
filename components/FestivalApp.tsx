@@ -16,6 +16,7 @@ import {
 } from "@/lib/schedule";
 import { useSelectedPrograms } from "@/hooks/useSelectedPrograms";
 import { useFavoriteVenues } from "@/hooks/useFavoriteVenues";
+import { useHasSeenIntro } from "@/hooks/useHasSeenIntro";
 import { DateTabs } from "./DateTabs";
 import { CategoryFilter } from "./CategoryFilter";
 import { SettlementFilter } from "./SettlementFilter";
@@ -23,6 +24,7 @@ import { ScheduleGrid } from "./ScheduleGrid";
 import { SelectedPanel } from "./SelectedPanel";
 import { ArtistsView } from "./ArtistsView";
 import { ProgramInfoModal } from "./ProgramInfoModal";
+import { AppInfoModal } from "./AppInfoModal";
 
 const DEFAULT_CATEGORY = "Könnyűzene";
 const UNCATEGORIZED_ID = -1;
@@ -61,6 +63,11 @@ export function FestivalApp({ data }: { data: FestivalData }) {
   );
   const { selectedIds, toggle } = useSelectedPrograms();
   const { favoriteIds, toggle: toggleFavorite } = useFavoriteVenues();
+  const { hasSeenIntro, markSeen } = useHasSeenIntro();
+  const [introDismissed, setIntroDismissed] = useState(false);
+  const [introManuallyOpened, setIntroManuallyOpened] = useState(false);
+  const introOpen =
+    introManuallyOpened || (!hasSeenIntro && !introDismissed);
   const [openProgramId, setOpenProgramId] = useState<number | null>(null);
   const openProgram =
     data.programs.find((p) => p.id === openProgramId) ?? null;
@@ -283,6 +290,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                 favoriteIds={favoriteIds}
                 onToggleFavorite={toggleFavorite}
                 onOpenProgram={setOpenProgramId}
+                onOpenInfo={() => setIntroManuallyOpened(true)}
               />
             </div>
           </div>
@@ -304,6 +312,15 @@ export function FestivalApp({ data }: { data: FestivalData }) {
           onClose={() => setOpenProgramId(null)}
           relatedPrograms={relatedPrograms}
           onOpenProgram={setOpenProgramId}
+        />
+      )}
+      {introOpen && (
+        <AppInfoModal
+          onClose={() => {
+            setIntroDismissed(true);
+            setIntroManuallyOpened(false);
+            markSeen();
+          }}
         />
       )}
     </div>
