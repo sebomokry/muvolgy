@@ -62,6 +62,27 @@ rather than just imprecise. `components/VenueDetails.tsx` shows the raw
 coordinates as text when present, and a light "maybe Google will find it
 anyway" fallback line when not, rather than implying anything authoritative.
 
+Of the 49 venues that actually host a program, 24 had neither address nor
+coords from `/api/v1/map` (always both-or-neither, never just one), plus
+one venue (Visa KözTér) missing from that endpoint entirely despite hosting
+120 programs. `lib/locationOverrides.ts` fills these in — but only for
+venues with a genuinely confirmed source (either the user's own on-site
+knowledge, or an independently citable web source for the handful of
+venues that turned out to be real, permanent, publicly-documented
+buildings, e.g. MűvészVölgy Kúria), matching the same principle as the
+`marker_x`/`marker_y` rejection above: an unverified guess would be worse
+than the existing honest "no exact address" fallback. `normalizeProgram`
+in `lib/api.ts` reads `LOCATION_OVERRIDES[id]` as the last fallback step
+for `city`/`address`/`coords` independently — only filling in whichever of
+the three the live API still doesn't provide, so if the festival's own
+data ever catches up for a venue, it wins automatically with no code
+change needed. As of this writing, coverage is effectively complete except
+for coordinates on Visa KözTér — extend the file the same way (venue id →
+`{ city?, address?, coords? }`, id found via
+`curl -s "$API/map" | grep -o '"id":[0-9]*,"name":"[^"]*<venue name>[^"]*"'`)
+if more verified data turns up later; don't add an entry without a
+citable source.
+
 Programs also carry an `artists: { id, name
 }[]` field (from the API's `artists` relation — the `id` is kept
 specifically so the same performer can be matched across different
