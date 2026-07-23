@@ -34,6 +34,9 @@ quirks specific to this sandbox:
 - Playwright's own module resolution requires the driver script to live
   inside the project directory (not `/tmp`/scratchpad) or `playwright-core`
   won't resolve.
+- The service worker (see below) often doesn't activate consistently under
+  `next dev`; verify offline/PWA behavior against `npm run build` +
+  `npm start` instead of the dev server.
 
 ## Architecture
 
@@ -519,3 +522,48 @@ venue, at a glance, without repeating the settlement name as text.
 compound "spacious" breakpoint (state in `FestivalApp.tsx` — see above for
 why it's not plain `sm:`) to leave more vertical space for the grid; above
 that breakpoint it's always shown regardless of that state.
+
+**PWA / offline support**: `app/manifest.ts` uses Next's built-in
+`MetadataRoute.Manifest` route convention (no extra package), with
+`public/icon.svg` — a small hand-drawn icon (dark `--ink` background, a few
+`--paper` grid lines plus `--accent`/`--pin` blocks) echoing the same
+timetable-grid motif as the rest of the app's glyphs, rather than a
+photographic icon. `sizes: "any"` avoids needing a PNG-rasterization build
+step. `public/sw.js` is a **hand-written service worker**, deliberately not
+using Serwist/Workbox: Next's own docs recommend Serwist for offline
+support, but Serwist currently requires webpack config, while this project
+builds with Turbopack (`next build` prints "Next.js 16.2.10 (Turbopack)") —
+a webpack-plugin-based tool would be unreliable here. The hand-written
+worker is intentionally minimal: network-first, cache-fallback on `fetch`,
+with no build-time precache list (Next's hashed `_next/static/...`
+filenames change every build, so there's nothing stable to precache
+up front) — it just learns at runtime what it's already seen successfully
+over the network. `components/ServiceWorkerRegister.tsx` registers it from
+a `useEffect` (no `setState` inside, so it's fine under the
+`set-state-in-effect` rule) mounted in `app/layout.tsx`.
+
+One consequence worth knowing if this ever needs debugging: **the very
+first page load is never itself cached**, because the service worker only
+registers (and its `fetch` handler only starts intercepting requests) via
+that `useEffect`, which runs *after* the initial HTML has already been
+requested over the network by the browser. So a first-time visitor who
+goes offline immediately after that first load will *not* get a working
+offline page — the document itself was fetched before the worker existed
+to observe and cache it. The worker install/activate/claim happens in the
+background during that first visit, so the *second* visit onward (even
+still online, e.g. a reload) is what actually gets captured into the
+runtime cache; only from that point does an offline reload serve
+correctly. This matches real installed-PWA behavior (first visit installs
+silently, subsequent visits are what get cached) and was confirmed via
+Playwright: `context.setOffline(true)` alone didn't reliably trigger the
+worker's cache fallback in this Chromium/Playwright combination, but a
+real CDP-level `Network.emulateNetworkConditions({offline: true})` after a
+second (still-online) reload did — worth remembering if a future offline
+test seems to fail for no obvious reason.
+
+Offline caching itself works independent of whether the site is "installed"
+(added to the home screen) — the service worker runs in an ordinary browser
+tab too. Installing only adds the standalone/full-screen presentation and,
+on iOS Safari specifically, a somewhat more durable cache (an
+uninstalled tab's cache is more likely to be evicted by the OS after a
+period of inactivity than an installed one's).
