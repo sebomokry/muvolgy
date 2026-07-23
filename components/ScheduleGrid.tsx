@@ -84,6 +84,25 @@ export function ScheduleGrid({
     );
   }
 
+  // Mark the first venue that drops out of the "pinned" group (starred, or
+  // unstarred-but-has-a-saved-program) so the render loop can draw a divider
+  // band right where the pinned block ends and the plain venue list begins.
+  const dividerBeforeVenueId = (() => {
+    let prevPinned = true;
+    for (const venue of venues) {
+      const isFavorite = favoriteIds.has(venue.id);
+      const hasSelectedProgram =
+        !isFavorite &&
+        (programsByVenue.get(venue.id) ?? []).some((p) =>
+          selectedIds.has(p.id),
+        );
+      const isPinned = isFavorite || hasSelectedProgram;
+      if (prevPinned && !isPinned) return venue.id;
+      prevPinned = isPinned;
+    }
+    return null;
+  })();
+
   return (
     <div className="flex h-full flex-col overflow-auto">
       <div
@@ -128,7 +147,7 @@ export function ScheduleGrid({
         </div>
       </div>
 
-      {venues.map((venue) => {
+      {venues.flatMap((venue) => {
         const lanes = layoutLanes(programsByVenue.get(venue.id) ?? []);
         const laneCount = lanes[0]?.laneCount ?? 1;
         const rowHeight = laneCount * LANE_HEIGHT;
@@ -139,23 +158,23 @@ export function ScheduleGrid({
             selectedIds.has(p.id),
           );
         const settlement = settlementColor(venue.city);
-        return (
+        const row = (
           <div
             key={venue.id}
             className="flex w-max shrink-0 border-b border-line/60 last:border-b-0"
           >
             <div
-              className="sticky left-0 z-10 flex shrink-0 flex-col items-center justify-center gap-0.5 border-t-[3px] border-r border-r-line px-1 py-1 text-center font-display text-ink"
+              className="sticky left-0 z-10 flex shrink-0 flex-col items-center justify-center gap-0.5 border-t-[3px] px-1 py-1 text-center font-display text-ink"
               style={{
                 width: VENUE_COL_WIDTH,
                 height: rowHeight,
-                borderTopColor: settlement.solid,
-                backgroundColor: settlement.soft,
+                borderTopColor: settlement.soft,
+                backgroundColor: settlement.solid,
               }}
             >
               <button
                 onClick={() => setOpenVenueId(venue.id)}
-                className="flex flex-col items-center gap-0.5 whitespace-normal text-[11px] leading-tight font-medium hover:underline"
+                className="flex flex-col items-center gap-0.5 whitespace-normal text-xs leading-tight font-bold hover:underline"
                 title={venue.name}
               >
                 <span className="relative inline-block text-xs leading-none">
@@ -258,6 +277,20 @@ export function ScheduleGrid({
             </div>
           </div>
         );
+
+        return dividerBeforeVenueId === venue.id
+          ? [
+              <div
+                key={`divider-${venue.id}`}
+                className="h-1.5 shrink-0"
+                style={{
+                  width: VENUE_COL_WIDTH + gridWidth,
+                  backgroundColor: "var(--group-divider)",
+                }}
+              />,
+              row,
+            ]
+          : [row];
       })}
       {openVenue && (
         <VenueInfoModal

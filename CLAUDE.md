@@ -436,6 +436,11 @@ Mono is used specifically for times/dates for a "timetable board" feel.
 Kedvenceim" filter chip only (see above) — not one of the 5 core tokens,
 doesn't need the same by-hand-only rule, but was still chosen deliberately
 to avoid colliding with any existing token or settlement color.
+`--group-divider` (`#9dc3e6`, a soft blue) is another single-purpose token,
+used only for the pinned/plain venue-group divider band in `ScheduleGrid.tsx`
+(see below) — deliberately not reusing `--line` (the general hairline/
+border color) once the divider became a visible band rather than a border,
+since the user wanted it distinctly colored, not just a thicker hairline.
 
 There's no dedicated "muted text" token — secondary/de-emphasized text
 throughout the app is plain `--ink` at reduced Tailwind opacity
@@ -454,21 +459,44 @@ standard for *readable* secondary text going forward, but leave the
 deliberately-faint `/40` tier alone unless it's specifically called out.
 
 The venue header cell in `ScheduleGrid.tsx` deliberately does **not** tint
-its background for starred or pin-tier venues — it always shows the plain
-settlement color (`settlement.soft`), the same as any other venue. Favorite/
-pin state is carried *only* by the ☆/★ glyph: empty outline (☆) for a
-plain venue, a solid ink-colored ★ for a starred venue, and — for the
-"unstarred venue that merely hosts a saved concert today" pin tier — a
-vertically-split half star (a `★` clipped to its left 50% via
+its background differently for starred or pin-tier venues — every venue
+gets the same treatment regardless of favorite/pin state: `backgroundColor:
+settlement.solid` (the saturated variant) with a lighter `border-t-[3px]`
+in `settlement.soft` on top only (`borderTopColor`, no border on the other
+three sides). This is inverted from how it reads at first glance — solid
+color is the *base* fill, soft is just the thin accent stripe — chosen
+because a solid, more saturated fill reads as more deliberate/branded than
+the pale tint version did, and the venue name is `font-bold text-xs` (up
+from `font-medium text-[11px]`) to stay legible against the stronger
+background. Favorite/pin state is carried *only* by the ☆/★ glyph: empty
+outline (☆) for a plain venue, a solid ink-colored ★ for a starred venue,
+and — for the "unstarred venue that merely hosts a saved concert today" pin
+tier — a vertically-split half star (a `★` clipped to its left 50% via
 `clipPath: inset(0 50% 0 0)`, colored `--pin`, layered over the base ☆
 outline) rather than a full star or a background tint. This replaced an
 earlier version where the pin tier got a solid `--pin-soft` background
 (and, before that, starred venues got an `--accent-soft` background) — both
 were dropped because a colored header background competed visually with
-the always-on settlement-color stripe (see below) for the same cell; the
-glyph is now the only channel for favorite/pin state, so `--pin-soft` is
-currently unused (kept defined in `globals.css` for palette symmetry, not
-referenced by any component).
+the always-on settlement-color stripe for the same cell; the glyph is now
+the only channel for favorite/pin state, so `--pin-soft` is currently
+unused (kept defined in `globals.css` for palette symmetry, not referenced
+by any component).
+
+Separately from the per-venue glyph, `ScheduleGrid.tsx` draws one
+full-row-width **group divider band** (`h-1.5`, `--group-divider`, a soft
+blue chosen specifically for this one purpose) at the single point in the
+already-sorted venue list where `sortVenuesWithFavoritesFirst`'s "pinned"
+tiers (starred, or unstarred-with-a-saved-program) end and the plain tier
+begins. `ScheduleGrid` doesn't receive the tier boundary as a prop — it
+recomputes `isFavorite`/`hasSelectedProgram` per venue the same way the
+per-row rendering already does, walks the list once tracking the previous
+venue's pinned-state, and records the *first* venue id where pinned flips
+to not-pinned (`dividerBeforeVenueId`). The venue list render loop is a
+`flatMap` (not `map`) specifically so it can prepend that one extra
+band element right before that venue's row without changing keys elsewhere.
+The band needs an explicit `width: VENUE_COL_WIDTH + gridWidth` — unlike
+the venue/timeline rows, it has no children of its own to size a `w-max`
+against, so `w-max` alone silently collapses it to zero width.
 
 Settlement colors are a separate palette, `lib/settlementColors.ts`
 (`settlementColor(city)` → `{ solid, soft }`), for the festival's 3 villages

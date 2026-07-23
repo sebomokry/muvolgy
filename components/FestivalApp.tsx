@@ -163,7 +163,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
     <div className="flex h-full flex-col">
       <header className="flex shrink-0 items-center justify-between gap-4 border-b border-line px-4 py-2.5">
         <h1 className="truncate font-display text-lg font-medium text-ink">
-          Művészetek Völgye
+          MűVölgy
         </h1>
         <div className="flex shrink-0 gap-1 rounded-full border border-line p-0.5">
           <button

@@ -11,6 +11,7 @@
   --pin: #ffb703;
   --pin-soft: #f8f1e6;
   --saved: #3557c0;
+  --group-divider: #9dc3e6;
 }
 
 @theme inline {
@@ -24,6 +25,7 @@
   --color-pin: var(--pin);
   --color-pin-soft: var(--pin-soft);
   --color-saved: var(--saved);
+  --color-group-divider: var(--group-divider);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);
