@@ -825,3 +825,34 @@ or its close button. Fixed by adding the same `max-h-[85vh]
 overflow-y-auto` already used elsewhere in this codebase for exactly this
 reason — the modal box now scrolls internally instead of extending past
 the viewport.
+
+**"Barátaim Kedvencei" chip only shows once you have a friend**:
+`FestivalApp.tsx`'s grid filter row used to always render the "Barátaim
+Kedvencei" chip, even with an empty `friends` list — pointless (there's
+nothing to filter to) and confusing (a working-looking toggle that can
+never show anything). Now gated behind `friends.length > 0`. This also
+surfaced a latent stuck-state bug worth remembering: if `onlyFriendFavorites`
+were ever `true` at the moment the last friend gets removed, the chip
+(now hidden) would leave no way to turn the override back off, silently
+freezing the grid on an empty filter with the category chips still dimmed.
+Fixed by deriving `effectiveOnlyFriendFavorites = onlyFriendFavorites &&
+friends.length > 0` and using *that* (not the raw state) everywhere the
+override actually affects behavior (`anyFavoriteOverride`, the
+`visiblePrograms` filter) — same "derive for render, no effect needed"
+approach used elsewhere in this file (e.g. the intro-modal auto-open
+logic), so the override self-clears the instant the friend list empties,
+with no extra state or effect required.
+
+**QR images needed to shrink on narrow phones**: `ShareSiteQrButton.tsx`'s
+enlarged QR (and, for the same latent reason, `ExportFavoritesModal.tsx`'s
+and `ShareFavoritesModal.tsx`'s) rendered its `<img>` with hardcoded
+`width={240} height={240}` and no responsive CSS — fine on most phones,
+but on a narrow enough screen (confirmed via Playwright down to a 280px
+viewport) the fixed-pixel image could exceed the available width inside
+the modal's padding. Each now also has `h-auto max-w-full` in its
+`className`, so the browser derives the aspect ratio from the `width`/
+`height` attributes (a standard modern-browser behavior, not a hack) and
+scales the image down to fit whatever width is actually available, rather
+than overflowing. `width`/`height` attributes are kept as-is (not
+removed) since they're still what let the browser lay out the correct
+aspect ratio before the image loads.

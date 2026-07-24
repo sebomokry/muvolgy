@@ -67,7 +67,7 @@ export function ExportFavoritesModal({ programIds, venueIds, onClose }: Props) {
               alt="QR-kód a kedvenceim exportálásához"
               width={240}
               height={240}
-              className="rounded border border-line"
+              className="h-auto max-w-full rounded border border-line"
             />
           )}
         </div>

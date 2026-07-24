@@ -93,7 +93,7 @@ export function ShareFavoritesModal({ programIds, onClose }: Props) {
                   alt="QR-kód a kedvenceim megosztásához"
                   width={240}
                   height={240}
-                  className="rounded border border-line"
+                  className="h-auto max-w-full rounded border border-line"
                 />
               )}
             </div>
