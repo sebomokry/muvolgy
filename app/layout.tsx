@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
@@ -40,6 +41,7 @@ export default function RootLayout({
       <body className="h-full overflow-hidden bg-paper text-ink font-body">
         {children}
         <ServiceWorkerRegister />
+        <Analytics />
       </body>
     </html>
   );

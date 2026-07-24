@@ -59,6 +59,16 @@ export function createIdSetStore(storageKey: string) {
     listeners.forEach((listener) => listener());
   }
 
+  /** Unions the given ids into the existing set rather than replacing it. */
+  function addMany(newIds: number[]) {
+    ensureInitialized();
+    const next = new Set(ids);
+    for (const id of newIds) next.add(id);
+    ids = next;
+    window.localStorage.setItem(storageKey, JSON.stringify([...next]));
+    listeners.forEach((listener) => listener());
+  }
+
   function useIdSet() {
     const selectedIds = useSyncExternalStore(
       subscribe,
@@ -69,6 +79,7 @@ export function createIdSetStore(storageKey: string) {
     return {
       selectedIds,
       toggle: useCallback((id: number) => toggle(id), []),
+      addMany: useCallback((newIds: number[]) => addMany(newIds), []),
     };
   }
 

@@ -700,3 +700,66 @@ logic is unchanged and only ever looks at the user's own selections.
 it started as a local, non-exported helper) specifically so
 `ShareFavoritesModal.tsx` could reuse it for copying the share link — same
 ⧉/✓ toggle, no behavior change at either call site.
+
+**Own-favorites export/import** ("Saját" sub-tab of "Kedvenceim"): a
+distinct mechanism from the friend-sharing QR feature above — that one
+transfers a *subset* of favorites to a *named other person*'s "Barátaim"
+list; this one transfers *all* of your own favorites (both selected
+programs and starred venues) to *your own* browser on another
+device/session, merging into whatever's already there rather than
+attributing them to anyone. Because the two must never collide,
+`components/ExportFavoritesModal.tsx` builds its link with a completely
+different query-param pair, `?myprograms=<id,id,...>&myvenues=<id,id,...>`
+(vs. the friend feature's `?friend=&ids=`), and `hooks/useOwnImportRequest.ts`
+is a separate `useSyncExternalStore` reader (same shape as
+`hooks/useImportRequest.ts`) keyed off those two params instead. There's
+no name-entry step in `ExportFavoritesModal.tsx` — unlike
+`ShareFavoritesModal.tsx`, it doesn't use `useOwnName` at all, since the
+data isn't being attributed to anyone.
+
+Importing needs to *add to*, not replace, whatever's already in the
+target browser's own `selectedIds`/`favoriteIds` — this only works
+because `hooks/idSetStore.ts`'s `createIdSetStore` factory gained a second
+mutator, `addMany(ids)`, alongside the pre-existing `toggle(id)`: it
+unions the given ids into the existing set and persists once, rather than
+looping `toggle` (which would incorrectly *remove* any id already
+present). Both `useSelectedPrograms` and `useFavoriteVenues` now expose
+this `addMany` alongside their existing `toggle`.
+
+`components/ImportOwnFavoritesModal.tsx` renders one of two states from a
+single component rather than two separate modals, since they share the
+same confirm-dialog UI once a pending request exists: (1) if
+`useOwnImportRequest()` already has a request (i.e. the visitor arrived
+via a link/QR carrying `?myprograms=&myvenues=`), it shows the
+programs/venues count and a Hozzáadás/Mégse confirm, validating both id
+lists against the live `data.programs`/`data.locations` the same way
+`ImportFriendFavoritesModal` validates program ids — invalid/stale ids
+are silently dropped, and an all-invalid result shows the same
+"couldn't read this" fallback pattern; (2) if there's no such pending
+request but the modal was opened manually (see below), it instead shows a
+plain text input for **pasting a full previously-exported link** — parsed
+via `new URL(...)`, then handed to `useOwnImportRequest`'s
+`setRequestFromUrl(rawUrl)`, which re-parses the same two params and (if
+either list is non-empty) updates the shared pending-request state so the
+component's own next render falls into case (1) and shows the identical
+confirm dialog. This second, manual mode exists specifically for
+transferring the link a way other than scanning a QR with the *same*
+browser it needs to land in — e.g. pasted from an email or notes app —
+without it auto-triggering the moment the link is merely visited.
+`components/SelectedPanel.tsx` gained the "Exportálás QR-kóddal"/
+"Importálás" button row that opens these two flows; unlike the rest of
+`SelectedPanel`'s content, this row renders *above* the empty-state early
+return (restructured into a shared `actionButtons` JSX const referenced
+from both branches) so both buttons — and hence the manual-import path in
+particular — stay reachable even before you've selected a single program.
+
+**Vercel Analytics**: `<Analytics />` from `@vercel/analytics/next` is
+mounted once in `app/layout.tsx`, alongside the existing always-on
+`<ServiceWorkerRegister />` in `<body>`. It's a real `dependencies` entry
+(ships in the production bundle), unlike `playwright-core`. Locally
+(`next dev`/`next start`) the component still injects the
+`/_vercel/insights/script.js` tag and the browser requests it — that
+request 404s outside of an actual Vercel deployment, which is expected;
+Vercel's own hosting layer is what serves that script and records the
+pageview in production, so this only starts reporting data (visible on
+the project's Analytics dashboard tab) after the next deploy.

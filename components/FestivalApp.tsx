@@ -29,6 +29,8 @@ import { ProgramInfoModal } from "./ProgramInfoModal";
 import { AppInfoModal } from "./AppInfoModal";
 import { ShareFavoritesModal } from "./ShareFavoritesModal";
 import { ImportFriendFavoritesModal } from "./ImportFriendFavoritesModal";
+import { ExportFavoritesModal } from "./ExportFavoritesModal";
+import { ImportOwnFavoritesModal } from "./ImportOwnFavoritesModal";
 
 const DEFAULT_CATEGORY = "Könnyűzene";
 const UNCATEGORIZED_ID = -1;
@@ -56,6 +58,8 @@ export function FestivalApp({ data }: { data: FestivalData }) {
     "sajat",
   );
   const [shareOpen, setShareOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [importOwnManualOpen, setImportOwnManualOpen] = useState(false);
   const categoriesWithUncategorized = useMemo(
     () => [
       ...data.categories,
@@ -377,6 +381,9 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                   programs={selectedPrograms}
                   conflictIds={conflicts}
                   onOpenProgram={setOpenProgramId}
+                  onExport={() => setExportOpen(true)}
+                  onImport={() => setImportOwnManualOpen(true)}
+                  canExport={selectedPrograms.length > 0 || favoriteIds.size > 0}
                 />
               ) : (
                 <FriendFavoritesPanel
@@ -420,6 +427,19 @@ export function FestivalApp({ data }: { data: FestivalData }) {
         />
       )}
       <ImportFriendFavoritesModal programs={data.programs} />
+      {exportOpen && (
+        <ExportFavoritesModal
+          programIds={selectedPrograms.map((p) => p.id)}
+          venueIds={[...favoriteIds]}
+          onClose={() => setExportOpen(false)}
+        />
+      )}
+      <ImportOwnFavoritesModal
+        programs={data.programs}
+        locations={data.locations}
+        manualOpen={importOwnManualOpen}
+        onCloseManual={() => setImportOwnManualOpen(false)}
+      />
     </div>
   );
 }
