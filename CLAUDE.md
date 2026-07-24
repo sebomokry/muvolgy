@@ -763,3 +763,28 @@ request 404s outside of an actual Vercel deployment, which is expected;
 Vercel's own hosting layer is what serves that script and records the
 pageview in production, so this only starts reporting data (visible on
 the project's Analytics dashboard tab) after the next deploy.
+
+**Sharing the site itself via QR code**: `components/ShareSiteQrButton.tsx`
+sits in `ScheduleGrid.tsx`'s sticky top-left corner cell as a sibling of
+the existing ⓘ button (that cell's `flex items-center justify-center`
+gained a `gap-1.5` to fit both) — a small circular bélyegkép the same
+`h-6 w-6` size as ⓘ, click-to-enlarge into a modal with a bigger QR, the
+raw URL, and a `CopyButton`. This is a different case from the
+`ShareFavoritesModal`/`ExportFavoritesModal` QR features above: those
+encode dynamically-built links carrying the *user's own data*
+(`?friend=&ids=` / `?myprograms=&myvenues=`); this one encodes a single
+fixed constant, `SITE_URL = "https://muvolgy.vercel.app/"` — deliberately
+hardcoded rather than derived from `window.location`, since the point is
+always sharing the real deployed site regardless of where the code
+happens to be running (a `window.location`-based link would produce a
+useless `localhost:3000` QR during local dev/testing). The component
+generates one 240×240 `qrcode` data URL and reuses the same image at both
+the small (24×24, `overflow-hidden` on the circular button since the QR
+image itself is square) and enlarged sizes — downscaling a QR pattern for
+a thumbnail that's never meant to be independently scanned costs nothing,
+so there's no reason to generate a second, separately-sized image just
+for the thumbnail. Unlike `AppInfoModal` (which needs `FestivalApp.tsx`
+to own its open state for the shared first-visit auto-open logic), this
+widget's open/closed state is entirely local to itself — no prop
+threading through `ScheduleGrid` or state in `FestivalApp.tsx` needed,
+since nothing else in the app needs to observe or trigger it.

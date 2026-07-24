@@ -12,6 +12,7 @@ import { categoryColor } from "@/lib/categoryColors";
 import { settlementColor } from "@/lib/settlementColors";
 import { useNow } from "@/hooks/useNow";
 import { VenueInfoModal } from "./VenueInfoModal";
+import { ShareSiteQrButton } from "./ShareSiteQrButton";
 
 const PX_PER_MIN = 1.4;
 // Only a guard against zero/negative-duration bad data — real block widths
@@ -120,7 +121,7 @@ export function ScheduleGrid({
         style={{ height: HEADER_HEIGHT }}
       >
         <div
-          className="sticky left-0 z-10 flex shrink-0 items-center justify-center border-b border-r border-line bg-paper"
+          className="sticky left-0 z-10 flex shrink-0 items-center justify-center gap-1.5 border-b border-r border-line bg-paper"
           style={{ width: VENUE_COL_WIDTH }}
         >
           <button
@@ -130,6 +131,7 @@ export function ScheduleGrid({
           >
             ⓘ
           </button>
+          <ShareSiteQrButton />
         </div>
         <div
           className="relative shrink-0 border-b border-line"
