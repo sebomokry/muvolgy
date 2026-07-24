@@ -788,3 +788,40 @@ to own its open state for the shared first-visit auto-open logic), this
 widget's open/closed state is entirely local to itself — no prop
 threading through `ScheduleGrid` or state in `FestivalApp.tsx` needed,
 since nothing else in the app needs to observe or trigger it.
+
+**"Kedvenceim" gained a third sub-tab, "Export/Import"** (alongside
+"Saját"/"Barátaim", same pill switcher), extracted into its own
+`components/ExportImportPanel.tsx`. The "Exportálás QR-kóddal"/
+"Importálás" buttons used to live at the top of `SelectedPanel.tsx` (see
+the own-favorites export/import section above) — moved out because they
+apply to your *own* favorites as a cross-cutting action, not something
+that belongs visually bundled with the "Saját" program list itself;
+`SelectedPanel.tsx` reverted back to just the program list (no more
+`onExport`/`onImport`/`canExport` props, no more `actionButtons` const,
+back to its original single-purpose shape). `ExportImportPanel` takes the
+same three props (`onExport`, `onImport`, `canExport`) that
+`SelectedPanel` used to, plus a short explanatory paragraph about what
+export/import actually does — `FestivalApp.tsx`'s `kedvenceimTab` state
+grew a third value, `"atvitel"`, rendering this panel instead of
+`SelectedPanel`/`FriendFavoritesPanel`.
+
+**Address/coordinates get an explicit label**: `VenueDetails.tsx` now
+prefixes the address line with `Cím: ` and the coordinate line with
+`Koordináta: ` (when a real value exists — the "no address" fallback
+sentence stays unprefixed, since it isn't actually an address). The
+`CopyButton` next to each still copies the *raw* address/coordinate value
+without the label, not the label-prefixed displayed text — pasting
+"Cím: Fő utca 12" into Google Maps would break the search, so the label
+is purely a visual affordance, not part of the copyable value.
+
+**Modal max-height fix**: `ProgramInfoModal.tsx` and `VenueInfoModal.tsx`
+had no height cap on their own box, unlike `AppInfoModal.tsx` and the
+export/import/share QR modals — fine as long as their content stayed
+short, but a program with an unusually long "further appearances by this
+artist" name list (or, on `VenueInfoModal`, a long address) could grow
+taller than a small phone's viewport (reported on an iPhone 8, e.g. the
+"Emingo" concert), with no way to scroll down to the rest of the modal
+or its close button. Fixed by adding the same `max-h-[85vh]
+overflow-y-auto` already used elsewhere in this codebase for exactly this
+reason — the modal box now scrolls internally instead of extending past
+the viewport.

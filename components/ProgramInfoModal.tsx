@@ -29,7 +29,7 @@ export function ProgramInfoModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm rounded border border-line bg-paper p-5 shadow-lg"
+        className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded border border-line bg-paper p-5 shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">

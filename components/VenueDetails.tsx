@@ -24,7 +24,9 @@ export function VenueDetails({ venue, showOfficialLink = true }: Props) {
 
       <div className="mt-1 flex items-start gap-1.5">
         <p className="text-sm text-ink/80">
-          {venue.address ?? "Nincs pontos cím, de kattints, a Google általában megtalálja :)"}
+          {venue.address
+            ? `Cím: ${venue.address}`
+            : "Nincs pontos cím, de kattints, a Google általában megtalálja :)"}
         </p>
         {venue.address && (
           <CopyButton value={venue.address} label="Cím másolása" />
@@ -34,7 +36,7 @@ export function VenueDetails({ venue, showOfficialLink = true }: Props) {
       {venue.coords && (
         <div className="mt-0.5 flex items-center gap-1.5">
           <p className="font-mono text-xs text-ink/70">
-            {venue.coords[0].toFixed(5)}, {venue.coords[1].toFixed(5)}
+            Koordináta: {venue.coords[0].toFixed(5)}, {venue.coords[1].toFixed(5)}
           </p>
           <CopyButton
             value={`${venue.coords[0]}, ${venue.coords[1]}`}

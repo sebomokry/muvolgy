@@ -24,6 +24,7 @@ import { SettlementFilter } from "./SettlementFilter";
 import { ScheduleGrid } from "./ScheduleGrid";
 import { SelectedPanel } from "./SelectedPanel";
 import { FriendFavoritesPanel } from "./FriendFavoritesPanel";
+import { ExportImportPanel } from "./ExportImportPanel";
 import { ArtistsView } from "./ArtistsView";
 import { ProgramInfoModal } from "./ProgramInfoModal";
 import { AppInfoModal } from "./AppInfoModal";
@@ -54,9 +55,9 @@ export function FestivalApp({ data }: { data: FestivalData }) {
   );
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [onlyFriendFavorites, setOnlyFriendFavorites] = useState(false);
-  const [kedvenceimTab, setKedvenceimTab] = useState<"sajat" | "baratok">(
-    "sajat",
-  );
+  const [kedvenceimTab, setKedvenceimTab] = useState<
+    "sajat" | "baratok" | "atvitel"
+  >("sajat");
   const [shareOpen, setShareOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [importOwnManualOpen, setImportOwnManualOpen] = useState(false);
@@ -373,6 +374,16 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                 >
                   Barátaim{friends.length > 0 ? ` (${friends.length})` : ""}
                 </button>
+                <button
+                  onClick={() => setKedvenceimTab("atvitel")}
+                  className={`rounded-full px-3 py-1 font-display text-sm transition-colors ${
+                    kedvenceimTab === "atvitel"
+                      ? "bg-ink text-paper"
+                      : "text-ink/70 hover:text-ink"
+                  }`}
+                >
+                  Export/Import
+                </button>
               </div>
             </div>
             <div className="min-h-0 flex-1">
@@ -381,11 +392,8 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                   programs={selectedPrograms}
                   conflictIds={conflicts}
                   onOpenProgram={setOpenProgramId}
-                  onExport={() => setExportOpen(true)}
-                  onImport={() => setImportOwnManualOpen(true)}
-                  canExport={selectedPrograms.length > 0 || favoriteIds.size > 0}
                 />
-              ) : (
+              ) : kedvenceimTab === "baratok" ? (
                 <FriendFavoritesPanel
                   friends={friends}
                   allPrograms={data.programs}
@@ -393,6 +401,12 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                   onShare={() => setShareOpen(true)}
                   onOpenProgram={setOpenProgramId}
                   hasOwnFavorites={selectedPrograms.length > 0}
+                />
+              ) : (
+                <ExportImportPanel
+                  onExport={() => setExportOpen(true)}
+                  onImport={() => setImportOwnManualOpen(true)}
+                  canExport={selectedPrograms.length > 0 || favoriteIds.size > 0}
                 />
               )}
             </div>

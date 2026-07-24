@@ -8,47 +8,16 @@ type Props = {
   programs: Program[];
   conflictIds: Set<number>;
   onOpenProgram: (id: number) => void;
-  onExport: () => void;
-  onImport: () => void;
-  canExport: boolean;
 };
 
-export function SelectedPanel({
-  programs,
-  conflictIds,
-  onOpenProgram,
-  onExport,
-  onImport,
-  canExport,
-}: Props) {
-  const actionButtons = (
-    <div className="mb-6 flex gap-2">
-      <button
-        onClick={onExport}
-        disabled={!canExport}
-        className="flex-1 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
-      >
-        Exportálás QR-kóddal
-      </button>
-      <button
-        onClick={onImport}
-        className="flex-1 rounded border border-line px-4 py-2 font-display text-sm font-medium text-ink transition-colors hover:bg-ink/5"
-      >
-        Importálás
-      </button>
-    </div>
-  );
-
+export function SelectedPanel({ programs, conflictIds, onOpenProgram }: Props) {
   if (programs.length === 0) {
     return (
-      <div className="mx-auto h-full max-w-3xl overflow-y-auto px-4 py-6">
-        {actionButtons}
-        <div className="flex items-center justify-center py-12">
-          <p className="max-w-sm text-center font-body text-ink/70">
-            Még nincs kiválasztott program. Válts a Programtábla fülre, és
-            kattints egy programra a hozzáadáshoz.
-          </p>
-        </div>
+      <div className="flex h-full items-center justify-center">
+        <p className="max-w-sm text-center font-body text-ink/70">
+          Még nincs kiválasztott program. Válts a Programtábla fülre, és
+          kattints egy programra a hozzáadáshoz.
+        </p>
       </div>
     );
   }
@@ -64,7 +33,6 @@ export function SelectedPanel({
 
   return (
     <div className="mx-auto h-full max-w-3xl overflow-y-auto px-4 py-6">
-      {actionButtons}
       {conflictCount > 0 && (
         <p className="mb-4 rounded border border-danger/30 bg-danger-soft px-3 py-2 text-sm font-medium text-danger">
           {conflictCount} kiválasztott program időben ütközik egy másikkal.
