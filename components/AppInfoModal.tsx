@@ -47,14 +47,21 @@ export function AppInfoModal({ onClose }: Props) {
         </p>
 
         <p className="mt-3 text-sm text-ink/70">
-          Bármikor bármelyik helyszínre vagy programra kattintva
-          odanavigálhatsz a kedvenc térképalkalmazásoddal. Mindezt csak a
-          böngésződ jegyzi meg, nincs mögötte fiók vagy szerver.
+          A Kedvenceim fülön megoszthatod a kedvenc programjaidat egy
+          QR-kóddal a barátaiddal, ők beolvasva hozzáadhatják a saját
+          &bdquo;Barátaim&rdquo; listájukhoz, és a rácson rá is szűrhetnek
+          erre, akár a sajátjukkal együtt is.
         </p>
 
         <p className="mt-3 text-sm text-ink/70">
-        Mindent az oldalon csak a
-          böngésződ jegyez meg, nincs mögötte fiók vagy szerver.
+          Ha egyszer már megnyitottad a weboldalt, utána internet nélkül offline (pl. gyenge
+          térerőnél a fesztiválon) is használható marad az egész oldal.
+        </p>
+
+        <p className="mt-3 text-sm text-ink/70">
+          Bármikor bármelyik helyszínre vagy programra kattintva
+          odanavigálhatsz a kedvenc térképalkalmazásoddal. Mindezt csak a
+          böngésződ jegyzi meg, nincs mögötte fiók vagy szerver.
         </p>
 
         <button
