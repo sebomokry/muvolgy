@@ -55,6 +55,28 @@ function clearRequest() {
   listeners.forEach((listener) => listener());
 }
 
+/** Lets a freshly-scanned or manually-pasted share link (not just the initial URL) drive the same pending state. */
+function setRequestFromUrl(rawUrl: string): boolean {
+  ensureInitialized();
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    return false;
+  }
+  const name = parsed.searchParams.get("friend");
+  const idsRaw = parsed.searchParams.get("ids");
+  if (!name || !idsRaw) return false;
+  const ids = idsRaw
+    .split(",")
+    .map(Number)
+    .filter((n) => Number.isInteger(n));
+  if (ids.length === 0) return false;
+  request = { name, ids };
+  listeners.forEach((listener) => listener());
+  return true;
+}
+
 /** A pending "someone shared their favorites with you" request read once from the initial URL. */
 export function useImportRequest() {
   const importRequest = useSyncExternalStore(
@@ -63,5 +85,9 @@ export function useImportRequest() {
     getServerSnapshot,
   );
 
-  return { importRequest, clearRequest: useCallback(() => clearRequest(), []) };
+  return {
+    importRequest,
+    clearRequest: useCallback(() => clearRequest(), []),
+    setRequestFromUrl: useCallback((rawUrl: string) => setRequestFromUrl(rawUrl), []),
+  };
 }

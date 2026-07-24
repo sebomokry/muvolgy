@@ -856,3 +856,65 @@ scales the image down to fit whatever width is actually available, rather
 than overflowing. `width`/`height` attributes are kept as-is (not
 removed) since they're still what let the browser lay out the correct
 aspect ratio before the image loads.
+
+**In-app camera QR scanner on the "Barátaim" tab**: previously, importing
+a friend's shared favorites required scanning their QR with the phone's
+own OS camera app (which just opened the link, letting
+`hooks/useImportRequest.ts` pick up `?friend=&ids=` from
+`window.location.search` on load) — now `components/FriendFavoritesPanel.tsx`
+opens a live in-app camera view immediately, decoding QR codes directly
+without leaving the app, via `components/FriendQrScanner.tsx`. Uses
+`jsqr` (a small, dependency-free, worker-free pure decode function
+operating on raw pixel data) rather than the `qr-scanner` npm package or
+the native `BarcodeDetector` API: `qr-scanner` ships a separate worker
+file that typically needs copying into `public/`/bundler-specific config
+— the same class of build friction that already ruled out Serwist/Workbox
+in favor of the hand-written service worker (see PWA section above);
+`BarcodeDetector` isn't implemented in Safari/WebKit at all, i.e. no iOS
+support, a dealbreaker given this app's iPhone-heavy user base (see the
+iPhone 8 modal-overflow bug above). `jsqr` needed no ambient type
+declaration — it ships its own `dist/index.d.ts`.
+
+`FriendQrScanner.tsx` splits camera lifecycle from decoding into two
+separate effects: one (`[]` deps, runs once) owns `getUserMedia`/`<video>`
+wiring and stops the `MediaStream` tracks on unmount — since this
+component is only ever mounted while `kedvenceimTab === "baratok"`,
+switching to "Saját"/"Export/Import" unmounts it and releases the camera
+automatically, no extra signaling needed (confirmed via Playwright: spied
+on `MediaStreamTrack.prototype.stop` via `page.addInitScript`, asserted
+it fires on tab switch). The second effect runs a
+`requestAnimationFrame` loop drawing the live video frame to a hidden
+`<canvas>` and feeding the pixel data to `jsQR`, gated on an `active` prop
+from the parent — *only this decode loop* pauses/resumes around the
+confirm dialog (`ImportFriendFavoritesModal`, via
+`scannerActive = importRequest === null` in `FriendFavoritesPanel.tsx`),
+the camera stream itself is never torn down and restarted for this,
+avoiding both a visible flicker and a repeat permission prompt.
+
+A real bug only surfaced during Playwright verification with Chromium's
+`--use-file-for-fake-video-capture` (a static looping QR image, standing
+in for "the phone is still pointed at the same code the instant scanning
+resumes"): tapping "Hozzáadás" cleared the pending request and
+immediately resumed the decode loop, which re-decoded the still-visible,
+unchanged frame and reopened the identical confirm dialog right away.
+Fixed with a `lastDecodedRef` in `FriendQrScanner.tsx` that skips firing
+`onDecoded` again for a value identical to the last one actually
+decoded — a genuinely new/different QR still fires normally, only an
+exact repeat is suppressed. This ref persists for the scanner's whole
+mounted lifetime (not reset per pause/resume), so re-scanning the same
+friend's QR later in the same sitting requires leaving and re-entering
+the Barátaim tab (a fresh component instance) — an acceptable trade-off
+versus the alternative of nagging the same confirm dialog on every frame.
+
+`hooks/useImportRequest.ts` gained a `setRequestFromUrl(rawUrl): boolean`
+function — the exact same pattern `hooks/useOwnImportRequest.ts` already
+had for its own manual-paste flow, just validating `friend`+`ids` instead
+of `myprograms`/`myvenues` (both required, matching this hook's existing
+`parseFromLocation` invariant, unlike the "either list" OR-rule the own-
+favorites version uses). This one function is shared by both the
+scanner's `onDecoded` callback and `FriendFavoritesPanel.tsx`'s new
+always-visible paste-a-link field (mirroring `ImportOwnFavoritesModal.tsx`'s
+manual-paste UI/copy shape) — `ImportFriendFavoritesModal.tsx` itself
+needed zero changes, since it only ever reads the resulting
+`importRequest`/`clearRequest` state, agnostic to whether it arrived via
+the initial page URL, a camera decode, or a pasted link.

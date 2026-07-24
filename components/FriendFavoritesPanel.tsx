@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type { Program } from "@/lib/types";
 import type { FriendFavorite } from "@/hooks/useFriendFavorites";
+import { useImportRequest } from "@/hooks/useImportRequest";
 import { formatDay, formatTime, formatWeekday } from "@/lib/schedule";
 import { settlementColor } from "@/lib/settlementColors";
+import { FriendQrScanner } from "./FriendQrScanner";
 
 type Props = {
   friends: FriendFavorite[];
@@ -24,6 +26,30 @@ export function FriendFavoritesPanel({
   hasOwnFavorites,
 }: Props) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const { importRequest, setRequestFromUrl } = useImportRequest();
+  const [pastedLink, setPastedLink] = useState("");
+  const [pasteError, setPasteError] = useState(false);
+
+  // Scanning pauses while a confirm dialog (ImportFriendFavoritesModal) is
+  // already pending, whether that came from the camera or the paste field —
+  // resumes automatically the instant it clears (Hozzáadás/Mégse both do).
+  const scannerActive = importRequest === null;
+
+  const handleDecoded = useCallback(
+    (rawText: string) => {
+      setRequestFromUrl(rawText);
+    },
+    [setRequestFromUrl],
+  );
+
+  const handlePaste = () => {
+    if (setRequestFromUrl(pastedLink.trim())) {
+      setPasteError(false);
+      setPastedLink("");
+    } else {
+      setPasteError(true);
+    }
+  };
 
   const toggleExpanded = (name: string) => {
     setExpanded((prev) => {
@@ -37,6 +63,38 @@ export function FriendFavoritesPanel({
   return (
     <div className="mx-auto h-full max-w-3xl overflow-y-auto px-4 py-6">
       <div className="mb-6">
+        <h3 className="mb-2 font-display text-sm font-medium text-ink">
+          QR-kód beolvasása
+        </h3>
+        <FriendQrScanner active={scannerActive} onDecoded={handleDecoded} />
+
+        <div className="mt-3">
+          <p className="text-sm text-ink/70">Vagy illeszd be a kapott linket:</p>
+          <input
+            value={pastedLink}
+            onChange={(e) => {
+              setPastedLink(e.target.value);
+              setPasteError(false);
+            }}
+            placeholder="https://..."
+            className="mt-2 w-full rounded border border-line bg-paper px-3 py-2 font-mono text-sm text-ink placeholder:text-ink/40 focus:border-accent focus:outline-none"
+          />
+          {pasteError && (
+            <p className="mt-2 text-xs text-danger">
+              Ez nem egy érvényes megosztási link.
+            </p>
+          )}
+          <button
+            onClick={handlePaste}
+            disabled={pastedLink.trim().length === 0}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
+          >
+            Beolvasás
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-6 border-t border-line pt-6">
         <button
           onClick={onShare}
           disabled={!hasOwnFavorites}
