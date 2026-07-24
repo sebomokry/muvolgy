@@ -243,6 +243,39 @@ Hour gridlines are deliberately rendered *after* (on top of, `pointer-events-
 none`) the program blocks — drawing them first let opaque blocks paint over
 them, hiding the line wherever a block crossed it.
 
+A **"now" indicator** — a thin `--now` (red, `#e63946`) vertical line — is
+drawn the same way, once in the sticky header and once per venue row
+(rendered last, so it's the topmost line), rather than as a single element
+spanning the whole grid: row heights vary with lane count, so one
+absolutely-positioned element spanning multiple flex children would need a
+separately-tracked total height; per-row rendering reuses the exact same
+`left` math as the hourMarks gridlines and needs no extra bookkeeping.
+`hooks/useNow.ts` supplies the current time via `useSyncExternalStore`
+(the same pattern as `idSetStore.ts`, but ticking off a `setInterval`
+instead of `localStorage`) — its `getSnapshot` deliberately rounds to the
+minute rather than returning a raw `Date.now()`, because
+`useSyncExternalStore` re-invokes `getSnapshot` on every render to check
+for tearing, and a value that changes on literally every call would loop.
+The line only renders when "now" falls inside the *currently displayed*
+day's own `rangeStartTs`/`rangeEndTs` (already computed from that day's
+visible programs) — so it naturally disappears on any other day, and
+naturally doesn't reach outside the hours the grid actually spans that
+day, with no separate "is this today" flag needed.
+
+Comparing "now" against program timestamps needs the same "pretend UTC"
+reinterpretation `lib/api.ts`'s `toTimestamp` applies when parsing festival
+data (see below) — program timestamps store the festival's local
+wall-clock time as if it were UTC, so `lib/schedule.ts`'s
+`toScheduleTimestamp(epochMs)` takes the visitor's own device's *local*
+calendar components (`getFullYear`/`getHours`/etc., not the UTC variants)
+and re-encodes them the same way via `Date.UTC(...)`. This is correct as
+long as the visitor's device is set to Hungarian time, which holds for
+anyone actually at the festival — the target audience for this feature.
+The indicator (like the whole app) needs no network access to work: it's
+the device's own clock, so it renders correctly even fully offline (see
+PWA section below), verified via the same second-visit-then-offline
+Playwright/CDP method already used for the service worker.
+
 The sticky header's hour labels (e.g. "15:00") are centered on their
 gridline (`-translate-x-1/2`) for every hour *except* the first and last:
 the first is left-aligned (no translate) and the last is right-aligned

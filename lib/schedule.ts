@@ -8,6 +8,24 @@ export function formatTime(ts: number): string {
   return `${hh}:${mm}`;
 }
 
+/**
+ * Program timestamps store the festival's local wall-clock time reinterpreted
+ * as UTC (see toTimestamp in lib/api.ts) so formatTime's getUTCHours reads
+ * back the correct local hour. To compare "now" against them, the visitor's
+ * own local wall-clock components need the same reinterpretation — a raw
+ * epoch ms would be off by the local UTC offset.
+ */
+export function toScheduleTimestamp(epochMs: number): number {
+  const d = new Date(epochMs);
+  return Date.UTC(
+    d.getFullYear(),
+    d.getMonth(),
+    d.getDate(),
+    d.getHours(),
+    d.getMinutes(),
+  );
+}
+
 export function formatDay(day: string): string {
   const [, month, date] = day.split("-");
   const months = [

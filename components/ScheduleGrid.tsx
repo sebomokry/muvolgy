@@ -2,9 +2,15 @@
 
 import { useState } from "react";
 import type { Location, Program } from "@/lib/types";
-import { extraArtists, formatTime, isMusicProgram } from "@/lib/schedule";
+import {
+  extraArtists,
+  formatTime,
+  isMusicProgram,
+  toScheduleTimestamp,
+} from "@/lib/schedule";
 import { categoryColor } from "@/lib/categoryColors";
 import { settlementColor } from "@/lib/settlementColors";
+import { useNow } from "@/hooks/useNow";
 import { VenueInfoModal } from "./VenueInfoModal";
 
 const PX_PER_MIN = 1.4;
@@ -67,6 +73,10 @@ export function ScheduleGrid({
 }: Props) {
   const [openVenueId, setOpenVenueId] = useState<number | null>(null);
   const openVenue = venues.find((v) => v.id === openVenueId) ?? null;
+
+  const nowTs = toScheduleTimestamp(useNow());
+  const showNowLine = nowTs >= rangeStartTs && nowTs <= rangeEndTs;
+  const nowLeft = ((nowTs - rangeStartTs) / 60000) * PX_PER_MIN;
 
   const totalMinutes = (rangeEndTs - rangeStartTs) / 60000;
   const gridWidth = totalMinutes * PX_PER_MIN;
@@ -144,6 +154,12 @@ export function ScheduleGrid({
               </div>
             );
           })}
+          {showNowLine && (
+            <div
+              className="pointer-events-none absolute top-0 bottom-0 w-0.5 bg-now"
+              style={{ left: nowLeft }}
+            />
+          )}
         </div>
       </div>
 
@@ -274,6 +290,12 @@ export function ScheduleGrid({
                   style={{ left: ((ts - rangeStartTs) / 60000) * PX_PER_MIN }}
                 />
               ))}
+              {showNowLine && (
+                <div
+                  className="pointer-events-none absolute top-0 bottom-0 w-0.5 bg-now"
+                  style={{ left: nowLeft }}
+                />
+              )}
             </div>
           </div>
         );
