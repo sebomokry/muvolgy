@@ -17,14 +17,18 @@ import {
 import { useSelectedPrograms } from "@/hooks/useSelectedPrograms";
 import { useFavoriteVenues } from "@/hooks/useFavoriteVenues";
 import { useHasSeenIntro } from "@/hooks/useHasSeenIntro";
+import { useFriendFavorites } from "@/hooks/useFriendFavorites";
 import { DateTabs } from "./DateTabs";
 import { CategoryFilter } from "./CategoryFilter";
 import { SettlementFilter } from "./SettlementFilter";
 import { ScheduleGrid } from "./ScheduleGrid";
 import { SelectedPanel } from "./SelectedPanel";
+import { FriendFavoritesPanel } from "./FriendFavoritesPanel";
 import { ArtistsView } from "./ArtistsView";
 import { ProgramInfoModal } from "./ProgramInfoModal";
 import { AppInfoModal } from "./AppInfoModal";
+import { ShareFavoritesModal } from "./ShareFavoritesModal";
+import { ImportFriendFavoritesModal } from "./ImportFriendFavoritesModal";
 
 const DEFAULT_CATEGORY = "Könnyűzene";
 const UNCATEGORIZED_ID = -1;
@@ -47,6 +51,11 @@ export function FestivalApp({ data }: { data: FestivalData }) {
     () => defaultCategoryIds(data.categories),
   );
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const [onlyFriendFavorites, setOnlyFriendFavorites] = useState(false);
+  const [kedvenceimTab, setKedvenceimTab] = useState<"sajat" | "baratok">(
+    "sajat",
+  );
+  const [shareOpen, setShareOpen] = useState(false);
   const categoriesWithUncategorized = useMemo(
     () => [
       ...data.categories,
@@ -64,6 +73,12 @@ export function FestivalApp({ data }: { data: FestivalData }) {
   const { selectedIds, toggle } = useSelectedPrograms();
   const { favoriteIds, toggle: toggleFavorite } = useFavoriteVenues();
   const { hasSeenIntro, markSeen } = useHasSeenIntro();
+  const { friends, removeFriend } = useFriendFavorites();
+  const allFriendProgramIds = useMemo(
+    () => new Set(friends.flatMap((f) => f.programIds)),
+    [friends],
+  );
+  const anyFavoriteOverride = onlyFavorites || onlyFriendFavorites;
   const [introDismissed, setIntroDismissed] = useState(false);
   const [introManuallyOpened, setIntroManuallyOpened] = useState(false);
   const introOpen =
@@ -99,8 +114,9 @@ export function FestivalApp({ data }: { data: FestivalData }) {
     const dayPrograms = programsForDay(data.programs, selectedDay);
     return dayPrograms.filter(
       (p) =>
-        (onlyFavorites
-          ? selectedIds.has(p.id)
+        (anyFavoriteOverride
+          ? (onlyFavorites && selectedIds.has(p.id)) ||
+            (onlyFriendFavorites && allFriendProgramIds.has(p.id))
           : p.categories.length === 0
             ? activeCategoryIds.has(UNCATEGORIZED_ID)
             : p.categories.some((c) => activeCategoryIds.has(c.id))) &&
@@ -111,8 +127,11 @@ export function FestivalApp({ data }: { data: FestivalData }) {
     selectedDay,
     activeCategoryIds,
     activeSettlements,
+    anyFavoriteOverride,
     onlyFavorites,
+    onlyFriendFavorites,
     selectedIds,
+    allFriendProgramIds,
   ]);
 
   const { timed, allDay } = useMemo(
@@ -239,6 +258,30 @@ export function FestivalApp({ data }: { data: FestivalData }) {
               />
               Csak a Kedvenceim
             </button>
+            <button
+              onClick={() => {
+                setOnlyFriendFavorites((prev) => !prev);
+                if (!onlyFriendFavorites) setCategoriesOpen(false);
+              }}
+              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                onlyFriendFavorites
+                  ? "border-transparent text-paper"
+                  : "border-line text-ink/70 hover:text-ink"
+              }`}
+              style={
+                onlyFriendFavorites ? { backgroundColor: "var(--friend)" } : undefined
+              }
+            >
+              <span
+                className={`h-2 w-2 rounded-full ${onlyFriendFavorites ? "bg-paper" : ""}`}
+                style={
+                  onlyFriendFavorites
+                    ? undefined
+                    : { backgroundColor: "var(--friend)" }
+                }
+              />
+              Barátaim Kedvencei
+            </button>
           </div>
           <div
             // Must match the compound breakpoint on the "Kategóriák" toggle above.
@@ -254,7 +297,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                 )
               }
               onNone={() => setActiveCategoryIds(new Set())}
-              disabled={onlyFavorites}
+              disabled={anyFavoriteOverride}
             />
           </div>
         </div>
@@ -303,11 +346,50 @@ export function FestivalApp({ data }: { data: FestivalData }) {
             </div>
           </div>
         ) : view === "mine" ? (
-          <SelectedPanel
-            programs={selectedPrograms}
-            conflictIds={conflicts}
-            onOpenProgram={setOpenProgramId}
-          />
+          <div className="flex h-full flex-col">
+            <div className="flex shrink-0 justify-center border-b border-line px-4 py-2.5">
+              <div className="flex gap-1 rounded-full border border-line p-0.5">
+                <button
+                  onClick={() => setKedvenceimTab("sajat")}
+                  className={`rounded-full px-3 py-1 font-display text-sm transition-colors ${
+                    kedvenceimTab === "sajat"
+                      ? "bg-ink text-paper"
+                      : "text-ink/70 hover:text-ink"
+                  }`}
+                >
+                  Saját
+                </button>
+                <button
+                  onClick={() => setKedvenceimTab("baratok")}
+                  className={`rounded-full px-3 py-1 font-display text-sm transition-colors ${
+                    kedvenceimTab === "baratok"
+                      ? "bg-ink text-paper"
+                      : "text-ink/70 hover:text-ink"
+                  }`}
+                >
+                  Barátaim{friends.length > 0 ? ` (${friends.length})` : ""}
+                </button>
+              </div>
+            </div>
+            <div className="min-h-0 flex-1">
+              {kedvenceimTab === "sajat" ? (
+                <SelectedPanel
+                  programs={selectedPrograms}
+                  conflictIds={conflicts}
+                  onOpenProgram={setOpenProgramId}
+                />
+              ) : (
+                <FriendFavoritesPanel
+                  friends={friends}
+                  allPrograms={data.programs}
+                  onRemoveFriend={removeFriend}
+                  onShare={() => setShareOpen(true)}
+                  onOpenProgram={setOpenProgramId}
+                  hasOwnFavorites={selectedPrograms.length > 0}
+                />
+              )}
+            </div>
+          </div>
         ) : (
           <ArtistsView artists={artists} onOpenProgram={setOpenProgramId} />
         )}
@@ -331,6 +413,13 @@ export function FestivalApp({ data }: { data: FestivalData }) {
           }}
         />
       )}
+      {shareOpen && (
+        <ShareFavoritesModal
+          programIds={selectedPrograms.map((p) => p.id)}
+          onClose={() => setShareOpen(false)}
+        />
+      )}
+      <ImportFriendFavoritesModal programs={data.programs} />
     </div>
   );
 }

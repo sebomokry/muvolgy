@@ -573,7 +573,21 @@ filenames change every build, so there's nothing stable to precache
 up front) — it just learns at runtime what it's already seen successfully
 over the network. `components/ServiceWorkerRegister.tsx` registers it from
 a `useEffect` (no `setState` inside, so it's fine under the
-`set-state-in-effect` rule) mounted in `app/layout.tsx`.
+`set-state-in-effect` rule) mounted in `app/layout.tsx` — **but only when
+`process.env.NODE_ENV === "production"`**. Registering it under `next dev`
+too was tried first and broke Turbopack's own HMR: the service worker's
+`fetch` handler intercepted the dev-only HMR asset requests (which get a
+new filename hash on every recompile), and the browser surfaced this as
+`ChunkLoadError`s and "A ServiceWorker intercepted the request and
+encountered an unexpected error" — not an app bug, but a real, disruptive
+one caused by having *any* active service worker during development. In
+the `else` (dev) branch, the component actively calls
+`getRegistrations().forEach(r => r.unregister())` and clears all Cache
+Storage entries, so a browser that previously ran the production build
+against `localhost:3000` (as every verification pass in this project does)
+self-heals on the next dev-mode reload with no manual DevTools steps
+needed — don't remove that cleanup branch even though it looks like dead
+code most of the time.
 
 One consequence worth knowing if this ever needs debugging: **the very
 first page load is never itself cached**, because the service worker only
@@ -600,3 +614,89 @@ tab too. Installing only adds the standalone/full-screen presentation and,
 on iOS Safari specifically, a somewhat more durable cache (an
 uninstalled tab's cache is more likely to be evicted by the OS after a
 period of inactivity than an installed one's).
+
+**Sharing favorites via QR code** ("Barátaim" — friends): the app has no
+database, so a friend's shared selection has to travel entirely inside a
+URL the QR code encodes — the QR is just a convenient scanning surface for
+an ordinary link, not a separate transport. `components/ShareFavoritesModal.tsx`
+builds `${origin}${pathname}?friend=<name>&ids=<comma-separated program
+ids>` from the sharer's currently-selected programs and their own display
+name (asked once, then persisted via `hooks/useOwnName.ts`, the same
+single-value `useSyncExternalStore` shape as `useHasSeenIntro.ts`), then
+renders it as an `<img>` via the `qrcode` package's `QRCode.toDataURL()`
+inside a `useEffect` (this one's fine under `set-state-in-effect` too,
+since the `setState` happens inside the async `.then()` callback, not
+synchronously in the effect body — the rule targets the latter, not
+legitimate async side effects). `qrcode` (+ `@types/qrcode`) is a real,
+saved `dependencies` entry, unlike `playwright-core` — it ships in the
+production bundle, it isn't a verification-only tool.
+
+Reading the incoming `?friend=&ids=` on the receiving end deliberately
+does **not** use Next's `useSearchParams()`: I checked
+`node_modules/next/dist/docs/.../use-search-params.md` (per AGENTS.md,
+since this Next version can differ from training data) and confirmed that
+a static/ISR page (this app's `app/page.tsx` is one) must wrap any
+`useSearchParams()`-using Client Component in `<Suspense>` or the
+production build fails outright. Since this project doesn't use Next's
+router hooks anywhere else, `hooks/useImportRequest.ts` instead reads
+`window.location.search` once through the same
+`ensureInitialized`/module-level-state pattern as `idSetStore.ts` — ordinary
+`useSyncExternalStore`, `getServerSnapshot` returns `null` (nothing pending
+during SSR/first paint), no Suspense boundary needed anywhere.
+`clearRequest()` both clears the in-memory pending request and strips the
+query params via `history.replaceState` so a refresh doesn't re-prompt.
+
+`hooks/useFriendFavorites.ts` stores `{ name, programIds }[]` in
+`localStorage`, structured (not a plain `Set<number>`) so it can't reuse
+`hooks/idSetStore.ts`'s `createIdSetStore` factory, but follows the exact
+same subscribe/getSnapshot/getServerSnapshot/module-level-state shape.
+`addFriend(name, ids)` **replaces** any existing entry with the same
+`name` rather than adding a duplicate — a deliberate choice (confirmed with
+the user) so re-scanning an updated QR from the same person updates their
+list instead of piling up a second "Anna" entry; there's no other identity
+to key on since there are no accounts. `components/ImportFriendFavoritesModal.tsx`
+validates the scanned ids against the live `data.programs` and silently
+drops any that no longer exist (e.g. a stale QR from a previous session)
+rather than erroring; if none remain valid it shows a short "couldn't read
+this" message instead of an empty-but-still-offered import.
+
+The "Kedvenceim" tab gained its own internal sub-tab switcher (`kedvenceimTab`
+in `FestivalApp.tsx`, "Saját"/"Barátaim", same pill visual pattern as the
+top-level view tabs) rather than mixing both lists into one view — "Saját"
+is the pre-existing `SelectedPanel`, unchanged; "Barátaim" is the new
+`components/FriendFavoritesPanel.tsx`. Each friend's row is its own
+expand/collapse accordion (local `Set<string>` of expanded names) rather
+than always showing every program inline — with several friends this
+would otherwise get very long. Expanded, a friend's programs render as a
+day-grouped list (same shape as `SelectedPanel`: `formatDay`/`formatWeekday`
+header, time + location, settlement-colored dot, click-through to the same
+shared `ProgramInfoModal`) — this list was added after initial ship because
+the first version only showed a bare program *count* per friend, and the
+user pointed out the actual programs were only visible indirectly by
+switching to the grid and turning on the filter (see below), not as a list
+in this tab where you'd expect one.
+
+On the grid (Programtábla), `onlyFriendFavorites` is a second boolean
+alongside the pre-existing `onlyFavorites`, **OR**-combined (not
+replacing it): `anyFavoriteOverride = onlyFavorites || onlyFriendFavorites`,
+and the visible-programs filter becomes `(onlyFavorites &&
+selectedIds.has(p.id)) || (onlyFriendFavorites &&
+allFriendProgramIds.has(p.id))` when either is on — so both can be active
+at once and the grid shows the union, exactly the "select them together"
+behavior the user asked for, rather than one replacing the other.
+`allFriendProgramIds` is a `useMemo`'d union (`friends.flatMap(f =>
+f.programIds)`) recomputed only when `friends` changes. The new "Barátaim
+Kedvencei" chip uses its own token, `--friend` (`#7c3aed`, violet) —
+distinct from `--saved`'s cobalt blue and every other token — and, like
+`onlyFavorites`, flipping it on dims/disables the real category chips
+(`CategoryFilter`'s `disabled` prop is now driven by `anyFavoriteOverride`,
+not just `onlyFavorites`) and auto-collapses the mobile "Kategóriák"
+accordion. Deliberately out of scope (not requested): friend-saved
+programs do **not** pin their venue to the top of the grid the way the
+user's own `selectedIds` do in `sortVenuesWithFavoritesFirst` — that pin-tier
+logic is unchanged and only ever looks at the user's own selections.
+
+`components/CopyButton.tsx` was extracted out of `VenueDetails.tsx` (where
+it started as a local, non-exported helper) specifically so
+`ShareFavoritesModal.tsx` could reuse it for copying the share link — same
+⧉/✓ toggle, no behavior change at either call site.

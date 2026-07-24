@@ -13,6 +13,7 @@
   --saved: #3557c0;
   --group-divider: #9dc3e6;
   --now: #e63946;
+  --friend: #7c3aed;
 }
 
 @theme inline {
@@ -28,6 +29,7 @@
   --color-saved: var(--saved);
   --color-group-divider: var(--group-divider);
   --color-now: var(--now);
+  --color-friend: var(--friend);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);
