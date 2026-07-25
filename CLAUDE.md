@@ -810,6 +810,28 @@ widget's open/closed state is entirely local to itself — no prop
 threading through `ScheduleGrid` or state in `FestivalApp.tsx` needed,
 since nothing else in the app needs to observe or trigger it.
 
+Its enlarged-QR modal is rendered via `createPortal(..., document.body)`
+rather than inline — a real, user-reported bug on small screens turned
+out to be a classic CSS stacking-context trap: the button (and therefore
+its modal, before this fix) lives *inside* `ScheduleGrid.tsx`'s sticky
+top-left corner cell, which is itself nested inside the sticky header
+row — both use `position: sticky` with an explicit `z-index`, and each
+of those creates its own stacking context. A `position: fixed`
+descendant's on-screen *position* escapes non-transformed ancestors, but
+its *stacking order* does not escape an ancestor that establishes a
+stacking context — so the modal's `z-30` was only ever being compared
+against its immediate siblings inside that trapped local context, not
+against the rest of the page, and on narrow viewports it could end up
+rendered underneath other content (e.g. the mobile category-filter
+accordion) instead of on top of everything as intended. Portaling the
+modal straight to `document.body` sidesteps the whole ancestor-stacking
+hierarchy, matching how every other modal in this app already behaves
+(none of the others are nested inside a `sticky`+`z-index` ancestor, so
+none of them had this problem) — confirmed via Playwright that the
+overlay's DOM parent is now literally `<body>`, and that
+`document.elementFromPoint` at the modal's own heading resolves to the
+modal itself, not whatever used to render above it.
+
 **"Kedvenceim" gained a third sub-tab, "Export/Import"** (alongside
 "Saját"/"Barátaim", same pill switcher), extracted into its own
 `components/ExportImportPanel.tsx`. The "Exportálás QR-kóddal"/
