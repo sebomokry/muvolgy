@@ -78,6 +78,9 @@ export function ImportOwnFavoritesModal({
         >
           {hasAny ? (
             <>
+            <h1 className="font-display text-lg font-medium text-ink">
+                Átköltöztünk a muvolgyprogi.hu domainre
+              </h1>
               <h2 className="font-display text-lg font-medium text-ink">
                 Kedvenceim importálása
               </h2>
