@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import type { ArtistSummary } from "@/lib/schedule";
+import { InfoFooter } from "./InfoFooter";
 
 type Props = {
   artists: ArtistSummary[];
   onOpenProgram: (id: number) => void;
+  onOpenInfo: () => void;
 };
 
-export function ArtistsView({ artists, onOpenProgram }: Props) {
+export function ArtistsView({ artists, onOpenProgram, onOpenInfo }: Props) {
   const [query, setQuery] = useState("");
 
   const filtered = query.trim()
@@ -50,6 +52,7 @@ export function ArtistsView({ artists, onOpenProgram }: Props) {
             ))}
           </ul>
         )}
+        <InfoFooter onOpenInfo={onOpenInfo} />
       </div>
     </div>
   );

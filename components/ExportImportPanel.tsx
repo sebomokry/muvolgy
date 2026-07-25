@@ -1,12 +1,20 @@
 "use client";
 
+import { InfoFooter } from "./InfoFooter";
+
 type Props = {
   onExport: () => void;
   onImport: () => void;
   canExport: boolean;
+  onOpenInfo: () => void;
 };
 
-export function ExportImportPanel({ onExport, onImport, canExport }: Props) {
+export function ExportImportPanel({
+  onExport,
+  onImport,
+  canExport,
+  onOpenInfo,
+}: Props) {
   return (
     <div className="mx-auto h-full max-w-3xl overflow-y-auto px-4 py-6">
       <div className="flex gap-2">
@@ -36,6 +44,7 @@ export function ExportImportPanel({ onExport, onImport, canExport }: Props) {
         másik böngészőbe vagy eszközre — az ott már meglévő kedvenceidhez
         hozzáadódnak, nem írják felül azokat.
       </p>
+      <InfoFooter onOpenInfo={onOpenInfo} />
     </div>
   );
 }

@@ -3,21 +3,31 @@
 import type { Program } from "@/lib/types";
 import { formatDay, formatTime, formatWeekday } from "@/lib/schedule";
 import { settlementColor } from "@/lib/settlementColors";
+import { InfoFooter } from "./InfoFooter";
 
 type Props = {
   programs: Program[];
   conflictIds: Set<number>;
   onOpenProgram: (id: number) => void;
+  onOpenInfo: () => void;
 };
 
-export function SelectedPanel({ programs, conflictIds, onOpenProgram }: Props) {
+export function SelectedPanel({
+  programs,
+  conflictIds,
+  onOpenProgram,
+  onOpenInfo,
+}: Props) {
   if (programs.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <p className="max-w-sm text-center font-body text-ink/70">
-          Még nincs kiválasztott program. Válts a Programtábla fülre, és
-          kattints egy programra a hozzáadáshoz.
-        </p>
+      <div className="mx-auto flex h-full max-w-3xl flex-col overflow-y-auto px-4 py-6">
+        <div className="flex flex-1 items-center justify-center">
+          <p className="max-w-sm text-center font-body text-ink/70">
+            Még nincs kiválasztott program. Válts a Programtábla fülre, és
+            kattints egy programra a hozzáadáshoz.
+          </p>
+        </div>
+        <InfoFooter onOpenInfo={onOpenInfo} />
       </div>
     );
   }
@@ -84,6 +94,7 @@ export function SelectedPanel({ programs, conflictIds, onOpenProgram }: Props) {
           </div>
         ))}
       </div>
+      <InfoFooter onOpenInfo={onOpenInfo} />
     </div>
   );
 }

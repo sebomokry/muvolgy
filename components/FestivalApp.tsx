@@ -426,6 +426,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                   programs={selectedPrograms}
                   conflictIds={conflicts}
                   onOpenProgram={setOpenProgramId}
+                  onOpenInfo={() => setIntroManuallyOpened(true)}
                 />
               ) : kedvenceimTab === "baratok" ? (
                 <FriendFavoritesPanel
@@ -435,18 +436,24 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                   onShare={() => setShareOpen(true)}
                   onOpenProgram={setOpenProgramId}
                   hasOwnFavorites={selectedPrograms.length > 0}
+                  onOpenInfo={() => setIntroManuallyOpened(true)}
                 />
               ) : (
                 <ExportImportPanel
                   onExport={() => setExportOpen(true)}
                   onImport={() => setImportOwnManualOpen(true)}
                   canExport={selectedPrograms.length > 0 || favoriteIds.size > 0}
+                  onOpenInfo={() => setIntroManuallyOpened(true)}
                 />
               )}
             </div>
           </div>
         ) : (
-          <ArtistsView artists={artists} onOpenProgram={setOpenProgramId} />
+          <ArtistsView
+            artists={artists}
+            onOpenProgram={setOpenProgramId}
+            onOpenInfo={() => setIntroManuallyOpened(true)}
+          />
         )}
       </div>
       {openProgram && (

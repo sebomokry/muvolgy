@@ -1087,3 +1087,93 @@ fully-populated migration link; an old-domain visit with nothing saved
 redirects to a bare URL; and landing on the (simulated) new domain with
 the captured link shows the correct multi-part confirm sentence and
 actually populates all four localStorage keys on "Hozzáadás".
+
+**"Információk" reachable from every view, without costing any layout
+space**: originally, the ⓘ trigger only existed inside
+`ScheduleGrid.tsx`'s own corner cell, so "Kedvenceim" and "Előadók" had no
+way to reopen `AppInfoModal` at all. The first attempt at fixing this was
+a persistent `<footer>` row in `FestivalApp.tsx`, always visible on every
+view — but that permanently ate into the vertical space every view had
+available (shrinking the schedule grid itself on every load, not just
+when actually needed), which defeats the point on a small phone screen.
+Replaced with `components/InfoFooter.tsx`, a small shared component
+rendered as **trailing content inside each view's own existing scroll
+container** — `SelectedPanel.tsx`, `FriendFavoritesPanel.tsx`,
+`ExportImportPanel.tsx`, and `ArtistsView.tsx` each render it as the last
+element inside their own `overflow-y-auto` div, rather than as a
+separate always-reserved layout row. This means it costs zero dedicated
+space: it's simply the next thing after the real content, so on a short
+view it's immediately visible (nothing to scroll past), and on a long
+view it only comes into view once you actually scroll to the bottom —
+confirmed via Playwright that no `<footer>` element exists in the DOM at
+all anymore, and that the grid's own available height returned to what
+it was before this feature existed. `ScheduleGrid.tsx`'s own ⓘ corner
+button is untouched — it never cost dedicated layout space to begin
+with, so there was nothing to fix there; the "Programtábla" view still
+uses that as its info-access point rather than also getting an
+`InfoFooter`, since its scroll container is the same one the timeline
+itself scrolls in both axes (a trailing footer there would risk needing
+both a vertical *and* horizontal scroll to reach, unlike the other views'
+single-axis lists).
+
+**`AppInfoModal.tsx`** gained a warning paragraph right after the first
+paragraph, aimed at a real, analytics-observed failure mode: many
+visitors open the app from Messenger's in-app browser, then later return
+via Safari/Chrome and find their favorites apparently gone — the
+paragraph explains, in plain terms (no "localStorage"/"origin"
+terminology), that this is because each browser keeps its own separate
+storage, not actual data loss, and recommends always using the same
+browser. The modal's own layout changed to a `flex flex-col` box with an
+inner `min-h-0 flex-1 overflow-y-auto` region for the paragraphs and a
+`shrink-0` footer strip below it holding a single filled (`bg-accent`,
+i.e. always green, not the outline/secondary style originally used)
+button that opens `components/TutorialModal.tsx` — deliberately pinned
+outside the scrolling paragraph region so it stays visible and reachable
+without scrolling through the whole description first, making it obvious
+at a glance that there's more here than just a text blurb. The old
+"Értem" confirm button was removed entirely — closing now happens only
+via the ✕ or a backdrop click, both of which already call the same
+`onClose` (still triggering `markSeen()` in `FestivalApp.tsx` exactly as
+before, so first-visit dismissal behavior is unaffected).
+
+**`components/TutorialModal.tsx`** (new): a single scrollable list of 7
+step sections (heading + screenshot + short caption each), not a
+paginated/carousel UI — matching this codebase's general preference for
+hand-rolled minimalism over extra interactive machinery. Uses `next/image`
+(this app's first use of it — every other image in the app is a
+client-generated QR data URL rendered via plain `<img>`, explicitly
+because those aren't optimizable static assets; these tutorial images
+*are* static, build-time-known files, exactly `next/image`'s intended
+case) with explicit `width`/`height` matching the real captured PNG
+dimensions (required for a string `src`, per this Next version's own
+docs — confirmed there rather than assumed, per `AGENTS.md`). Rendered
+from inside `AppInfoModal.tsx` (own local `tutorialOpen` state, not lifted
+to `FestivalApp.tsx` — nothing else needs to observe or trigger it) as a
+sibling *outside* `AppInfoModal`'s own backdrop div (not nested inside
+it) — nesting it inside would have meant a click on `TutorialModal`'s own
+backdrop bubbles up through `AppInfoModal`'s backdrop `onClick` too,
+closing both modals when the user only meant to close the tutorial.
+
+The 7 screenshots under `public/tutorial/` are **real, Playwright-captured
+images of the actual running app** (not mockups), committed as ordinary
+static assets — unlike this project's disposable, always-deleted
+Playwright verification scripts, these are real content. Captured at a
+390×844 (iPhone-class) viewport in one continuous browser session so
+state could build up naturally: starring a venue, the Előadók list, the
+mobile category-filter accordion (with a test friend added first via the
+paste-link flow specifically so the "Barátaim Kedvencei" chip — gated
+behind `friends.length > 0` — would actually render), favoriting an
+out-of-category program to demonstrate the half-star pin-tier + divider
+band, a `ProgramInfoModal` showing both the map and official-site links,
+the Barátaim tab, and the Export/Import tab. One real bug surfaced during
+this: `next start` caches its view of the `public/` directory at process
+startup, so screenshots added to `public/tutorial/` *after* the server
+was already running 404'd until the server was restarted — worth
+remembering if static assets ever seem to 404 despite clearly existing on
+disk during local verification.
+
+**`FriendFavoritesPanel.tsx` section order**: originally camera scanner
+→ share button → friends list; reordered to **friends list → share
+button → camera scanner** (then `InfoFooter` last, unaffected) — so
+returning visitors see their existing friends immediately at the top
+instead of past the scanner/share UI every time.

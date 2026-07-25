@@ -7,6 +7,7 @@ import { useImportRequest } from "@/hooks/useImportRequest";
 import { formatDay, formatTime, formatWeekday } from "@/lib/schedule";
 import { settlementColor } from "@/lib/settlementColors";
 import { FriendQrScanner } from "./FriendQrScanner";
+import { InfoFooter } from "./InfoFooter";
 
 type Props = {
   friends: FriendFavorite[];
@@ -15,6 +16,7 @@ type Props = {
   onShare: () => void;
   onOpenProgram: (id: number) => void;
   hasOwnFavorites: boolean;
+  onOpenInfo: () => void;
 };
 
 export function FriendFavoritesPanel({
@@ -24,6 +26,7 @@ export function FriendFavoritesPanel({
   onShare,
   onOpenProgram,
   hasOwnFavorites,
+  onOpenInfo,
 }: Props) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const { importRequest, setRequestFromUrl } = useImportRequest();
@@ -62,53 +65,6 @@ export function FriendFavoritesPanel({
 
   return (
     <div className="mx-auto h-full max-w-3xl overflow-y-auto px-4 py-6">
-      <div className="mb-6">
-        <h3 className="mb-2 font-display text-sm font-medium text-ink">
-          QR-kód beolvasása
-        </h3>
-        <FriendQrScanner active={scannerActive} onDecoded={handleDecoded} />
-
-        <div className="mt-3">
-          <p className="text-sm text-ink/70">Vagy illeszd be a kapott linket:</p>
-          <input
-            value={pastedLink}
-            onChange={(e) => {
-              setPastedLink(e.target.value);
-              setPasteError(false);
-            }}
-            placeholder="https://..."
-            className="mt-2 w-full rounded border border-line bg-paper px-3 py-2 font-mono text-sm text-ink placeholder:text-ink/40 focus:border-accent focus:outline-none"
-          />
-          {pasteError && (
-            <p className="mt-2 text-xs text-danger">
-              Ez nem egy érvényes megosztási link.
-            </p>
-          )}
-          <button
-            onClick={handlePaste}
-            disabled={pastedLink.trim().length === 0}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
-          >
-            Beolvasás
-          </button>
-        </div>
-      </div>
-
-      <div className="mb-6 border-t border-line pt-6">
-        <button
-          onClick={onShare}
-          disabled={!hasOwnFavorites}
-          className="flex w-full items-center justify-center gap-2 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
-        >
-          Megosztás QR-kóddal
-        </button>
-        {!hasOwnFavorites && (
-          <p className="mt-2 text-center text-xs text-ink/70">
-            Válassz ki legalább egy programot a Saját fülön a megosztáshoz.
-          </p>
-        )}
-      </div>
-
       {friends.length === 0 ? (
         <div className="flex items-center justify-center py-12">
           <p className="max-w-sm text-center font-body text-ink/70">
@@ -116,7 +72,7 @@ export function FriendFavoritesPanel({
           </p>
         </div>
       ) : (
-        <ul className="divide-y divide-line">
+        <ul className="mb-6 divide-y divide-line">
           {friends.map((friend) => {
             const isOpen = expanded.has(friend.name);
             const friendPrograms = allPrograms.filter((p) =>
@@ -205,6 +161,55 @@ export function FriendFavoritesPanel({
           })}
         </ul>
       )}
+
+      <div className="mb-6">
+        <button
+          onClick={onShare}
+          disabled={!hasOwnFavorites}
+          className="flex w-full items-center justify-center gap-2 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
+        >
+          Kedvenceim megosztása QR-kóddal
+        </button>
+        {!hasOwnFavorites && (
+          <p className="mt-2 text-center text-xs text-ink/70">
+            Válassz ki legalább egy programot a Saját fülön a megosztáshoz.
+          </p>
+        )}
+      </div>
+
+      <div className="border-t border-line pt-6">
+        <h3 className="mb-2 font-display text-sm font-medium text-ink">
+          QR-kód beolvasása
+        </h3>
+        <FriendQrScanner active={scannerActive} onDecoded={handleDecoded} />
+
+        <div className="mt-3">
+          <p className="text-sm text-ink/70">Vagy illeszd be a kapott linket:</p>
+          <input
+            value={pastedLink}
+            onChange={(e) => {
+              setPastedLink(e.target.value);
+              setPasteError(false);
+            }}
+            placeholder="https://..."
+            className="mt-2 w-full rounded border border-line bg-paper px-3 py-2 font-mono text-sm text-ink placeholder:text-ink/40 focus:border-accent focus:outline-none"
+          />
+          {pasteError && (
+            <p className="mt-2 text-xs text-danger">
+              Ez nem egy érvényes megosztási link.
+            </p>
+          )}
+          <button
+            onClick={handlePaste}
+            disabled={pastedLink.trim().length === 0}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
+          >
+            Beolvasás
+          </button>
+        </div>
+      </div>
+
+      <InfoFooter onOpenInfo={onOpenInfo} />
     </div>
   );
 }
