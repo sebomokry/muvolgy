@@ -5,6 +5,8 @@ import type { Location, Program } from "@/lib/types";
 import { useOwnImportRequest } from "@/hooks/useOwnImportRequest";
 import { useSelectedPrograms } from "@/hooks/useSelectedPrograms";
 import { useFavoriteVenues } from "@/hooks/useFavoriteVenues";
+import { useFriendFavorites } from "@/hooks/useFriendFavorites";
+import { useOwnName } from "@/hooks/useOwnName";
 
 type Props = {
   programs: Program[];
@@ -23,6 +25,8 @@ export function ImportOwnFavoritesModal({
     useOwnImportRequest();
   const { addMany: addPrograms } = useSelectedPrograms();
   const { addMany: addVenues } = useFavoriteVenues();
+  const { addFriend } = useFriendFavorites();
+  const { ownName, setOwnName } = useOwnName();
   const [pastedLink, setPastedLink] = useState("");
   const [pasteError, setPasteError] = useState(false);
 
@@ -48,7 +52,20 @@ export function ImportOwnFavoritesModal({
     const validVenueIds = importRequest.venueIds.filter((id) =>
       locations.some((l) => l.id === id),
     );
-    const hasAny = validProgramIds.length > 0 || validVenueIds.length > 0;
+    const incomingFriends = importRequest.friends;
+    const incomingName =
+      importRequest.ownName && !ownName ? importRequest.ownName : null;
+    const hasAny =
+      validProgramIds.length > 0 ||
+      validVenueIds.length > 0 ||
+      incomingFriends.length > 0 ||
+      incomingName !== null;
+
+    const parts: string[] = [];
+    if (validProgramIds.length > 0) parts.push(`${validProgramIds.length} programot`);
+    if (validVenueIds.length > 0) parts.push(`${validVenueIds.length} helyszínt`);
+    if (incomingFriends.length > 0) parts.push(`${incomingFriends.length} barátot`);
+    if (incomingName) parts.push("a nevedet");
 
     return (
       <div
@@ -65,8 +82,7 @@ export function ImportOwnFavoritesModal({
                 Kedvenceim importálása
               </h2>
               <p className="mt-3 text-sm text-ink/70">
-                Ez a link {validProgramIds.length} programot és{" "}
-                {validVenueIds.length} helyszínt tartalmaz. Hozzáadod a
+                Ez a link {parts.join(", ")} tartalmaz. Hozzáadod a
                 jelenlegi kedvenceidhez?
               </p>
               <div className="mt-4 flex gap-2">
@@ -80,6 +96,10 @@ export function ImportOwnFavoritesModal({
                   onClick={() => {
                     if (validProgramIds.length > 0) addPrograms(validProgramIds);
                     if (validVenueIds.length > 0) addVenues(validVenueIds);
+                    for (const friend of incomingFriends) {
+                      addFriend(friend.name, friend.programIds);
+                    }
+                    if (incomingName) setOwnName(incomingName);
                     close();
                   }}
                   className="flex-1 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90"
@@ -94,8 +114,8 @@ export function ImportOwnFavoritesModal({
                 Nem sikerült beolvasni
               </h2>
               <p className="mt-3 text-sm text-ink/70">
-                A linkben szereplő programok és helyszínek közül egyik sem
-                található a jelenlegi adatok között.
+                A linkben szereplő adatok közül egyik sem használható a
+                jelenlegi adatok között.
               </p>
               <button
                 onClick={close}

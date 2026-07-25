@@ -2,25 +2,32 @@
 
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import type { FriendFavorite } from "@/hooks/useFriendFavorites";
+import { buildOwnFavoritesUrl } from "@/lib/ownFavoritesUrl";
 import { CopyButton } from "./CopyButton";
 
 type Props = {
   programIds: number[];
   venueIds: number[];
+  friends: FriendFavorite[];
+  ownName: string;
   onClose: () => void;
 };
 
-function buildExportUrl(programIds: number[], venueIds: number[]): string {
-  const url = new URL(window.location.href);
-  url.search = "";
-  url.searchParams.set("myprograms", programIds.join(","));
-  url.searchParams.set("myvenues", venueIds.join(","));
-  return url.toString();
-}
-
-export function ExportFavoritesModal({ programIds, venueIds, onClose }: Props) {
+export function ExportFavoritesModal({
+  programIds,
+  venueIds,
+  friends,
+  ownName,
+  onClose,
+}: Props) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
-  const exportUrl = buildExportUrl(programIds, venueIds);
+  const exportUrl = buildOwnFavoritesUrl(window.location.href, {
+    programIds,
+    venueIds,
+    friends,
+    ownName,
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -56,8 +63,9 @@ export function ExportFavoritesModal({ programIds, venueIds, onClose }: Props) {
 
         <p className="mt-3 text-sm text-ink/70">
           Ezt a QR-kódot vagy linket olvasd be (vagy nyisd meg) a másik
-          böngésződben/eszközödön — a kiválasztott programjaid és
-          becsillagozott helyszíneid hozzáadódnak az ott már meglévőkhöz.
+          böngésződben/eszközödön — a kiválasztott programjaid,
+          becsillagozott helyszíneid, a Barátaim listád és a saját neved
+          is hozzáadódnak az ott már meglévőkhöz.
         </p>
         <div className="mt-3 flex justify-center">
           {qrDataUrl && (

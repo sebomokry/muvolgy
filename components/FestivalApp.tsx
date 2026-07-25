@@ -18,6 +18,7 @@ import { useSelectedPrograms } from "@/hooks/useSelectedPrograms";
 import { useFavoriteVenues } from "@/hooks/useFavoriteVenues";
 import { useHasSeenIntro } from "@/hooks/useHasSeenIntro";
 import { useFriendFavorites } from "@/hooks/useFriendFavorites";
+import { useOwnName } from "@/hooks/useOwnName";
 import { DateTabs } from "./DateTabs";
 import { CategoryFilter } from "./CategoryFilter";
 import { SettlementFilter } from "./SettlementFilter";
@@ -94,6 +95,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
   const { favoriteIds, toggle: toggleFavorite } = useFavoriteVenues();
   const { hasSeenIntro, markSeen } = useHasSeenIntro();
   const { friends, removeFriend } = useFriendFavorites();
+  const { ownName } = useOwnName();
   const allFriendProgramIds = useMemo(
     () => new Set(friends.flatMap((f) => f.programIds)),
     [friends],
@@ -467,6 +469,8 @@ export function FestivalApp({ data }: { data: FestivalData }) {
         <ExportFavoritesModal
           programIds={selectedPrograms.map((p) => p.id)}
           venueIds={[...favoriteIds]}
+          friends={friends}
+          ownName={ownName}
           onClose={() => setExportOpen(false)}
         />
       )}

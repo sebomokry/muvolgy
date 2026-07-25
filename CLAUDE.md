@@ -968,3 +968,79 @@ live-fetch, `revalidate: 3600` architecture already self-heals the moment
 the festival's own backend publishes that day — consistent with the
 override files' own stated principle of only filling gaps from a
 verified source, never inventing one.
+
+**Domain migration bridge** (`muvolgy.vercel.app` → `muvolgyprogi.hu`):
+`localStorage` is origin-scoped, so simply pointing the old domain at the
+new one (even via a plain HTTP redirect) would silently strand
+everyone's favorites, starred venues, Barátaim list, and own name on the
+old origin with no way back. The critical constraint this depends on:
+**the Vercel project must NOT use its own built-in "redirect to primary
+domain" feature** for `muvolgy.vercel.app` — that redirects at the
+server/edge level, before any of this app's client-side JS ever runs, which
+would make the migration below impossible (confirmed via `AskUserQuestion`
+that this hadn't been turned on yet, and via `curl -I` that the old domain
+still serves the real app with HTTP 200, no redirect). Both domains must
+keep pointing at the *same* live deployment.
+
+`components/DomainMigrationRedirect.tsx`, mounted in `app/layout.tsx`
+alongside `ServiceWorkerRegister`/`Analytics`, only activates when
+`window.location.hostname === "muvolgy.vercel.app"` exactly (not "anything
+that isn't the new domain," so local dev and Vercel preview deployments
+are unaffected). On the old domain, it reads the current
+`selectedIds`/`favoriteIds`/`friends`/`ownName` via the same hooks
+`FestivalApp.tsx` already uses, and redirects (`window.location.href`,
+in a `useEffect`) either to a bare `https://muvolgyprogi.hu/` (nothing to
+carry) or to that same URL carrying everything via the *existing*
+own-favorites export/import mechanism — reusing it rather than inventing
+a parallel migration-specific scheme. Shows a brief full-screen
+"Átköltöztünk…" message with a plain fallback link while the redirect
+fires, in case the script-based redirect doesn't for any reason. This is
+a **temporary bridge**, worth removing once traffic to the old domain
+drops to near zero.
+
+To carry the Barátaim list and own name (previously out of scope for the
+own-favorites export/import feature), that mechanism itself grew two new
+optional URL params, `myfriends` (JSON-encoded `FriendFavorite[]`) and
+`myname`:
+- `lib/ownFavoritesUrl.ts` (new): `buildOwnFavoritesUrl(baseUrl, {
+  programIds, venueIds, friends, ownName })`, extracted out of
+  `ExportFavoritesModal.tsx` (which used to build this URL inline)
+  specifically so `DomainMigrationRedirect.tsx` could reuse the exact
+  same param-building logic against a *different* base URL (the literal
+  new-domain origin, not `window.location.href` like the manual export
+  modal uses) — only sets a param when there's actually something to put
+  in it, so a no-data migration redirect ends up as a clean bare URL
+  rather than `?myprograms=&myvenues=`.
+- `hooks/useOwnImportRequest.ts`: `OwnImportRequest` gained `friends`/
+  `ownName` fields; the "is this request valid" check now passes if
+  *any* of the four fields has content (previously required at least one
+  of programs/venues) — a link carrying only a name and friends, with no
+  programs or venues selected, is still a legitimate request.
+- `components/ImportOwnFavoritesModal.tsx`: the confirm dialog now lists
+  whichever of "N programot", "M helyszínt", "K barátot", "a nevedet"
+  actually has content (joined into one sentence, not four separate
+  hardcoded slots) and, on confirm, adds each incoming friend via the
+  existing `addFriend` (same replace-by-name rule as everywhere else) and
+  only adopts the incoming name if the destination **doesn't already
+  have one set** — deliberately non-destructive, matching the "merge,
+  never overwrite" principle the rest of this import flow already
+  follows for programs/venues.
+- **Side effect, deliberately kept**: since `ExportFavoritesModal.tsx`
+  now also calls `buildOwnFavoritesUrl` with `friends`/`ownName`, the
+  ordinary, manually-triggered "Exportálás QR-kóddal" button (Export/Import
+  tab) now carries the Barátaim list and own name too, not just
+  programs/venues — a deliberate, coherent widening (moving to a new
+  phone should reasonably bring your friends/name along too), not just an
+  implementation detail needed for the domain migration.
+
+Verified end-to-end with a real (self-signed-cert) local HTTPS proxy
+standing in for both domains, rather than only testing the URL-building
+logic in isolation — `--host-resolver-rules` alone wasn't enough because
+Chromium's built-in HSTS preload list forces `muvolgy.vercel.app` to
+HTTPS even for local testing, so a plain `http://` test would fail with
+`ERR_SSL_PROTOCOL_ERROR` before ever reaching the app's own logic. With
+the proxy in place: an old-domain visit with saved data produces the
+fully-populated migration link; an old-domain visit with nothing saved
+redirects to a bare URL; and landing on the (simulated) new domain with
+the captured link shows the correct multi-part confirm sentence and
+actually populates all four localStorage keys on "Hozzáadás".
