@@ -918,3 +918,53 @@ manual-paste UI/copy shape) — `ImportFriendFavoritesModal.tsx` itself
 needed zero changes, since it only ever reads the resulting
 `importRequest`/`clearRequest` state, agnostic to whether it arrived via
 the initial page URL, a camera decode, or a pasted link.
+
+**Own domain**: the app now also lives at `muvolgyprogi.hu` (the user
+bought this domain), so `components/ShareSiteQrButton.tsx`'s hardcoded
+`SITE_URL` constant was updated from `https://muvolgy.vercel.app/` to
+`https://muvolgyprogi.hu/` — the QR code and its copy-link both point
+there now. This is purely an in-app string change; whether the domain
+actually resolves to the Vercel deployment depends on the domain's own
+DNS + the Vercel project's domain configuration, both set up outside this
+codebase.
+
+**Default day tab now uses Budapest's own calendar date, not the
+visitor's device timezone or UTC**: `FestivalApp.tsx`'s `defaultDay`
+used to compute "today" via `new Date().toISOString().slice(0, 10)` —
+UTC's calendar date. Since the festival only ever runs in Hungary, this
+was wrong in two ways: (1) a visitor whose device is set to a different
+timezone (e.g. a foreign tourist) would land on *their own* local day,
+not Budapest's; (2) even for a Hungarian-timezone visitor, UTC's date
+lags Budapest's by a day during the roughly 1-2 hours after midnight
+Budapest time (CEST is UTC+2), so loading the page at, say, 00:30
+Budapest time would default to *yesterday's* tab. Fixed with a
+`budapestToday()` helper using `Intl.DateTimeFormat("en-CA", { timeZone:
+"Europe/Budapest", ... })`, which derives Budapest's calendar date
+directly from the UTC instant, independent of the visitor's own device
+settings. Verified via Playwright with `context.newContext({ timezoneId:
+... })` + `page.clock.install(...)`: a browser set to `America/Los_Angeles`
+at a UTC instant that's 08:00 in Budapest still defaults to Budapest's
+date, and a UTC-timezone browser at 23:30 UTC (01:30 in Budapest, past
+midnight) correctly rolls over to Budapest's *next* day rather than
+staying on UTC's date. This only changes which day tab is initially
+selected — every other day remains just as browsable via `DateTabs` as
+before, nothing about day navigation itself changed.
+
+**A "should day 0 show up" question turned out to be an upstream data
+gap, not an app bug**: the official festival homepage states the 2026
+dates as "07.24 - 08.02" (10 days), but the backend API this app reads
+from (`/api/v1/dates` and `/api/v1/programs`, sampled across all ~40
+pages) currently has zero programs and no entry at all for July 24 — the
+earliest date present anywhere in the live data is July 25. Confirmed
+this isn't a bug in `lib/api.ts`'s day-list logic (`days` comes directly
+from `/api/v1/dates`, not derived/filtered from program data) by
+cross-checking the raw API response directly. Deliberately did **not**
+patch around this the way `LOCATION_OVERRIDES`/`CATEGORY_OVERRIDES` patch
+single missing fields for known entities — there's no citable list of
+actual July 24 programs to add, and fabricating an empty placeholder day
+would be guessing at a UI decision (what does an intentionally-empty day
+tab even communicate to a visitor?) for a gap that this app's whole
+live-fetch, `revalidate: 3600` architecture already self-heals the moment
+the festival's own backend publishes that day — consistent with the
+override files' own stated principle of only filling gaps from a
+verified source, never inventing one.

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { CopyButton } from "./CopyButton";
 
-const SITE_URL = "https://muvolgy.vercel.app/";
+const SITE_URL = "https://muvolgyprogi.hu/";
 
 export function ShareSiteQrButton() {
   const [isOpen, setIsOpen] = useState(false);

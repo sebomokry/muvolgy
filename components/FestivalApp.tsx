@@ -36,8 +36,23 @@ import { ImportOwnFavoritesModal } from "./ImportOwnFavoritesModal";
 const DEFAULT_CATEGORY = "Könnyűzene";
 const UNCATEGORIZED_ID = -1;
 
+// The festival only ever runs in Hungary, so "today" for picking the
+// default day tab must always be Budapest's own calendar date — not the
+// visitor's device timezone (a tourist's phone might be set to something
+// else) and not `toISOString()`'s UTC date (wrong by a day for anyone
+// loading the page between midnight and 1-2am Budapest time, since CEST
+// is UTC+2).
+function budapestToday(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Budapest",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
 function defaultDay(days: string[]): string {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = budapestToday();
   return days.find((d) => d >= today) ?? days[0];
 }
 
