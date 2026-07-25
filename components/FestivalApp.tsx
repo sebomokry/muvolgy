@@ -22,6 +22,7 @@ import { useOwnName } from "@/hooks/useOwnName";
 import { DateTabs } from "./DateTabs";
 import { CategoryFilter } from "./CategoryFilter";
 import { SettlementFilter } from "./SettlementFilter";
+import { FriendFilter } from "./FriendFilter";
 import { ScheduleGrid } from "./ScheduleGrid";
 import { SelectedPanel } from "./SelectedPanel";
 import { FriendFavoritesPanel } from "./FriendFavoritesPanel";
@@ -96,9 +97,27 @@ export function FestivalApp({ data }: { data: FestivalData }) {
   const { hasSeenIntro, markSeen } = useHasSeenIntro();
   const { friends, removeFriend } = useFriendFavorites();
   const { ownName } = useOwnName();
+  // Which friends currently contribute to allFriendProgramIds — tracked as
+  // an exclusion set (default: nobody excluded) rather than an allow-list,
+  // so a newly added friend is automatically active with no extra syncing.
+  const [excludedFriendNames, setExcludedFriendNames] = useState<Set<string>>(
+    new Set(),
+  );
+  const toggleFriendActive = (name: string) => {
+    setExcludedFriendNames((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  };
+  const activeFriends = useMemo(
+    () => friends.filter((f) => !excludedFriendNames.has(f.name)),
+    [friends, excludedFriendNames],
+  );
   const allFriendProgramIds = useMemo(
-    () => new Set(friends.flatMap((f) => f.programIds)),
-    [friends],
+    () => new Set(activeFriends.flatMap((f) => f.programIds)),
+    [activeFriends],
   );
   // Guards against a stuck override if the last friend gets removed while
   // this was active — the chip itself is only rendered when friends exist
@@ -320,6 +339,13 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                 />
                 Barátaim Kedvencei
               </button>
+            )}
+            {onlyFriendFavorites && friends.length > 1 && (
+              <FriendFilter
+                friends={friends}
+                excludedNames={excludedFriendNames}
+                onToggle={toggleFriendActive}
+              />
             )}
           </div>
           <div

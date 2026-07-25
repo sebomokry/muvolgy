@@ -1177,3 +1177,36 @@ disk during local verification.
 button → camera scanner** (then `InfoFooter` last, unaffected) — so
 returning visitors see their existing friends immediately at the top
 instead of past the scanner/share UI every time.
+
+**Per-friend filtering for "Barátaim Kedvencei"**: this grid chip used
+to be all-or-nothing — turning it on showed the union of *every* friend's
+saved programs (`allFriendProgramIds` built from the full `friends`
+list), with no way to look at just one friend's picks when more than one
+is saved. `components/FriendFilter.tsx` (new, a direct copy of
+`components/SettlementFilter.tsx`'s chip-list pattern, just always using
+the existing `--friend` violet token instead of a per-item color, since
+friends don't have individual assigned colors) renders one toggleable
+chip per friend, appearing right after the "Barátaim Kedvencei" chip in
+the same `flex flex-wrap` row — but only once `onlyFriendFavorites &&
+friends.length > 1`; with exactly one friend the chip would carry zero
+extra information over the master toggle, so nothing new renders there.
+
+The selection state, `excludedFriendNames: Set<string>` in
+`FestivalApp.tsx`, is deliberately an *exclusion* set defaulting to
+empty, not an allow-list defaulting to "everyone" — this was a specific
+design choice so a newly-added friend (scanned later) is automatically
+active with no extra logic needed to sync a separate "selected friends"
+set every time the `friends` array changes. `allFriendProgramIds` now
+builds from `activeFriends = friends.filter(f =>
+!excludedFriendNames.has(f.name))` instead of the raw `friends` list.
+Turning the master "Barátaim Kedvencei" toggle off does **not** reset
+`excludedFriendNames` — exclusions persist for the rest of the session
+(not written to `localStorage` either, same as `activeCategoryIds`/
+`activeSettlements`, which are likewise plain in-memory filter state, not
+persisted data). Verified via Playwright with two test friends (added
+through the existing paste-a-link flow) carrying different program ids:
+both chips render active by default, the grid shows the union of both;
+excluding one friend visibly drops their program from the grid while the
+other's stays — confirmed by both DOM-class assertions and an actual
+before/after count of rendered grid elements, not just the chip's own
+visual state.
