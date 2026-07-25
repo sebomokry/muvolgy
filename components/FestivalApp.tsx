@@ -139,16 +139,26 @@ export function FestivalApp({ data }: { data: FestivalData }) {
 
   const visiblePrograms = useMemo(() => {
     const dayPrograms = programsForDay(data.programs, selectedDay);
-    return dayPrograms.filter(
-      (p) =>
-        (anyFavoriteOverride
-          ? (onlyFavorites && selectedIds.has(p.id)) ||
-            (effectiveOnlyFriendFavorites && allFriendProgramIds.has(p.id))
-          : p.categories.length === 0
-            ? activeCategoryIds.has(UNCATEGORIZED_ID)
-            : p.categories.some((c) => activeCategoryIds.has(c.id))) &&
-        (!p.location?.city || activeSettlements.has(p.location.city)),
-    );
+    return dayPrograms.filter((p) => {
+      if (anyFavoriteOverride) {
+        return (
+          ((onlyFavorites && selectedIds.has(p.id)) ||
+            (effectiveOnlyFriendFavorites && allFriendProgramIds.has(p.id))) &&
+          (!p.location?.city || activeSettlements.has(p.location.city))
+        );
+      }
+      // A program you've already selected stays visible no matter which
+      // category/settlement filters are active, so its venue keeps getting
+      // pinned to the top (sortVenuesWithFavoritesFirst) instead of silently
+      // disappearing from the grid the moment its category gets deselected.
+      if (selectedIds.has(p.id)) return true;
+      return (
+        (p.categories.length === 0
+          ? activeCategoryIds.has(UNCATEGORIZED_ID)
+          : p.categories.some((c) => activeCategoryIds.has(c.id))) &&
+        (!p.location?.city || activeSettlements.has(p.location.city))
+      );
+    });
   }, [
     data.programs,
     selectedDay,

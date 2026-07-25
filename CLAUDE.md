@@ -454,6 +454,27 @@ middle tier is recomputed per day in `FestivalApp.tsx` from the already
 day/filter-scoped `timed` list, so it naturally only pins on the day the
 saved concert actually occurs.
 
+This pin only works if the saved program is actually present in that
+day/filter-scoped `timed` list in the first place — `visiblePrograms` in
+`FestivalApp.tsx` used to AND the active category/settlement filters onto
+every program with no exception, so a saved concert whose category
+happened to be deselected (e.g. only "Könnyűzene" active, but you'd
+favorited a Jazz set) would drop out of `visiblePrograms` entirely, and
+with it, the venue-pinning that depends on it — the only way to see it
+again was the separate, exclusive "Csak a Kedvenceim" override, which
+hides everything else too. Fixed by giving `selectedIds.has(p.id)` an
+unconditional bypass in the *non*-override branch of that filter: a
+program you've already selected now always stays visible regardless of
+which category/settlement chips are active, so its venue keeps getting
+pinned the way it already did for starred venues. This bypass is
+deliberately scoped to the plain filtering branch only — it doesn't touch
+the separate `anyFavoriteOverride` (Csak a Kedvenceim / Barátaim
+Kedvencei) branch, which is an intentionally exclusive "show only these"
+view with its own, unchanged behavior. No new visual treatment was needed
+for a program appearing this way — the existing selected-program ring
+(`shadow-[0_0_0_2px_var(--accent)]` in `ScheduleGrid.tsx`) already makes
+clear why it's there despite the active filters.
+
 **Visual identity**: category colors are a hand-picked palette in
 `lib/categoryColors.ts` that deliberately overrides the festival API's own
 `color` field per category — the API's colors are pale pastels that don't
