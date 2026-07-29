@@ -26,13 +26,13 @@ const STEPS: Step[] = [
       "Kattints egy helyszín nevére a rácson, majd nyomd meg a csillagos gombot, a csillagozott helyszín ezután mindig a lista tetején marad, nem kell mindig legörgetned hozzá.",
   },
   {
-    heading: "2. Az Előadók fül",
+    heading: "2. Kereső",
     src: "/tutorial/02-eloadok.png",
-    alt: "Az Előadók nézet listája",
+    alt: "Kereső nézet előadók és helyszínek listájával",
     width: 390,
     height: 844,
     caption:
-      "Itt ábécésorrendben, kereshetően megtalálod az összes fellépőt, egy névre kattintva megnyílik az előadó legközelebbi fellépése.",
+      "A Kereső fülön kereshetsz előadók és helyszínek között is. Egy előadóra kattintva megnyílik a legközelebbi fellépése; egy helyszínre kattintva a Programtábla nézetbe ugrasz, egyenesen az adott helyszín sorához, minden szűrő feloldva, hogy biztosan lásd az összes ottani programot.",
   },
   {
     heading: "3. Szűrési lehetőségek",

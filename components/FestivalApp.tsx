@@ -27,7 +27,7 @@ import { ScheduleGrid } from "./ScheduleGrid";
 import { SelectedPanel } from "./SelectedPanel";
 import { FriendFavoritesPanel } from "./FriendFavoritesPanel";
 import { ExportImportPanel } from "./ExportImportPanel";
-import { ArtistsView } from "./ArtistsView";
+import { SearchView } from "./SearchView";
 import { ProgramInfoModal } from "./ProgramInfoModal";
 import { AppInfoModal } from "./AppInfoModal";
 import { ShareFavoritesModal } from "./ShareFavoritesModal";
@@ -64,7 +64,7 @@ function defaultCategoryIds(categories: FestivalData["categories"]): Set<number>
 }
 
 export function FestivalApp({ data }: { data: FestivalData }) {
-  const [view, setView] = useState<"grid" | "mine" | "artists">("grid");
+  const [view, setView] = useState<"grid" | "mine" | "search">("grid");
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState(() => defaultDay(data.days));
   const [activeCategoryIds, setActiveCategoryIds] = useState<Set<number>>(
@@ -137,6 +137,31 @@ export function FestivalApp({ data }: { data: FestivalData }) {
     [openProgram, data.programs],
   );
   const artists = useMemo(() => allArtists(data.programs), [data.programs]);
+  // Independent of the currently selected day/filters — every venue that
+  // hosts a program at all, at any point in the festival, so the search can
+  // find it regardless of what's currently shown on the grid.
+  const venuesForSearch = useMemo(
+    () => venuesForPrograms(data.programs),
+    [data.programs],
+  );
+  const [scrollToVenueId, setScrollToVenueId] = useState<number | null>(null);
+
+  const handleSelectVenueFromSearch = (venueId: number) => {
+    const venueDays = data.programs
+      .filter((p) => p.location?.id === venueId)
+      .map((p) => p.day);
+    if (venueDays.length > 0 && !venueDays.includes(selectedDay)) {
+      setSelectedDay([...venueDays].sort()[0]);
+    }
+    // Force every filter open so the venue's programs are guaranteed
+    // visible, regardless of whatever was active before the jump.
+    setActiveCategoryIds(new Set(categoriesWithUncategorized.map((c) => c.id)));
+    setActiveSettlements(new Set(settlements));
+    setOnlyFavorites(false);
+    setOnlyFriendFavorites(false);
+    setView("grid");
+    setScrollToVenueId(venueId);
+  };
 
   const toggleCategory = (id: number) => {
     setActiveCategoryIds((prev) => {
@@ -258,12 +283,12 @@ export function FestivalApp({ data }: { data: FestivalData }) {
             Kedvenceim{selectedPrograms.length > 0 ? ` (${selectedPrograms.length})` : ""}
           </button>
           <button
-            onClick={() => setView("artists")}
+            onClick={() => setView("search")}
             className={`rounded-full px-3 py-1 font-display text-sm transition-colors ${
-              view === "artists" ? "bg-ink text-paper" : "text-ink/70 hover:text-ink"
+              view === "search" ? "bg-ink text-paper" : "text-ink/70 hover:text-ink"
             }`}
           >
-            Előadók
+            Kereső
           </button>
         </div>
       </header>
@@ -407,6 +432,8 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                 onToggleFavorite={toggleFavorite}
                 onOpenProgram={setOpenProgramId}
                 onOpenInfo={() => setIntroManuallyOpened(true)}
+                scrollToVenueId={scrollToVenueId}
+                onScrolledToVenue={() => setScrollToVenueId(null)}
               />
             </div>
           </div>
@@ -475,9 +502,11 @@ export function FestivalApp({ data }: { data: FestivalData }) {
             </div>
           </div>
         ) : (
-          <ArtistsView
+          <SearchView
             artists={artists}
+            venues={venuesForSearch}
             onOpenProgram={setOpenProgramId}
+            onSelectVenue={handleSelectVenueFromSearch}
             onOpenInfo={() => setIntroManuallyOpened(true)}
           />
         )}

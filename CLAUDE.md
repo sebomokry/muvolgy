@@ -1210,3 +1210,64 @@ excluding one friend visibly drops their program from the grid while the
 other's stays — confirmed by both DOM-class assertions and an actual
 before/after count of rendered grid elements, not just the chip's own
 visual state.
+
+**Search extended to venues, not just artists** (`components/ArtistsView.tsx`
+renamed to `components/SearchView.tsx`, since its scope grew beyond just
+"előadók"): the same single search input now filters two separate,
+independently-labeled sections — "Helyszínek" (new) and "Előadók"
+(unchanged) — each showing its full unfiltered list when the query is
+empty, matching the pre-existing artist-search behavior rather than
+inventing a different empty-state convention for venues. The venue list
+comes from a *new*, day/filter-independent `venuesForSearch` memo in
+`FestivalApp.tsx` (`venuesForPrograms(data.programs)` over the *entire*
+unfiltered program set) — deliberately not the same `venues` the grid
+itself renders, which is scoped to the currently selected day/category/
+settlement and would make a venue impossible to find on any other day.
+Only venues that actually host at least one program anywhere in the
+festival are searchable (not all ~104 known locations from `/api/v1/map`)
+since a program-less venue would have no grid row to jump to at all.
+
+Clicking a venue result (`onSelectVenue`, threaded down to `SearchView`)
+does more than just switch tabs — `FestivalApp.tsx`'s
+`handleSelectVenueFromSearch`: (1) switches `selectedDay` to the earliest
+day that venue actually has a program on, *unless* the currently selected
+day already has one there (checked directly against `data.programs`, not
+the day-scoped `venues`); (2) sets every category and every settlement
+active and turns off both `onlyFavorites`/`onlyFriendFavorites`, so the
+venue's programs are guaranteed visible regardless of whatever filters
+were active before the jump — the same "make sure it's actually visible"
+guarantee `visiblePrograms`' selected-program bypass already gives
+individual programs, just triggered explicitly here instead of keyed off
+`selectedIds`; (3) switches `view` to `"grid"` and sets a new
+`scrollToVenueId` state, consumed by `ScheduleGrid.tsx`.
+
+`ScheduleGrid.tsx` scrolls to the target venue's row via a `ref` on its
+own scroll container plus `id={`venue-row-${venue.id}`}` on each row —
+deliberately **not** `element.scrollIntoView()`, because each row is
+`w-max` (as wide as the full time axis), and letting the browser decide
+how to bring a very wide element into view risks also dragging the
+independent horizontal (time-axis) scroll position along with it. Instead
+it computes the exact vertical delta via `getBoundingClientRect()` on
+both the container and the target and adjusts `scrollTop` alone, leaving
+`scrollLeft` untouched. A brief 2-second `--accent` inset-ring highlight
+(local `highlightedVenueId` state, separate from the `scrollToVenueId`
+prop that clears immediately once consumed) marks which row is the
+actual target, since a plain scroll with no visual confirmation would
+leave it ambiguous which of several similar-looking rows was found.
+Verified against real API data for a venue confirmed (via direct query)
+to run on only one specific day, starting the test from a *different*
+day with the category filter deliberately narrowed first — the
+day-switch, full filter reset, and correct scroll position all had to
+actually fire, not just no-op because the starting state already
+happened to satisfy them.
+
+**Tab icon tried, then reverted to plain text**: the "Kereső" tab (this
+same search feature) briefly used a text-glyph magnifying glass (`⌕`),
+first at the same size as its sibling tabs, then enlarged/bolded on
+request — but was ultimately reverted back to a plain text label
+("Kereső"), matching every other top-level tab and this app's general
+preference (confirmed again here) for legible text over icons where
+there's room for a label. Worth remembering if an icon-only tab is
+requested again: `⌕` did render as a recognizable magnifying glass once
+zoomed in, despite looking ambiguous at native size in a screenshot —
+not itself a reason it was dropped.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Location, Program } from "@/lib/types";
 import {
   extraArtists,
@@ -58,6 +58,8 @@ type Props = {
   onToggleFavorite: (venueId: number) => void;
   onOpenProgram: (id: number) => void;
   onOpenInfo: () => void;
+  scrollToVenueId: number | null;
+  onScrolledToVenue: () => void;
 };
 
 export function ScheduleGrid({
@@ -71,9 +73,34 @@ export function ScheduleGrid({
   onToggleFavorite,
   onOpenProgram,
   onOpenInfo,
+  scrollToVenueId,
+  onScrolledToVenue,
 }: Props) {
   const [openVenueId, setOpenVenueId] = useState<number | null>(null);
   const openVenue = venues.find((v) => v.id === openVenueId) ?? null;
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [highlightedVenueId, setHighlightedVenueId] = useState<number | null>(
+    null,
+  );
+
+  // Scrolls only vertically (not element.scrollIntoView, which would also
+  // disturb the horizontal time-axis scroll on this w-max-wide row) so a
+  // venue found via search lands just below the sticky header.
+  useEffect(() => {
+    if (scrollToVenueId === null) return;
+    const container = scrollContainerRef.current;
+    const target = document.getElementById(`venue-row-${scrollToVenueId}`);
+    if (container && target) {
+      const containerRect = container.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      container.scrollTop += targetRect.top - containerRect.top - HEADER_HEIGHT;
+      setHighlightedVenueId(scrollToVenueId);
+      const timeout = setTimeout(() => setHighlightedVenueId(null), 2000);
+      onScrolledToVenue();
+      return () => clearTimeout(timeout);
+    }
+    onScrolledToVenue();
+  }, [scrollToVenueId, onScrolledToVenue]);
 
   const nowTs = toScheduleTimestamp(useNow());
   const showNowLine = nowTs >= rangeStartTs && nowTs <= rangeEndTs;
@@ -115,7 +142,7 @@ export function ScheduleGrid({
   })();
 
   return (
-    <div className="flex h-full flex-col overflow-auto">
+    <div ref={scrollContainerRef} className="flex h-full flex-col overflow-auto">
       <div
         className="sticky top-0 z-20 flex w-max shrink-0 bg-paper"
         style={{ height: HEADER_HEIGHT }}
@@ -176,10 +203,14 @@ export function ScheduleGrid({
             selectedIds.has(p.id),
           );
         const settlement = settlementColor(venue.city);
+        const isHighlighted = venue.id === highlightedVenueId;
         const row = (
           <div
             key={venue.id}
-            className="flex w-max shrink-0 border-b border-line/60 last:border-b-0"
+            id={`venue-row-${venue.id}`}
+            className={`flex w-max shrink-0 border-b border-line/60 transition-shadow last:border-b-0 ${
+              isHighlighted ? "shadow-[inset_0_0_0_2px_var(--accent)]" : ""
+            }`}
           >
             <div
               className="sticky left-0 z-10 flex shrink-0 flex-col items-center justify-center gap-0.5 border-t-[3px] px-1 py-1 text-center font-display text-ink"
