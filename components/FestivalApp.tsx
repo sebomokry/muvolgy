@@ -375,7 +375,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
           </div>
           <div
             // Must match the compound breakpoint on the "Kategóriák" toggle above.
-            className={`${categoriesOpen ? "flex" : "hidden"} flex-col gap-1.5 [@media(min-width:640px)_and_(min-height:500px)]:flex`}
+            className={`${categoriesOpen ? "flex" : "hidden"} flex-col gap-1.5 border-t border-line pt-2 [@media(min-width:640px)_and_(min-height:500px)]:flex`}
           >
             <CategoryFilter
               categories={categoriesWithUncategorized}
