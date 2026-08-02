@@ -1271,3 +1271,55 @@ there's room for a label. Worth remembering if an icon-only tab is
 requested again: `⌕` did render as a recognizable magnifying glass once
 zoomed in, despite looking ambiguous at native size in a screenshot —
 not itself a reason it was dropped.
+
+**Divider line above the expanded category list**: the mobile-only
+"Kategóriák" accordion's content wrapper (`FestivalApp.tsx`) gained a
+`border-t border-line pt-2`, separating it visually from the settlement/
+favorites chip row above — added directly onto the same div whose
+visibility already toggles with `categoriesOpen` (and is always `flex`
+on the desktop/tall-viewport breakpoint), so the line automatically only
+ever appears exactly when that list is actually shown, with no separate
+condition to keep in sync.
+
+**Fallback to a saved API snapshot for days the live API has dropped**:
+the festival's own backend API turns out to stop returning a program
+once it's elapsed — not just at day boundaries, but apparently within a
+day too. Confirmed live on 2026-08-02 (the festival's last day):
+`/api/v1/dates` had narrowed to returning just that one remaining day
+(down from all 9), and `/api/v1/programs` had shrunk to ~7 remaining
+programs for the rest of that day, down from the ~3882 across the whole
+festival that were still live on 2026-07-25 (when a full snapshot had
+been downloaded for unrelated reasons). Without a fix, the app would
+have been showing literally only "today" in `DateTabs`, with every
+earlier day silently gone despite having really happened.
+
+`data/programs-snapshot.json` (new, committed, ~1.7MB) is that
+2026-07-25 snapshot, trimmed down from the original 28MB raw dump to
+just the fields `lib/api.ts`'s `RawProgram` actually needs — `description`
+is deliberately nulled out (confirmed via a full-codebase grep that
+`Program.description` is never actually rendered anywhere, despite being
+read into the type) since it was by far the biggest contributor to file
+size (full rich-text HTML per program). `lib/api.ts`'s new
+`withSnapshotFallback()` merges it into `fetchAllRawPrograms()`'s live
+result **by id**: live data always wins when a program id is still
+returned live; the snapshot only contributes ids the live API no longer
+has. `getFestivalData()`'s `days` also changed from being taken directly
+from `/api/v1/dates` to the *union* of that response and the distinct
+`day` values actually present across the merged program list — otherwise
+a day could still vanish from `DateTabs` even with its programs correctly
+restored, since `/dates` itself is equally subject to the same shrinkage.
+
+This needs no ongoing maintenance — it's explicitly a point-in-time
+patch, the same philosophy as `LOCATION_OVERRIDES`/`CATEGORY_OVERRIDES`
+(only fill gaps from a verified source, defer to live data the moment
+it's available again), just operating at full-dataset scale instead of a
+handful of hand-verified fields. Since `lib/api.ts` (and therefore this
+JSON import) is only ever reached from `app/page.tsx` — a Server
+Component, no `"use client"` — the snapshot never reaches the client
+JS bundle; it's purely a server-side/build-time concern. Verified by
+loading the live app and confirming: all 9 original festival days still
+appear in `DateTabs`; a day the live API had already dropped (2026-07-26)
+renders its full original program list from the snapshot; and the
+current day still shows at least one program that only exists in the
+*live* response (not the snapshot), confirming live data is genuinely
+preferred where available rather than the snapshot silently shadowing it.
