@@ -1399,3 +1399,29 @@ token/palette exactly as-is:
   `rounded-full`, modals are `rounded-3xl` with a blurred backdrop, and
   header/filter bars no longer draw `border-b` lines. `--line` is no longer referenced by any
   component (kept defined in `globals.css`, like `--pin-soft`).
+
+**Könyvfesztivál demo at `/konyvfesztival` (separate mini-app, not part of
+`FestivalApp`)**: a self-contained, single-file schedule page for the 31.
+Budapesti Nemzetközi Könyvfesztivál (2026-10-01..04), built as a pitch demo
+for that festival's organizers (their programme only exists as a downloadable
+PDF). It shares nothing with the Next app at runtime — plain HTML + vanilla
+JS with the data inlined — and is served as a static file:
+`public/konyvfesztival/index.html`, mapped to the folder URL by a
+`rewrites()` entry in `next.config.ts` (Next serves `public/` files only by
+exact path; per the rewrites doc in `node_modules/next/dist/docs`, an
+`afterFiles` rewrite may resolve to a public static file). Its own palette
+("paper & press ink": cream `#fbf7f1`, ink `#231f20`, programme-red accent
+`#b8323a`, indigo programs / orange signings) is deliberately distinct from
+this app's tokens and was checked with the dataviz skill's palette validator.
+Favorites live in their own `localStorage` key (`bnkf26-favs`), so they never
+collide with this app's `mv-*` keys on the shared origin; sharing uses a URL
+hash (`#kedvencek=1,2,3`), not query params.
+
+Source lives in `konyvfesztival/`: `parse.py` (PyMuPDF; reads the programme
+PDF's layout — left column time/venue, right column title/description, span
+color tells programme `#dc3c43` from signing `#f48939`; its output count was
+checked against the PDF's own time-line count, 596/596) → `raw.json` →
+`prep.py` (venue normalization, zones, keyword tags) → `data.json` →
+`build.py` (injects `data.json` into `template.html` and writes the public
+file). Edit `template.html`/`data.json`, then `python3 konyvfesztival/build.py`;
+never hand-edit the generated `public/konyvfesztival/index.html`.
