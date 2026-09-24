@@ -1397,5 +1397,5 @@ token/palette exactly as-is:
 - Everywhere else: borders replaced by soft `bg-ink/5` fills (inactive
   chips, segmented tab controls, secondary buttons, inputs), buttons are
   `rounded-full`, modals are `rounded-3xl` with a blurred backdrop, and
-  header/filter bars no longer draw `border-b` lines. `--line` is now only
-  used for the category-block fallback, not for layout dividers.
+  header/filter bars no longer draw `border-b` lines. `--line` is no longer referenced by any
+  component (kept defined in `globals.css`, like `--pin-soft`).
