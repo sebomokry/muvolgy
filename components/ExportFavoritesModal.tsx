@@ -41,11 +41,11 @@ export function ExportFavoritesModal({
 
   return (
     <div
-      className="fixed inset-0 z-30 flex items-center justify-center bg-ink/40 p-4"
+      className="fixed inset-0 z-30 flex items-center justify-center bg-ink/25 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded border border-line bg-paper p-5 shadow-lg"
+        className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-3xl bg-paper p-6 shadow-2xl shadow-ink/20 ring-1 ring-ink/5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
@@ -75,7 +75,7 @@ export function ExportFavoritesModal({
               alt="QR-kód a kedvenceim exportálásához"
               width={240}
               height={240}
-              className="h-auto max-w-full rounded border border-line"
+              className="h-auto max-w-full rounded-2xl"
             />
           )}
         </div>

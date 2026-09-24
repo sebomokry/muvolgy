@@ -25,7 +25,7 @@ export function SettlementFilter({
             className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
               active
                 ? "border-transparent text-paper"
-                : "border-line text-ink/70 hover:text-ink"
+                : "border-transparent bg-ink/5 text-ink/70 hover:bg-ink/10 hover:text-ink"
             }`}
             style={active ? { backgroundColor: color } : undefined}
           >

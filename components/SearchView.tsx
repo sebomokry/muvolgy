@@ -41,7 +41,7 @@ export function SearchView({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Keresés előadók és helyszínek között…"
-        className="mb-4 shrink-0 rounded border border-line bg-paper px-3 py-2 text-sm text-ink placeholder:text-ink/40 focus:border-accent focus:outline-none"
+        className="mb-4 shrink-0 rounded-xl border border-transparent bg-ink/5 px-3.5 py-2.5 text-sm text-ink placeholder:text-ink/40 focus:border-accent/40 focus:bg-paper focus:outline-none"
       />
       <div className="min-h-0 flex-1 overflow-y-auto">
         <h3 className="mb-1.5 font-display text-sm font-medium text-ink">
@@ -52,7 +52,7 @@ export function SearchView({
             Nincs a keresésnek megfelelő helyszín.
           </p>
         ) : (
-          <ul className="mb-4 divide-y divide-line">
+          <ul className="mb-4 divide-y divide-ink/5">
             {filteredVenues.map((venue) => (
               <li key={venue.id}>
                 <button
@@ -79,7 +79,7 @@ export function SearchView({
             Nincs a keresésnek megfelelő előadó.
           </p>
         ) : (
-          <ul className="divide-y divide-line">
+          <ul className="divide-y divide-ink/5">
             {filteredArtists.map((artist) => (
               <li key={artist.id}>
                 <button

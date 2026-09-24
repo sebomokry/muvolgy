@@ -22,6 +22,10 @@ const MIN_BLOCK_WIDTH = 6;
 const LANE_HEIGHT = 64;
 const VENUE_COL_WIDTH = 96;
 const HEADER_HEIGHT = 36;
+// Breathing room around each venue row and each program card, so the grid
+// reads as floating cards rather than spreadsheet cells.
+const ROW_GAP = 3;
+const BLOCK_INSET = 2;
 
 type LaneItem = { program: Program; lane: number; laneCount: number };
 
@@ -144,11 +148,11 @@ export function ScheduleGrid({
   return (
     <div ref={scrollContainerRef} className="flex h-full flex-col overflow-auto">
       <div
-        className="sticky top-0 z-20 flex w-max shrink-0 bg-paper"
+        className="sticky top-0 z-20 flex w-max shrink-0 bg-paper/90 backdrop-blur"
         style={{ height: HEADER_HEIGHT }}
       >
         <div
-          className="sticky left-0 z-10 flex shrink-0 items-center justify-center gap-1.5 border-b border-r border-line bg-paper"
+          className="sticky left-0 z-10 flex shrink-0 items-center justify-center gap-1.5 bg-paper"
           style={{ width: VENUE_COL_WIDTH }}
         >
           <button
@@ -161,7 +165,7 @@ export function ScheduleGrid({
           <ShareSiteQrButton />
         </div>
         <div
-          className="relative shrink-0 border-b border-line"
+          className="relative shrink-0"
           style={{ width: gridWidth }}
         >
           {hourMarks.map((ts, i) => {
@@ -170,7 +174,7 @@ export function ScheduleGrid({
             return (
               <div
                 key={ts}
-                className={`absolute top-1/2 -translate-y-1/2 font-mono text-xs text-ink/70 ${
+                className={`absolute top-1/2 -translate-y-1/2 font-mono text-[11px] text-ink/70 ${
                   isFirst
                     ? ""
                     : isLast
@@ -185,7 +189,7 @@ export function ScheduleGrid({
           })}
           {showNowLine && (
             <div
-              className="pointer-events-none absolute top-0 bottom-0 w-0.5 bg-now"
+              className="pointer-events-none absolute top-0 bottom-0 w-0.5 rounded-full bg-now"
               style={{ left: nowLeft }}
             />
           )}
@@ -208,47 +212,55 @@ export function ScheduleGrid({
           <div
             key={venue.id}
             id={`venue-row-${venue.id}`}
-            className={`flex w-max shrink-0 border-b border-line/60 transition-shadow last:border-b-0 ${
+            className={`flex w-max shrink-0 rounded-xl transition-shadow ${
               isHighlighted ? "shadow-[inset_0_0_0_2px_var(--accent)]" : ""
             }`}
           >
             <div
-              className="sticky left-0 z-10 flex shrink-0 flex-col items-center justify-center gap-0.5 border-t-[3px] px-1 py-1 text-center font-display text-ink"
+              className="sticky left-0 z-10 flex shrink-0 bg-paper pr-1.5 pl-2"
               style={{
                 width: VENUE_COL_WIDTH,
-                height: rowHeight,
-                borderTopColor: settlement.soft,
-                backgroundColor: settlement.solid,
+                height: rowHeight + 2 * ROW_GAP,
+                paddingTop: ROW_GAP,
+                paddingBottom: ROW_GAP,
               }}
             >
-              <button
-                onClick={() => setOpenVenueId(venue.id)}
-                className="flex flex-col items-center gap-0.5 whitespace-normal text-xs leading-tight font-bold hover:underline"
-                title={venue.name}
+              <div
+                className="flex w-full flex-col items-center justify-center gap-0.5 rounded-xl border-t-[3px] px-1 py-1 text-center font-display text-ink"
+                style={{
+                  borderTopColor: settlement.soft,
+                  backgroundColor: settlement.solid,
+                }}
               >
-                <span className="relative inline-block text-xs leading-none">
-                  <span aria-hidden="true">☆</span>
-                  {isFavorite && (
-                    <span aria-hidden="true" className="absolute inset-0">
-                      ★
-                    </span>
-                  )}
-                  {!isFavorite && hasSelectedProgram && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute inset-0 overflow-hidden text-pin"
-                      style={{ clipPath: "inset(0 50% 0 0)" }}
-                    >
-                      ★
-                    </span>
-                  )}
-                </span>
-                {venue.name}
-              </button>
+                <button
+                  onClick={() => setOpenVenueId(venue.id)}
+                  className="flex flex-col items-center gap-0.5 whitespace-normal text-xs leading-tight font-bold hover:underline"
+                  title={venue.name}
+                >
+                  <span className="relative inline-block text-xs leading-none">
+                    <span aria-hidden="true">☆</span>
+                    {isFavorite && (
+                      <span aria-hidden="true" className="absolute inset-0">
+                        ★
+                      </span>
+                    )}
+                    {!isFavorite && hasSelectedProgram && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-0 overflow-hidden text-pin"
+                        style={{ clipPath: "inset(0 50% 0 0)" }}
+                      >
+                        ★
+                      </span>
+                    )}
+                  </span>
+                  {venue.name}
+                </button>
+              </div>
             </div>
             <div
               className="relative shrink-0 overflow-hidden"
-              style={{ width: gridWidth, height: rowHeight }}
+              style={{ width: gridWidth, height: rowHeight + 2 * ROW_GAP }}
             >
               {lanes.map(({ program, lane }) => {
                 const left =
@@ -285,18 +297,18 @@ export function ScheduleGrid({
                   <button
                     key={program.id}
                     onClick={() => onOpenProgram(program.id)}
-                    className={`absolute overflow-hidden border-l-[3px] bg-paper px-1.5 py-1 text-left text-[9px] leading-tight transition-shadow hover:shadow-md ${
+                    className={`absolute overflow-hidden rounded-lg border-l-[3px] bg-paper px-1.5 py-1 text-left text-[9px] leading-tight transition-shadow hover:shadow-md hover:shadow-ink/10 ${
                       isConflict
                         ? "shadow-[0_0_0_2px_var(--danger)]"
                         : isSelected
                           ? "shadow-[0_0_0_2px_var(--accent)]"
-                          : "shadow-[0_0_0_1px_var(--line)]"
+                          : ""
                     }`}
                     style={{
-                      left,
-                      width,
-                      top: `${(lane / laneCount) * 100}%`,
-                      height: `${100 / laneCount}%`,
+                      left: left + BLOCK_INSET / 2,
+                      width: Math.max(MIN_BLOCK_WIDTH, width - BLOCK_INSET),
+                      top: ROW_GAP + lane * LANE_HEIGHT + BLOCK_INSET / 2,
+                      height: LANE_HEIGHT - BLOCK_INSET,
                       borderLeftColor: color,
                       backgroundColor: `${color}40`,
                     }}
@@ -319,13 +331,13 @@ export function ScheduleGrid({
               {hourMarks.map((ts) => (
                 <div
                   key={ts}
-                  className="pointer-events-none absolute top-0 bottom-0 border-l border-line/50"
+                  className="pointer-events-none absolute top-0 bottom-0 border-l border-dashed border-ink/10"
                   style={{ left: ((ts - rangeStartTs) / 60000) * PX_PER_MIN }}
                 />
               ))}
               {showNowLine && (
                 <div
-                  className="pointer-events-none absolute top-0 bottom-0 w-0.5 bg-now"
+                  className="pointer-events-none absolute top-0 bottom-0 w-0.5 rounded-full bg-now"
                   style={{ left: nowLeft }}
                 />
               )}
@@ -337,12 +349,14 @@ export function ScheduleGrid({
           ? [
               <div
                 key={`divider-${venue.id}`}
-                className="h-1.5 shrink-0"
-                style={{
-                  width: VENUE_COL_WIDTH + gridWidth,
-                  backgroundColor: "var(--group-divider)",
-                }}
-              />,
+                className="shrink-0 py-2 pr-2 pl-2"
+                style={{ width: VENUE_COL_WIDTH + gridWidth }}
+              >
+                <div
+                  className="h-1 rounded-full"
+                  style={{ backgroundColor: "var(--group-divider)" }}
+                />
+              </div>,
               row,
             ]
           : [row];

@@ -44,7 +44,7 @@ export function SelectedPanel({
   return (
     <div className="mx-auto h-full max-w-3xl overflow-y-auto px-4 py-6">
       {conflictCount > 0 && (
-        <p className="mb-4 rounded border border-danger/30 bg-danger-soft px-3 py-2 text-sm font-medium text-danger">
+        <p className="mb-4 rounded-2xl bg-danger-soft px-3 py-2 text-sm font-medium text-danger">
           {conflictCount} kiválasztott program időben ütközik egy másikkal.
         </p>
       )}
@@ -54,15 +54,17 @@ export function SelectedPanel({
             <h3 className="mb-2 font-mono text-xs uppercase tracking-wide text-ink/70">
               {formatDay(day)} ({formatWeekday(day)})
             </h3>
-            <ul className="divide-y divide-line">
+            <ul className="space-y-1.5">
               {dayPrograms.map((p) => {
                 const isConflict = conflictIds.has(p.id);
                 return (
                   <li key={p.id}>
                     <button
                       onClick={() => onOpenProgram(p.id)}
-                      className={`flex w-full items-start justify-between gap-3 py-2.5 text-left ${
-                        isConflict ? "border-l-2 border-danger pl-2" : ""
+                      className={`flex w-full items-start justify-between gap-3 rounded-2xl px-3.5 py-3 text-left transition-colors ${
+                        isConflict
+                          ? "bg-danger-soft"
+                          : "bg-ink/[0.03] hover:bg-ink/[0.06]"
                       }`}
                     >
                       <div className="min-w-0">
@@ -78,7 +80,7 @@ export function SelectedPanel({
                       </div>
                       {p.location?.city && (
                         <span
-                          className="mt-1 h-3.5 w-3.5 shrink-0 full"
+                          className="mt-1 h-3 w-3 shrink-0 rounded-full"
                           style={{
                             backgroundColor: settlementColor(p.location.city)
                               .solid,

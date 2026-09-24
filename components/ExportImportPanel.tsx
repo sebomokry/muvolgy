@@ -21,13 +21,13 @@ export function ExportImportPanel({
         <button
           onClick={onExport}
           disabled={!canExport}
-          className="flex-1 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="flex-1 rounded-full bg-accent px-4 py-2.5 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           Exportálás QR-kóddal
         </button>
         <button
           onClick={onImport}
-          className="flex-1 rounded border border-line px-4 py-2 font-display text-sm font-medium text-ink transition-colors hover:bg-ink/5"
+          className="flex-1 rounded-full bg-ink/5 px-4 py-2.5 font-display text-sm font-medium text-ink transition-colors hover:bg-ink/5"
         >
           Importálás
         </button>

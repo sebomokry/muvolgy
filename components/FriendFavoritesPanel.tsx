@@ -72,7 +72,7 @@ export function FriendFavoritesPanel({
           </p>
         </div>
       ) : (
-        <ul className="mb-6 divide-y divide-line">
+        <ul className="mb-6 divide-y divide-ink/5">
           {friends.map((friend) => {
             const isOpen = expanded.has(friend.name);
             const friendPrograms = allPrograms.filter((p) =>
@@ -107,7 +107,7 @@ export function FriendFavoritesPanel({
                   <button
                     onClick={() => onRemoveFriend(friend.name)}
                     aria-label={`${friend.name} eltávolítása`}
-                    className="shrink-0 rounded border border-line px-3 py-1.5 font-display text-xs font-medium text-ink transition-colors hover:bg-ink/5"
+                    className="shrink-0 rounded-full bg-ink/5 px-3 py-1.5 font-display text-xs font-medium text-ink transition-colors hover:bg-ink/5"
                   >
                     Eltávolítás
                   </button>
@@ -120,7 +120,7 @@ export function FriendFavoritesPanel({
                         <h4 className="mb-1.5 font-mono text-xs uppercase tracking-wide text-ink/70">
                           {formatDay(day)} ({formatWeekday(day)})
                         </h4>
-                        <ul className="divide-y divide-line">
+                        <ul className="divide-y divide-ink/5">
                           {dayPrograms.map((p) => (
                             <li key={p.id}>
                               <button
@@ -166,7 +166,7 @@ export function FriendFavoritesPanel({
         <button
           onClick={onShare}
           disabled={!hasOwnFavorites}
-          className="flex w-full items-center justify-center gap-2 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           Kedvenceim megosztása QR-kóddal
         </button>
@@ -177,7 +177,7 @@ export function FriendFavoritesPanel({
         )}
       </div>
 
-      <div className="border-t border-line pt-6">
+      <div className="pt-4">
         <h3 className="mb-2 font-display text-sm font-medium text-ink">
           QR-kód beolvasása
         </h3>
@@ -192,7 +192,7 @@ export function FriendFavoritesPanel({
               setPasteError(false);
             }}
             placeholder="https://..."
-            className="mt-2 w-full rounded border border-line bg-paper px-3 py-2 font-mono text-sm text-ink placeholder:text-ink/40 focus:border-accent focus:outline-none"
+            className="mt-2 w-full rounded-xl border border-transparent bg-ink/5 px-3.5 py-2.5 font-mono text-sm text-ink placeholder:text-ink/40 focus:border-accent/40 focus:bg-paper focus:outline-none"
           />
           {pasteError && (
             <p className="mt-2 text-xs text-danger">
@@ -202,7 +202,7 @@ export function FriendFavoritesPanel({
           <button
             onClick={handlePaste}
             disabled={pastedLink.trim().length === 0}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
           >
             Beolvasás
           </button>

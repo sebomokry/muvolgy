@@ -89,7 +89,7 @@ export function FriendQrScanner({ active, onDecoded }: Props) {
 
   return (
     <div>
-      <div className="relative overflow-hidden rounded border border-line bg-ink/5">
+      <div className="relative overflow-hidden rounded-2xl bg-ink/5">
         <video
           ref={videoRef}
           playsInline

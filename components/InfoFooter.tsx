@@ -12,10 +12,10 @@ type Props = {
  */
 export function InfoFooter({ onOpenInfo }: Props) {
   return (
-    <div className="mt-8 flex justify-center border-t border-line pt-4">
+    <div className="mt-10 flex justify-center pt-4">
       <button
         onClick={onOpenInfo}
-        className="flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-xs font-medium text-ink/70 transition-colors hover:border-ink/30 hover:text-ink"
+        className="flex items-center gap-1.5 rounded-full bg-ink/5 px-3 py-1.5 text-xs font-medium text-ink/70 transition-colors hover:bg-ink/10 hover:text-ink"
       >
         <span
           aria-hidden="true"

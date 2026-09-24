@@ -35,7 +35,7 @@ export function CategoryFilter({
             } ${
               active
                 ? "border-transparent text-paper"
-                : "border-line text-ink/70 hover:text-ink"
+                : "border-transparent bg-ink/5 text-ink/70 hover:bg-ink/10 hover:text-ink"
             }`}
             style={active ? { backgroundColor: color } : undefined}
           >
