@@ -261,14 +261,14 @@ export function FestivalApp({ data }: { data: FestivalData }) {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex shrink-0 items-center justify-between gap-4 border-b border-line px-4 py-2.5">
-        <h1 className="truncate font-display text-lg font-medium text-ink">
+      <header className="flex shrink-0 items-center justify-between gap-2 px-4 pt-3 pb-2">
+        <h1 className="truncate font-display text-lg font-bold tracking-tight sm:text-xl text-ink">
           MűVölgy
         </h1>
-        <div className="flex shrink-0 gap-1 rounded-full border border-line p-0.5">
+        <div className="flex shrink-0 gap-0.5 rounded-full bg-ink/5 p-0.5 sm:p-1">
           <button
             onClick={() => setView("grid")}
-            className={`rounded-full px-3 py-1 font-display text-sm transition-colors ${
+            className={`rounded-full px-2 py-1 font-display text-[13px] transition-colors sm:px-3.5 sm:text-sm ${
               view === "grid" ? "bg-ink text-paper" : "text-ink/70 hover:text-ink"
             }`}
           >
@@ -276,7 +276,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
           </button>
           <button
             onClick={() => setView("mine")}
-            className={`rounded-full px-3 py-1 font-display text-sm transition-colors ${
+            className={`rounded-full px-2 py-1 font-display text-[13px] transition-colors sm:px-3.5 sm:text-sm ${
               view === "mine" ? "bg-ink text-paper" : "text-ink/70 hover:text-ink"
             }`}
           >
@@ -284,7 +284,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
           </button>
           <button
             onClick={() => setView("search")}
-            className={`rounded-full px-3 py-1 font-display text-sm transition-colors ${
+            className={`rounded-full px-2 py-1 font-display text-[13px] transition-colors sm:px-3.5 sm:text-sm ${
               view === "search" ? "bg-ink text-paper" : "text-ink/70 hover:text-ink"
             }`}
           >
@@ -294,7 +294,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
       </header>
 
       {view === "grid" && (
-        <div className="flex max-h-[60vh] shrink-0 flex-col gap-2 overflow-y-auto border-b border-line px-4 py-2.5">
+        <div className="flex max-h-[60vh] shrink-0 flex-col gap-2 overflow-y-auto px-4 pt-1 pb-3">
           <DateTabs
             days={data.days}
             selectedDay={selectedDay}
@@ -315,7 +315,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
               className={`flex items-center gap-1.5 self-start rounded-full border px-2.5 py-1 font-mono text-xs font-medium transition-colors [@media(min-width:640px)_and_(min-height:500px)]:hidden ${
                 categoriesOpen
                   ? "border-transparent bg-ink text-paper"
-                  : "border-line text-ink/60 hover:border-ink/30 hover:text-ink"
+                  : "border-transparent bg-ink/5 text-ink/70 hover:bg-ink/10 hover:text-ink"
               }`}
             >
               <span>{categoriesOpen ? "▾" : "▸"}</span>
@@ -329,7 +329,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
               className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
                 onlyFavorites
                   ? "border-transparent text-paper"
-                  : "border-line text-ink/70 hover:text-ink"
+                  : "border-transparent bg-ink/5 text-ink/70 hover:bg-ink/10 hover:text-ink"
               }`}
               style={onlyFavorites ? { backgroundColor: "var(--saved)" } : undefined}
             >
@@ -348,7 +348,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
                 className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
                   onlyFriendFavorites
                     ? "border-transparent text-paper"
-                    : "border-line text-ink/70 hover:text-ink"
+                    : "border-transparent bg-ink/5 text-ink/70 hover:bg-ink/10 hover:text-ink"
                 }`}
                 style={
                   onlyFriendFavorites ? { backgroundColor: "var(--friend)" } : undefined
@@ -375,7 +375,7 @@ export function FestivalApp({ data }: { data: FestivalData }) {
           </div>
           <div
             // Must match the compound breakpoint on the "Kategóriák" toggle above.
-            className={`${categoriesOpen ? "flex" : "hidden"} flex-col gap-1.5 border-t border-line pt-2 [@media(min-width:640px)_and_(min-height:500px)]:flex`}
+            className={`${categoriesOpen ? "flex" : "hidden"} flex-col gap-1.5 pt-1 [@media(min-width:640px)_and_(min-height:500px)]:flex`}
           >
             <CategoryFilter
               categories={categoriesWithUncategorized}
@@ -397,15 +397,15 @@ export function FestivalApp({ data }: { data: FestivalData }) {
         {view === "grid" ? (
           <div className="flex h-full flex-col">
             {allDay.length > 0 && (
-              <div className="flex shrink-0 flex-wrap gap-2 border-b border-line px-4 py-2">
+              <div className="flex shrink-0 flex-wrap gap-2 px-4 pb-3">
                 {allDay.map((p) => (
                   <button
                     key={p.id}
                     onClick={() => toggle(p.id)}
-                    className={`rounded border px-2 py-1 text-left text-xs ${
+                    className={`rounded-xl border px-2.5 py-1.5 text-left text-xs ${
                       selectedIds.has(p.id)
                         ? "border-accent shadow-[0_0_0_2px_var(--accent-soft)]"
-                        : "border-line"
+                        : "border-transparent bg-ink/5"
                     }`}
                     title={p.name}
                   >
@@ -439,8 +439,8 @@ export function FestivalApp({ data }: { data: FestivalData }) {
           </div>
         ) : view === "mine" ? (
           <div className="flex h-full flex-col">
-            <div className="flex shrink-0 justify-center border-b border-line px-4 py-2.5">
-              <div className="flex gap-1 rounded-full border border-line p-0.5">
+            <div className="flex shrink-0 justify-center px-4 pt-1 pb-2">
+              <div className="flex gap-1 rounded-full bg-ink/5 p-1">
                 <button
                   onClick={() => setKedvenceimTab("sajat")}
                   className={`rounded-full px-3 py-1 font-display text-sm transition-colors ${

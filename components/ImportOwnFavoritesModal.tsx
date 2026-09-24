@@ -69,11 +69,11 @@ export function ImportOwnFavoritesModal({
 
     return (
       <div
-        className="fixed inset-0 z-30 flex items-center justify-center bg-ink/40 p-4"
+        className="fixed inset-0 z-30 flex items-center justify-center bg-ink/25 p-4 backdrop-blur-sm"
         onClick={close}
       >
         <div
-          className="w-full max-w-sm rounded border border-line bg-paper p-5 shadow-lg"
+          className="w-full max-w-sm rounded-3xl bg-paper p-6 shadow-2xl shadow-ink/20 ring-1 ring-ink/5"
           onClick={(e) => e.stopPropagation()}
         >
           {hasAny ? (
@@ -91,7 +91,7 @@ export function ImportOwnFavoritesModal({
               <div className="mt-4 flex gap-2">
                 <button
                   onClick={close}
-                  className="flex-1 rounded border border-line px-4 py-2 font-display text-sm font-medium text-ink transition-colors hover:bg-ink/5"
+                  className="flex-1 rounded-full bg-ink/5 px-4 py-2.5 font-display text-sm font-medium text-ink transition-colors hover:bg-ink/5"
                 >
                   Mégse
                 </button>
@@ -105,7 +105,7 @@ export function ImportOwnFavoritesModal({
                     if (incomingName) setOwnName(incomingName);
                     close();
                   }}
-                  className="flex-1 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90"
+                  className="flex-1 rounded-full bg-accent px-4 py-2.5 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90"
                 >
                   Hozzáadás
                 </button>
@@ -122,7 +122,7 @@ export function ImportOwnFavoritesModal({
               </p>
               <button
                 onClick={close}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90"
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90"
               >
                 Rendben
               </button>
@@ -137,11 +137,11 @@ export function ImportOwnFavoritesModal({
 
   return (
     <div
-      className="fixed inset-0 z-30 flex items-center justify-center bg-ink/40 p-4"
+      className="fixed inset-0 z-30 flex items-center justify-center bg-ink/25 p-4 backdrop-blur-sm"
       onClick={close}
     >
       <div
-        className="w-full max-w-sm rounded border border-line bg-paper p-5 shadow-lg"
+        className="w-full max-w-sm rounded-3xl bg-paper p-6 shadow-2xl shadow-ink/20 ring-1 ring-ink/5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
@@ -167,7 +167,7 @@ export function ImportOwnFavoritesModal({
             setPasteError(false);
           }}
           placeholder="https://..."
-          className="mt-3 w-full rounded border border-line bg-paper px-3 py-2 font-mono text-sm text-ink placeholder:text-ink/40 focus:border-accent focus:outline-none"
+          className="mt-3 w-full rounded-xl border border-transparent bg-ink/5 px-3.5 py-2.5 font-mono text-sm text-ink placeholder:text-ink/40 focus:border-accent/40 focus:bg-paper focus:outline-none"
         />
         {pasteError && (
           <p className="mt-2 text-xs text-danger">
@@ -177,7 +177,7 @@ export function ImportOwnFavoritesModal({
         <button
           onClick={handlePaste}
           disabled={pastedLink.trim().length === 0}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           Beolvasás
         </button>

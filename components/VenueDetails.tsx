@@ -49,7 +49,7 @@ export function VenueDetails({ venue, showOfficialLink = true }: Props) {
         href={mapsLink(venue)}
         target="_blank"
         rel="noreferrer"
-        className="mt-3 flex items-center justify-center gap-2 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90"
+        className="mt-3 flex items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90"
       >
         Megnyitás térképen
       </a>
@@ -59,7 +59,7 @@ export function VenueDetails({ venue, showOfficialLink = true }: Props) {
           href={`https://www.muveszetekvolgye.hu/location/${venue.id}`}
           target="_blank"
           rel="noreferrer"
-          className="mt-2 flex items-center justify-center gap-2 rounded border border-ink px-4 py-2 font-display text-sm font-medium text-ink transition-colors hover:bg-ink/5"
+          className="mt-2 flex items-center justify-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 font-display text-sm font-medium text-ink transition-colors hover:bg-ink/5"
         >
           Helyszín a hivatalos oldalon
         </a>

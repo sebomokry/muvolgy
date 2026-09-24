@@ -13,11 +13,11 @@ export function AppInfoModal({ onClose }: Props) {
   return (
     <>
       <div
-        className="fixed inset-0 z-30 flex items-center justify-center bg-ink/40 p-4"
+        className="fixed inset-0 z-30 flex items-center justify-center bg-ink/25 p-4 backdrop-blur-sm"
         onClick={onClose}
       >
         <div
-          className="flex max-h-[85vh] w-full max-w-sm flex-col rounded border border-line bg-paper shadow-lg"
+          className="flex max-h-[85vh] w-full max-w-sm flex-col overflow-hidden rounded-3xl bg-paper shadow-2xl shadow-ink/20 ring-1 ring-ink/5"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="min-h-0 flex-1 overflow-y-auto p-5">
@@ -81,10 +81,10 @@ export function AppInfoModal({ onClose }: Props) {
             </p>
           </div>
 
-          <div className="shrink-0 border-t border-line p-5 pt-4">
+          <div className="shrink-0 p-5 pt-3">
             <button
               onClick={() => setTutorialOpen(true)}
-              className="flex w-full items-center justify-center gap-2 rounded bg-accent px-4 py-2 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 font-display text-sm font-medium text-paper transition-opacity hover:opacity-90"
             >
               Tutorial megtekintése
             </button>

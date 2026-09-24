@@ -1379,3 +1379,23 @@ renders its full original program list from the snapshot; and the
 current day still shows at least one program that only exists in the
 *live* response (not the snapshot), confirming live data is genuinely
 preferred where available rather than the snapshot silently shadowing it.
+
+**Minimal "card" restyle (no color changes)**: the grid used to read like a
+spreadsheet — hairline row borders, square cells, 1px outlines around every
+block. Replaced with a softer, card-based look while keeping every color
+token/palette exactly as-is:
+- `ScheduleGrid.tsx`: no row/header borders; each row has `ROW_GAP` (3px)
+  of breathing room built *into* the timeline/sticky-cell height (not as
+  row padding, so hour gridlines and the "now" line stay continuous across
+  rows). Program blocks are `rounded-lg` with no outline, inset by
+  `BLOCK_INSET` inside their lane and positioned in pixels
+  (`ROW_GAP + lane * LANE_HEIGHT`) rather than percentages. Venue headers
+  are rounded cards inside an opaque `bg-paper` sticky wrapper (the wrapper
+  still has to be opaque to hide blocks scrolling underneath). Hour
+  gridlines are dashed `border-ink/10`; the pinned/plain divider is a
+  rounded pill inside a padded full-width wrapper.
+- Everywhere else: borders replaced by soft `bg-ink/5` fills (inactive
+  chips, segmented tab controls, secondary buttons, inputs), buttons are
+  `rounded-full`, modals are `rounded-3xl` with a blurred backdrop, and
+  header/filter bars no longer draw `border-b` lines. `--line` is no longer referenced by any
+  component (kept defined in `globals.css`, like `--pin-soft`).
