@@ -14,6 +14,23 @@
   --group-divider: #9dc3e6;
   --now: #e63946;
   --friend: #7c3aed;
+
+  /* Budapest Fafesztivál (/fafesztival) — drawn from the festival logo
+     (olive #747854, mauve #8c5c68, leaf #b8cc9c), deepened where text or
+     white-on-fill needs contrast; day colours validated with the dataviz
+     palette checker (always shown together with the day number). */
+  --ff-bg: #f7f6ef;
+  --ff-ink: #2f3324;
+  --ff-muted: #5e6155;
+  --ff-olive: #5f6440;
+  --ff-logo-olive: #747854;
+  --ff-mauve: #8e5e6a;
+  --ff-mauve-soft: #f3e9eb;
+  --ff-leaf: #b9cf9c;
+  --ff-leaf-soft: #e9efdf;
+  --ff-day15: #a84a6e;
+  --ff-day16: #4f8a3a;
+  --ff-day17: #2f6fb0;
 }
 
 @theme inline {
@@ -33,8 +50,42 @@
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);
+  --color-ff-bg: var(--ff-bg);
+  --color-ff-ink: var(--ff-ink);
+  --color-ff-muted: var(--ff-muted);
+  --color-ff-olive: var(--ff-olive);
+  --color-ff-logo-olive: var(--ff-logo-olive);
+  --color-ff-mauve: var(--ff-mauve);
+  --color-ff-mauve-soft: var(--ff-mauve-soft);
+  --color-ff-leaf: var(--ff-leaf);
+  --color-ff-leaf-soft: var(--ff-leaf-soft);
+  --font-ff-display: var(--font-ff-display);
+  --font-ff-body: var(--font-ff-body);
 }
 
 body {
   font-variant-numeric: tabular-nums;
 }
+
+/* Fafesztivál map district badges (Leaflet divIcons live outside Tailwind) */
+.ff-badge {
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 7px;
+  justify-content: center;
+  border: 2.5px solid;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(47, 51, 36, 0.25);
+  font: 700 14px var(--font-ff-display), sans-serif;
+  color: var(--ff-ink);
+}
+.ff-badge-dots { display: none; gap: 2px; }
+.ff-badge-label { display: none; }
+.ff-map-zoomed .ff-badge-dots { display: inline-flex; }
+.ff-map-zoomed .ff-badge-label { display: inline; }
