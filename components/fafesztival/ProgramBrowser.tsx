@@ -3,6 +3,7 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import {
   DAYS,
+  DISTRICTS,
   FEATURES,
   KINDS,
   PROGRAMS,
@@ -102,9 +103,13 @@ export function ProgramBrowser() {
       if (parts.size && !PARTS.some((pt) => parts.has(pt.id) && pt.test(m))) return false;
       if (words.length) {
         const hay = fold(
-          [p.title, p.area, p.leaders.map((l) => `${l.name} ${l.role ?? ""}`).join(" "), p.description.join(" ")].join(
-            " ",
-          ),
+          [
+            p.title,
+            p.area ?? "",
+            DISTRICTS[p.district].name,
+            p.leaders.map((l) => `${l.name} ${l.role ?? ""}`).join(" "),
+            p.description.join(" "),
+          ].join(" "),
         );
         if (!words.every((w) => hay.includes(w))) return false;
       }

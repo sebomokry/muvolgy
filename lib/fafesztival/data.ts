@@ -83,8 +83,10 @@ export type Program = {
   description: string[];
   features: Feature[];
   district: keyof typeof DISTRICTS;
-  /** Area name as given publicly (park, neighbourhood) — shown, but not mapped precisely. */
-  area: string;
+  /** Area name, only when the public programme text names one (park,
+   *  neighbourhood) — shown, but not mapped precisely. Otherwise the
+   *  district alone is shown. */
+  area?: string;
   venue?: Venue;
   status: "open" | "full" | "noRegistration";
 };
@@ -268,7 +270,6 @@ export const PROGRAMS: Program[] = [
     title:
       "Ezt én is meg tudom csinálni – mit csinál a faápoló, és ez miért jó az embereknek, a fáknak, sőt az állatoknak is?",
     kind: "bemutato",
-    area: "Feneketlen-tó",
     district: "XI",
     status: "open",
     leaders: [{ name: "Bubnó Márk", role: "faápoló" }],
@@ -413,7 +414,7 @@ export const PROGRAMS: Program[] = [
     start: "16:00",
     title: "Jókai fái – botanikai és kerttörténeti séta",
     kind: "seta",
-    area: "Jókai-kert, Svábhegy",
+    area: "Svábhegy",
     district: "XII",
     status: "open",
     leaders: [{ name: "Lovranits Júlia", role: "környezeti nevelő" }],
@@ -538,7 +539,6 @@ export const PROGRAMS: Program[] = [
     start: "09:30",
     title: "Lombkorona-séta – a növényvakságon túl mit üzennek nekünk a fák?",
     kind: "seta",
-    area: "IX. kerület",
     district: "IX",
     status: "open",
     leaders: [{ name: "Bozzay Balázs", role: "favizsgáló és faápoló szakmérnök, EU Éghajlati Paktum Nagykövet" }],
@@ -730,7 +730,8 @@ export function dayInfo(day: Day) {
   return DAYS.find((d) => d.id === day)!;
 }
 export function placeLabel(p: Program) {
-  return p.venue ? `${p.venue.name}, ${p.venue.address}` : `${p.area} · ${DISTRICTS[p.district].name}`;
+  if (p.venue) return `${p.venue.name}, ${p.venue.address}`;
+  return p.area ? `${p.area} · ${DISTRICTS[p.district].name}` : DISTRICTS[p.district].name;
 }
 
 /** Programs that overlap in time on the same day (using stated or ~estimated durations). */
