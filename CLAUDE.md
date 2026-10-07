@@ -1466,3 +1466,14 @@ the dataviz palette checker and are always paired with the day number.
 `package-lock.json` was edited to add only the three new packages: the
 sandbox's npm 10 rewrites unrelated `libc` fields that the committed lock
 (newer npm) carries, so don't commit a wholesale `npm install` lock rewrite.
+
+**Vendored Claude Code skill: `.claude/skills/ui-ux-pro-max/`** — the
+third-party "UI/UX Pro Max" skill (github.com/nextlevelbuilder/ui-ux-pro-max-skill,
+MIT, `LICENSE` copied alongside), added at the user's request. It lives in
+the repo because these cloud sessions are ephemeral and a user-level install
+wouldn't survive. Copied from upstream commit `477bcb2` minus its `tests/`;
+its Python scripts are local-only (stdlib, no network). One local edit: the
+upstream SKILL.md invokes `"${CLAUDE_PLUGIN_ROOT}/.claude/skills/.../search.py"`
+(plugin-install path), rewritten to the project-relative
+`.claude/skills/ui-ux-pro-max/scripts/search.py` — re-apply that if it's ever
+re-copied from upstream. Not part of the Next build (no `.ts`/`.js` files).
