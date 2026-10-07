@@ -6,6 +6,7 @@ import { DAYS, PROGRAMS, conflictingIds, programById, toMinutes } from "@/lib/fa
 import { useFfFavorites } from "@/lib/fafesztival/favorites";
 import { ProgramCard } from "./ProgramCard";
 import { DAY_COLOR } from "./ui";
+import { Check, ICON, ShareNetwork, Warning } from "./icons";
 
 // Shared lists travel in the URL hash: /fafesztival/kedvenceim#k=1,5,12
 function subscribeHash(cb: () => void) {
@@ -93,14 +94,14 @@ export function FavoritesView() {
                   addMany(incomingNew);
                   clearHash();
                 }}
-                className="rounded-full bg-ff-mauve px-4 py-2 font-semibold text-white hover:opacity-90"
+                className="min-h-11 rounded-full bg-ff-mauve px-4 py-2 font-semibold text-white hover:opacity-90"
               >
                 Hozzáadom a kedvenceimhez
               </button>
             )}
             <button
               onClick={clearHash}
-              className="rounded-full bg-white px-4 py-2 font-semibold text-ff-ink hover:bg-white/70"
+              className="min-h-11 rounded-full bg-white px-4 py-2 font-semibold text-ff-ink hover:bg-white/70"
             >
               {incomingNew.length > 0 ? "Mégse" : "Rendben"}
             </button>
@@ -111,12 +112,12 @@ export function FavoritesView() {
       {favs.length === 0 ? (
         <div className="mt-6 rounded-2xl bg-white p-6 text-center ring-1 ring-ff-olive/10">
           <p className="text-ff-muted">
-            Még nincs kedvenc programod. A programlistában a ☆ gombbal jelölheted meg, amire szeretnél elmenni – itt
-            pedig egyben látod a saját programodat, és azt is, ha két program időben ütközik.
+            Még nincs kedvenc programod. A programlistában a csillag gombbal jelölheted meg, amire szeretnél elmenni –
+            itt pedig egyben látod a saját programodat, és azt is, ha két program időben ütközik.
           </p>
           <Link
             href="/fafesztival"
-            className="mt-4 inline-block rounded-full bg-ff-olive px-5 py-2.5 font-semibold text-white hover:opacity-90"
+            className="mt-4 inline-flex min-h-11 items-center rounded-full bg-ff-olive px-5 py-2.5 font-semibold text-white hover:opacity-90"
           >
             Programok böngészése
           </Link>
@@ -126,13 +127,22 @@ export function FavoritesView() {
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <button
               onClick={share}
-              className="rounded-full bg-ff-olive/10 px-4 py-2 font-semibold text-ff-olive hover:bg-ff-olive/15"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ff-olive/10 px-4 py-2 font-semibold text-ff-olive hover:bg-ff-olive/15"
             >
-              {copied ? "✓ Link kimásolva" : "🔗 Megosztom a listámat"}
+              {copied ? (
+                <Check size={ICON.md} weight="bold" aria-hidden />
+              ) : (
+                <ShareNetwork size={ICON.md} aria-hidden />
+              )}
+              {copied ? "Link kimásolva" : "Megosztom a listámat"}
             </button>
             {conflicts.size > 0 && (
-              <p className="rounded-full bg-ff-mauve-soft px-4 py-2 text-sm font-semibold text-ff-mauve">
-                ⚠ {conflicts.size} kiválasztott program időben ütközik egy másikkal
+              <p
+                className="inline-flex items-center gap-2 rounded-full bg-ff-mauve-soft px-4 py-2 text-sm font-semibold text-ff-mauve"
+                role="status"
+              >
+                <Warning size={ICON.md} weight="bold" aria-hidden />
+                {conflicts.size} kiválasztott program időben ütközik egy másikkal
               </p>
             )}
           </div>

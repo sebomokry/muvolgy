@@ -15,6 +15,7 @@ import {
   type Program,
 } from "@/lib/fafesztival/data";
 import { DAY_COLOR, DAY_HEX } from "./ui";
+import { ICON, MapPin } from "./icons";
 
 type DayChoice = Day | "all";
 type Spot = {
@@ -188,9 +189,11 @@ export default function MapView() {
   function flyTo(s: Spot) {
     const map = mapRef.current;
     if (!map) return;
-    map.flyTo([s.lat, s.lng], s.exact ? 15 : 13, { duration: 0.6 });
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) map.setView([s.lat, s.lng], s.exact ? 15 : 13);
+    else map.flyTo([s.lat, s.lng], s.exact ? 15 : 13, { duration: 0.6 });
     markersRef.current.get(s.key)?.openPopup();
-    elRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    elRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
   }
 
   const sortedSpots = [...spots].sort(
@@ -212,7 +215,7 @@ export default function MapView() {
             <button
               key={d.id}
               onClick={() => setDay(d.id)}
-              className={`rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${on ? "text-white" : "bg-ff-olive/8 text-ff-olive hover:bg-ff-olive/15"}`}
+              className={`inline-flex min-h-10 items-center rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${on ? "text-white" : "bg-ff-olive/8 text-ff-olive hover:bg-ff-olive/15"}`}
               style={on ? { background: d.id === "all" ? "var(--ff-olive)" : DAY_COLOR[d.id] } : undefined}
             >
               {d.label}
@@ -238,16 +241,23 @@ export default function MapView() {
           </span>
           séták száma a kerületben (kerületi szint)
         </span>
-        <span>📍 pontos helyszín</span>
+        <span className="inline-flex items-center gap-1.5">
+          <MapPin size={ICON.md} weight="fill" className="text-ff-olive" aria-hidden />
+          pontos helyszín
+        </span>
       </div>
 
       <h2 className="mt-8 font-ff-display text-2xl font-bold">Helyszínek és kerületek</h2>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         {sortedSpots.map((s) => (
           <div key={s.key} className="rounded-2xl bg-white p-4 ring-1 ring-ff-olive/10">
-            <button onClick={() => flyTo(s)} className="text-left">
-              <span className="font-ff-display text-xl font-bold hover:text-ff-olive">
-                {s.exact ? "📍 " : ""}
+            <button
+              onClick={() => flyTo(s)}
+              className="min-h-11 text-left"
+              aria-label={`${s.title} megmutatása a térképen`}
+            >
+              <span className="inline-flex items-center gap-1.5 font-ff-display text-xl font-bold hover:text-ff-olive">
+                {s.exact && <MapPin size={ICON.md} weight="fill" className="text-ff-olive" aria-hidden />}
                 {s.title}
               </span>
               <span className="block text-sm text-ff-muted">{s.subtitle}</span>

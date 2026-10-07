@@ -20,11 +20,11 @@ export const DAYS: { id: Day; label: string; short: string; weekday: string }[] 
 ];
 
 export type Feature = "akadalymentes" | "kutyabarat" | "gyerekbarat" | "tomegkozlekedes";
-export const FEATURES: Record<Feature, { label: string; icon: string }> = {
-  akadalymentes: { label: "Akadálymentes", icon: "♿" },
-  kutyabarat: { label: "Kutyabarát", icon: "🐕" },
-  gyerekbarat: { label: "Gyerekbarát", icon: "🧒" },
-  tomegkozlekedes: { label: "Tömegközlekedni kell útközben", icon: "🚌" },
+export const FEATURES: Record<Feature, { label: string }> = {
+  akadalymentes: { label: "Akadálymentes" },
+  kutyabarat: { label: "Kutyabarát" },
+  gyerekbarat: { label: "Gyerekbarát" },
+  tomegkozlekedes: { label: "Tömegközlekedni kell útközben" },
 };
 
 export type Kind = "seta" | "beszelgetes" | "bemutato" | "kozossegi";

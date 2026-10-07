@@ -8,6 +8,6 @@ export const DAY_COLOR: Record<Day, string> = {
 // Hex copies for Leaflet, which styles SVG/HTML outside Tailwind.
 export const DAY_HEX: Record<Day, string> = {
   "2026-10-15": "#a84a6e",
-  "2026-10-16": "#4f8a3a",
+  "2026-10-16": "#447f33",
   "2026-10-17": "#2f6fb0",
 };

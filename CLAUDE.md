@@ -1463,6 +1463,34 @@ from zoom 12 via the `.ff-map-zoomed` class (CSS in `globals.css`), which
 fixed label pile-ups on phones. `?p=<slug>` (from a programme page's
 "Megnézem a térképen") focuses that spot. Day colours were validated with
 the dataviz palette checker and are always paired with the day number.
-`package-lock.json` was edited to add only the three new packages: the
+**No emoji anywhere in this section** (user's explicit call — they read as
+"AI-generated"; the ui-ux-pro-max skill's rules agree: emoji are
+platform-dependent and can't follow colour tokens). All icons come from one
+family, Phosphor (`@phosphor-icons/react`, imported via its `/ssr` entry so
+the same import works in server and client components), re-exported from
+`components/fafesztival/icons.tsx` with shared `ICON` sizes and a
+`FEATURE_ICON` map (features in `data.ts` carry labels only). Decorative
+icons next to text are `aria-hidden`; icon-only feature rows add an
+`sr-only` text list. The same review pass also raised every control to a
+40-48px target (`min-h-10`/`11`/`12`), added a section-wide
+`:focus-visible` outline (`.ff-scope` rule in `@layer base` in
+`globals.css`, so utilities can still override it — program cards show
+focus as a ring on the whole card via `has-[a:focus-visible]`), a
+reduced-motion override plus a non-animated map jump when
+`prefers-reduced-motion` is set, `aria-current`/`aria-pressed`/
+`aria-expanded` on nav/toggles, an `sr-only` label for the search field, and
+darkened day 16's green to `#447f33` so white text on it clears 4.5:1.
+`package-lock.json` was edited to add only the new packages: the
 sandbox's npm 10 rewrites unrelated `libc` fields that the committed lock
 (newer npm) carries, so don't commit a wholesale `npm install` lock rewrite.
+
+**Vendored Claude Code skill: `.claude/skills/ui-ux-pro-max/`** — the
+third-party "UI/UX Pro Max" skill (github.com/nextlevelbuilder/ui-ux-pro-max-skill,
+MIT, `LICENSE` copied alongside), added at the user's request. It lives in
+the repo because these cloud sessions are ephemeral and a user-level install
+wouldn't survive. Copied from upstream commit `477bcb2` minus its `tests/`;
+its Python scripts are local-only (stdlib, no network). One local edit: the
+upstream SKILL.md invokes `"${CLAUDE_PLUGIN_ROOT}/.claude/skills/.../search.py"`
+(plugin-install path), rewritten to the project-relative
+`.claude/skills/ui-ux-pro-max/scripts/search.py` — re-apply that if it's ever
+re-copied from upstream. Not part of the Next build (no `.ts`/`.js` files).
