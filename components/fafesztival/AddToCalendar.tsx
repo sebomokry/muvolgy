@@ -1,6 +1,7 @@
 "use client";
 
 import { REGISTRATION_URL, placeLabel, toMinutes, type Program } from "@/lib/fafesztival/data";
+import { CalendarPlus, ICON } from "./icons";
 
 // October 15–17, 2026 is still CEST (DST ends 2026-10-25), i.e. UTC+2 —
 // writing UTC times avoids shipping a VTIMEZONE block.
@@ -46,9 +47,10 @@ export function AddToCalendar({ p }: { p: Program }) {
   return (
     <button
       onClick={download}
-      className="flex w-full items-center justify-center gap-2 rounded-full bg-ff-olive/10 px-5 py-3 font-ff-display text-lg font-semibold tracking-wide text-ff-olive uppercase hover:bg-ff-olive/15"
+      className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ff-olive/10 px-5 py-3 font-ff-display text-lg font-semibold tracking-wide text-ff-olive uppercase hover:bg-ff-olive/15"
     >
-      🗓 Naptárba
+      <CalendarPlus size={ICON.lg} aria-hidden />
+      Naptárba
     </button>
   );
 }

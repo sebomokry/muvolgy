@@ -1,31 +1,45 @@
 import type { Metadata } from "next";
 import { FACEBOOK_URL, REGISTRATION_URL } from "@/lib/fafesztival/data";
+import {
+  ArrowRight,
+  Boot,
+  ClipboardText,
+  CloudRain,
+  HandHeart,
+  ICON,
+  MapPin,
+  Signpost,
+} from "@/components/fafesztival/icons";
 
 export const metadata: Metadata = { title: "Infó – Budapest Fafesztivál 2026" };
 
 const TIPS = [
   [
-    "🌧",
+    CloudRain,
     "Nincs esőnap",
     "Ahogy a fák, úgy mi is nagyon szeretjük az esőt, főleg a csendes őszi esőt – a programokat esős időben is megtartjuk.",
   ],
-  ["📝", "Regisztráció", "A programok ingyenesek, de regisztrációhoz kötöttek. A regisztráció október 1-jén indult."],
   [
-    "📍",
+    ClipboardText,
+    "Regisztráció",
+    "A programok ingyenesek, de regisztrációhoz kötöttek. A regisztráció október 1-jén indult.",
+  ],
+  [
+    MapPin,
     "Kezdőpontok",
     "A séták kezdőpontját a regisztrációt követően küldjük el minden résztvevőnek; a beltéri és egyéb programok helyszíne a programleírásnál található.",
   ],
   [
-    "🚋",
+    Signpost,
     "Tervezz előre",
     "A programok Budapest egész területén valósulnak meg – ha messzebbről jössz, tervezz előre, és érkezz időben!",
   ],
   [
-    "🤝",
+    HandHeart,
     "Önkéntes szervezés",
     "A Budapest Fafesztivál független, önkéntesek által szervezett rendezvény. Kérünk, akkor regisztrálj, ha tudod, hogy el is tudsz jönni!",
   ],
-  ["🥾", "Öltözék", "Időjárásnak megfelelő, könnyű túraruházat."],
+  [Boot, "Öltözék", "Időjárásnak megfelelő, könnyű túraruházat."],
 ] as const;
 
 const ORGANIZERS = [
@@ -79,17 +93,20 @@ export default function FafesztivalInfoPage() {
         href={REGISTRATION_URL}
         target="_blank"
         rel="noreferrer"
-        className="mt-5 inline-flex rounded-full bg-ff-mauve px-5 py-2.5 font-ff-display text-lg font-semibold tracking-wide text-white uppercase hover:opacity-90"
+        className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-full bg-ff-mauve px-5 py-2.5 font-ff-display text-lg font-semibold tracking-wide text-white uppercase hover:opacity-90"
       >
-        Regisztráció →
+        Regisztráció
+        <ArrowRight size={ICON.md} weight="bold" aria-hidden />
       </a>
 
       <h2 className="mt-10 font-ff-display text-2xl font-bold">Hasznos tudni</h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {TIPS.map(([icon, title, text]) => (
+        {TIPS.map(([Icon, title, text]) => (
           <div key={title} className="rounded-2xl bg-white p-4 ring-1 ring-ff-olive/10">
-            <p className="font-ff-display text-xl font-bold">
-              <span className="mr-1.5">{icon}</span>
+            <p className="flex items-center gap-2 font-ff-display text-xl font-bold">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ff-leaf-soft text-ff-olive">
+                <Icon size={ICON.md} aria-hidden />
+              </span>
               {title}
             </p>
             <p className="mt-1 text-sm leading-relaxed text-ff-muted">{text}</p>
@@ -105,7 +122,7 @@ export default function FafesztivalInfoPage() {
               href={url}
               target="_blank"
               rel="noreferrer"
-              className="inline-block rounded-full bg-ff-leaf-soft px-3.5 py-1.5 font-semibold text-ff-olive hover:bg-ff-leaf/50"
+              className="inline-flex min-h-10 items-center rounded-full bg-ff-leaf-soft px-3.5 py-1.5 font-semibold text-ff-olive hover:bg-ff-leaf/50"
             >
               {name}
             </a>
@@ -121,7 +138,7 @@ export default function FafesztivalInfoPage() {
               href={url}
               target="_blank"
               rel="noreferrer"
-              className="inline-block rounded-full bg-white px-3.5 py-1.5 text-sm font-semibold text-ff-ink ring-1 ring-ff-olive/10 hover:ring-ff-olive/30"
+              className="inline-flex min-h-10 items-center rounded-full bg-white px-3.5 py-1.5 text-sm font-semibold text-ff-ink ring-1 ring-ff-olive/10 hover:ring-ff-olive/30"
             >
               {name}
             </a>

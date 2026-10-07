@@ -29,7 +29,7 @@
   --ff-leaf: #b9cf9c;
   --ff-leaf-soft: #e9efdf;
   --ff-day15: #a84a6e;
-  --ff-day16: #4f8a3a;
+  --ff-day16: #447f33;
   --ff-day17: #2f6fb0;
 }
 
@@ -89,3 +89,22 @@ body {
 .ff-badge-label { display: none; }
 .ff-map-zoomed .ff-badge-dots { display: inline-flex; }
 .ff-map-zoomed .ff-badge-label { display: inline; }
+
+/* Fafesztivál: one visible keyboard focus style for every control, kept in
+   @layer base so utilities (e.g. the card's stretched link `outline-none`,
+   which shows focus on the whole card instead) can still override it. */
+@layer base {
+  .ff-scope :where(a, button, input, [tabindex]):focus-visible {
+    outline: 3px solid var(--ff-mauve);
+    outline-offset: 2px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ff-scope *,
+  .ff-scope *::before,
+  .ff-scope *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

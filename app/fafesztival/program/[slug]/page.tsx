@@ -16,6 +16,7 @@ import { DAY_COLOR } from "@/components/fafesztival/ui";
 import { FavoriteButton } from "@/components/fafesztival/FavoriteButton";
 import { AddToCalendar } from "@/components/fafesztival/AddToCalendar";
 import { ProgramCard } from "@/components/fafesztival/ProgramCard";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Clock, FEATURE_ICON, ICON, MapPin } from "@/components/fafesztival/icons";
 
 export function generateStaticParams() {
   return PROGRAMS.map((p) => ({ slug: p.slug }));
@@ -44,8 +45,12 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
 
   return (
     <article className="pt-4">
-      <Link href="/fafesztival" className="text-sm font-semibold text-ff-olive hover:underline">
-        ← Vissza a programhoz
+      <Link
+        href="/fafesztival"
+        className="-ml-1 inline-flex min-h-10 items-center gap-1.5 px-1 text-sm font-semibold text-ff-olive hover:underline"
+      >
+        <ArrowLeft size={ICON.sm} weight="bold" aria-hidden />
+        Vissza a programhoz
       </Link>
 
       <div className="mt-3 grid gap-6 lg:grid-cols-[1fr_300px]">
@@ -66,7 +71,12 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
             )}
           </div>
           <h1 className="mt-3 font-ff-display text-4xl leading-[1.05] font-bold text-ff-ink sm:text-5xl">{p.title}</h1>
-          {p.durationNote && <p className="mt-2 text-sm font-semibold text-ff-muted">⏱ {p.durationNote}</p>}
+          {p.durationNote && (
+            <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-ff-muted">
+              <Clock size={ICON.sm} weight="bold" aria-hidden />
+              {p.durationNote}
+            </p>
+          )}
 
           {p.leaders.length > 0 && (
             <div className="mt-5">
@@ -91,8 +101,15 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
           {p.features.length > 0 && (
             <ul className="mt-5 flex flex-wrap gap-2">
               {p.features.map((f) => (
-                <li key={f} className="rounded-full bg-white px-3 py-1.5 text-sm font-semibold ring-1 ring-ff-olive/15">
-                  {FEATURES[f].icon} {FEATURES[f].label}
+                <li
+                  key={f}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold ring-1 ring-ff-olive/15"
+                >
+                  {(() => {
+                    const Icon = FEATURE_ICON[f];
+                    return <Icon size={ICON.md} className="text-ff-olive" aria-hidden />;
+                  })()}
+                  {FEATURES[f].label}
                 </li>
               ))}
             </ul>
@@ -101,18 +118,23 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
 
         <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-2xl bg-white p-4 ring-1 ring-ff-olive/10">
-            <p className="text-xs font-bold tracking-wider text-ff-muted uppercase">Helyszín</p>
+            <p className="inline-flex items-center gap-1 text-xs font-bold tracking-wider text-ff-muted uppercase">
+              <MapPin size={ICON.sm} weight="bold" aria-hidden />
+              Helyszín
+            </p>
             {p.venue ? (
               <>
                 <p className="mt-1 font-ff-display text-xl font-bold">{p.venue.name}</p>
                 <p className="text-ff-muted">{p.venue.address}</p>
                 <a
-                  className="mt-2 inline-block text-sm font-semibold text-ff-olive underline"
+                  className="mt-1 inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-ff-olive underline"
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.venue.address)}`}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Útvonaltervezés ↗
+                  Útvonaltervezés
+                  <ArrowUpRight size={ICON.sm} weight="bold" aria-hidden />
+                  <span className="sr-only">(új lapon nyílik)</span>
                 </a>
               </>
             ) : (
@@ -126,7 +148,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
             )}
             <Link
               href={`/fafesztival/terkep?p=${p.slug}`}
-              className="mt-2 block text-sm font-semibold text-ff-olive underline"
+              className="mt-1 inline-flex min-h-10 items-center text-sm font-semibold text-ff-olive underline"
             >
               Megnézem a térképen
             </Link>
@@ -137,9 +159,11 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
               href={REGISTRATION_URL}
               target="_blank"
               rel="noreferrer"
-              className="flex w-full items-center justify-center rounded-full bg-ff-mauve px-5 py-3 font-ff-display text-lg font-semibold tracking-wide text-white uppercase hover:opacity-90"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ff-mauve px-5 py-3 font-ff-display text-lg font-semibold tracking-wide text-white uppercase hover:opacity-90"
             >
-              Regisztrálok →
+              Regisztrálok
+              <ArrowRight size={ICON.md} weight="bold" aria-hidden />
+              <span className="sr-only">(új lapon nyílik)</span>
             </a>
           )}
           {p.status === "full" && (
@@ -152,7 +176,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
               Ehhez a programhoz nem kell regisztrálni.
             </p>
           )}
-          <FavoriteButton id={p.id} size="lg" />
+          <FavoriteButton id={p.id} title={p.title} size="lg" />
           <AddToCalendar p={p} />
         </aside>
       </div>
