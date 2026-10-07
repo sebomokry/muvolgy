@@ -1425,3 +1425,44 @@ checked against the PDF's own time-line count, 596/596) → `raw.json` →
 `build.py` (injects `data.json` into `template.html` and writes the public
 file). Edit `template.html`/`data.json`, then `python3 konyvfesztival/build.py`;
 never hand-edit the generated `public/konyvfesztival/index.html`.
+
+**Budapest Fafesztivál at `/fafesztival` (separate section, built on this
+app's own stack)**: a multi-page programme site for the Budapest
+Fafesztivál (2026-10-15..17), a pitch for its organizers (their WordPress page
+lists ~30 programmes as one long unstructured text). Unlike the
+Könyvfesztivál demo (a static file in `public/`), this one is real App Router
+routes sharing the Next/Tailwind setup: `app/fafesztival/` (`page.tsx`
+programme list, `terkep/` map, `program/[slug]/` one static page per
+programme via `generateStaticParams` + `dynamicParams = false`,
+`kedvenceim/`, `info/`), components in `components/fafesztival/`, data in
+`lib/fafesztival/data.ts` (hand-transcribed from the public programme page —
+the organizers' Google Form CSV was used only to confirm districts and stated
+durations). Its `layout.tsx` wraps everything in its own `h-full
+overflow-y-auto` container because the root layout keeps `<body>`
+`overflow-hidden` for the muvolgy grid; it loads its own fonts (Barlow
+Condensed / Nunito Sans, matching the festival logo) and uses `--ff-*` tokens
+in `app/globals.css` derived from the logo colours. Favorites use their own
+`createIdSetStore("ff26-favs")` key; shared lists travel in the hash
+(`/fafesztival/kedvenceim#k=1,2`), read via `useSyncExternalStore` (no
+effect + setState).
+
+**Location privacy is a hard rule here**: the organizers only send walk
+meeting points to registered participants, so walks are placed on the map
+and shown in text only at district level (`district`, approximate centres in
+`DISTRICTS`). Only programmes whose *public* listing names a venue get an
+exact `venue` pin (ARKHÉ, ISON, Szent István park) — those coordinates were
+placed by hand (no geocoder reachable from the sandbox), so re-check them if
+precision matters. Never copy meeting points or route stops from the CSV.
+
+The map (`MapView.tsx`) is plain Leaflet (`leaflet` + `@types/leaflet`, real
+dependencies) on OpenStreetMap tiles, loaded through `MapLoader.tsx` with
+`next/dynamic({ ssr: false })` because Leaflet touches `window` on import.
+Markers are `divIcon`s only (Leaflet's default image markers break under
+bundlers); district badges are compact count circles whose names appear only
+from zoom 12 via the `.ff-map-zoomed` class (CSS in `globals.css`), which
+fixed label pile-ups on phones. `?p=<slug>` (from a programme page's
+"Megnézem a térképen") focuses that spot. Day colours were validated with
+the dataviz palette checker and are always paired with the day number.
+`package-lock.json` was edited to add only the three new packages: the
+sandbox's npm 10 rewrites unrelated `libc` fields that the committed lock
+(newer npm) carries, so don't commit a wholesale `npm install` lock rewrite.
