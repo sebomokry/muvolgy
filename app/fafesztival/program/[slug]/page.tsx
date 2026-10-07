@@ -10,6 +10,7 @@ import {
   dayInfo,
   endTime,
   otherByLeaders,
+  placeLabel,
   programBySlug,
 } from "@/lib/fafesztival/data";
 import { DAY_COLOR } from "@/components/fafesztival/ui";
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!p) return {};
   return {
     title: `${p.title} – Budapest Fafesztivál 2026`,
-    description: `${dayInfo(p.day).label} ${p.start} · ${p.area}. ${p.description[0].slice(0, 140)}…`,
+    description: `${dayInfo(p.day).label} ${p.start} · ${placeLabel(p)}. ${p.description[0].slice(0, 140)}…`,
   };
 }
 
@@ -139,8 +140,8 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
               </>
             ) : (
               <>
-                <p className="mt-1 font-ff-display text-xl font-bold">{p.area}</p>
-                <p className="text-ff-muted">{DISTRICTS[p.district].name}</p>
+                <p className="mt-1 font-ff-display text-xl font-bold">{p.area ?? DISTRICTS[p.district].name}</p>
+                {p.area && <p className="text-ff-muted">{DISTRICTS[p.district].name}</p>}
                 <p className="mt-2 rounded-xl bg-ff-leaf-soft px-3 py-2 text-sm">
                   A pontos kezdőpontot a szervezők a regisztráció után küldik el.
                 </p>

@@ -1453,6 +1453,10 @@ and shown in text only at district level (`district`, approximate centres in
 exact `venue` pin (ARKHÉ, ISON, Szent István park) — those coordinates were
 placed by hand (no geocoder reachable from the sandbox), so re-check them if
 precision matters. Never copy meeting points or route stops from the CSV.
+`area` (a park/neighbourhood name) is optional and only set when the public
+programme text itself names that place (e.g. „svábhegyi birtok" → "Svábhegy");
+otherwise the UI shows the district alone — don't fill it from the CSV or from
+general knowledge of where a walk probably goes.
 
 The map (`MapView.tsx`) is plain Leaflet (`leaflet` + `@types/leaflet`, real
 dependencies) on OpenStreetMap tiles, loaded through `MapLoader.tsx` with

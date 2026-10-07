@@ -64,7 +64,10 @@ function spotsFor(programs: Program[]): Spot[] {
   }
   for (const s of map.values()) {
     s.programs.sort(byTime);
-    if (!s.exact) s.subtitle = [...new Set(s.programs.map((p) => p.area))].join(", ");
+    if (!s.exact) {
+      const areas = [...new Set(s.programs.flatMap((p) => (p.area ? [p.area] : [])))];
+      s.subtitle = areas.length ? areas.join(", ") : "kerületi szintű jelölés";
+    }
   }
   return [...map.values()];
 }
@@ -76,7 +79,7 @@ function popupHtml(s: Spot) {
         <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${DAY_HEX[p.day]};margin-right:6px"></span>
         <b>${dayInfo(p.day).label} ${p.start}</b>${p.status === "full" ? ' <span style="color:#8e5e6a;font-weight:700">· Betelt</span>' : ""}<br>
         <a href="/fafesztival/program/${p.slug}" style="color:#5f6440;font-weight:700">${esc(p.title)}</a>
-        ${s.exact ? "" : `<br><span style="color:#5e6155">${esc(p.area)}</span>`}
+        ${s.exact || !p.area ? "" : `<br><span style="color:#5e6155">${esc(p.area)}</span>`}
       </li>`,
     )
     .join("");

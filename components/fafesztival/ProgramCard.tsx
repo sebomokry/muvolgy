@@ -69,8 +69,14 @@ export function ProgramCard({
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
           <span className="inline-flex items-center gap-1 font-semibold text-ff-ink">
             <MapPin size={ICON.sm} weight="bold" className="shrink-0 text-ff-olive" aria-hidden />
-            {p.venue ? p.venue.name : p.area}
-            <span className="font-normal text-ff-muted">· {DISTRICTS[p.district].name}</span>
+            {p.venue || p.area ? (
+              <>
+                {p.venue ? p.venue.name : p.area}
+                <span className="font-normal text-ff-muted">· {DISTRICTS[p.district].name}</span>
+              </>
+            ) : (
+              DISTRICTS[p.district].name
+            )}
           </span>
           {p.features.length > 0 && (
             <span className="flex items-center gap-1.5 text-ff-olive">
