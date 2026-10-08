@@ -57,7 +57,7 @@ function Chip({
     <button
       onClick={onClick}
       aria-pressed={on}
-      className={`inline-flex min-h-10 items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors ${
+      className={`inline-flex min-h-10 items-center gap-1.5 px-3.5 py-2 text-sm font-semibold transition-colors ${
         on ? "text-white" : "bg-ff-olive/8 text-ff-olive hover:bg-ff-olive/15"
       }`}
       style={on ? { background: color ?? "var(--ff-olive)" } : undefined}
@@ -134,7 +134,7 @@ export function ProgramBrowser() {
 
   return (
     <div className="pt-4">
-      <section className="rounded-3xl bg-ff-leaf-soft px-5 py-5 sm:px-7">
+      <section className="bg-ff-leaf-soft px-5 py-5 sm:px-7">
         <h1 className="font-ff-display text-3xl leading-tight font-bold text-ff-ink sm:text-4xl">
           Fától fáig a fővárosban
         </h1>
@@ -146,7 +146,7 @@ export function ProgramBrowser() {
           href={REGISTRATION_URL}
           target="_blank"
           rel="noreferrer"
-          className="mt-4 inline-flex min-h-12 items-center gap-2 rounded-full bg-ff-mauve px-5 py-2.5 font-ff-display text-lg font-semibold tracking-wide text-white uppercase hover:opacity-90"
+          className="mt-4 inline-flex min-h-12 items-center gap-2 bg-ff-mauve px-5 py-2.5 font-ff-display text-lg font-semibold tracking-wide text-white uppercase hover:opacity-90"
         >
           Regisztráció
           <ArrowRight size={ICON.md} weight="bold" aria-hidden />
@@ -162,7 +162,7 @@ export function ProgramBrowser() {
               key={d.id}
               onClick={() => setPicked(d.id)}
               aria-pressed={on}
-              className={`min-h-12 shrink-0 rounded-2xl px-3 py-2 text-left sm:px-4 transition-colors ${on ? "text-white" : "text-ff-ink hover:bg-ff-olive/10"}`}
+              className={`min-h-12 shrink-0 px-3 py-2 text-left sm:px-4 transition-colors ${on ? "text-white" : "text-ff-ink hover:bg-ff-olive/10"}`}
               style={on ? { background: color } : undefined}
             >
               <span className="block font-ff-display text-lg leading-none font-bold sm:text-xl">{d.label}</span>
@@ -190,14 +190,14 @@ export function ProgramBrowser() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Keresés: helyszín, sétavezető, téma… (pl. Margitsziget, platán)"
-            className="w-full rounded-2xl border border-transparent bg-white py-3 pr-4 pl-11 shadow-[0_1px_2px_rgba(47,51,36,0.06)] ring-1 ring-ff-olive/10 outline-none placeholder:text-ff-muted/70 focus:ring-2 focus:ring-ff-olive/40"
+            className="w-full border border-transparent bg-white py-3 pr-4 pl-11 ring-1 ring-ff-olive/10 outline-none placeholder:text-ff-muted/70 focus:ring-2 focus:ring-ff-olive/40"
           />
         </div>
         <button
           onClick={() => setFiltersOpen(!filtersOpen)}
           aria-expanded={filtersOpen}
           aria-controls="ff-filters"
-          className={`inline-flex min-h-10 items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold sm:hidden ${filtersOpen ? "bg-ff-olive text-white" : "bg-ff-olive/8 text-ff-olive"}`}
+          className={`inline-flex min-h-10 items-center gap-1.5 px-3.5 py-2 text-sm font-semibold sm:hidden ${filtersOpen ? "bg-ff-olive text-white" : "bg-ff-olive/8 text-ff-olive"}`}
         >
           {filtersOpen ? (
             <CaretDown size={ICON.sm} weight="bold" aria-hidden />
@@ -254,7 +254,7 @@ export function ProgramBrowser() {
       </div>
 
       {groups.length === 0 && (
-        <p className="mt-10 rounded-2xl bg-white p-6 text-center text-ff-muted ring-1 ring-ff-olive/10">
+        <p className="mt-10 bg-white p-6 text-center text-ff-muted ring-1 ring-ff-olive/10">
           Nincs a szűrőknek megfelelő program. Próbálj kevesebb szűrőt, vagy válts napot.
         </p>
       )}
@@ -264,7 +264,7 @@ export function ProgramBrowser() {
           {day === "all" && (
             <h2 className="mb-3 flex items-baseline gap-2 font-ff-display text-2xl font-bold">
               <span
-                className="inline-block h-3 w-3 rounded-full"
+                className="inline-block h-3 w-3"
                 style={{ background: DAY_COLOR[g.day] }}
                 aria-hidden
               />
@@ -273,7 +273,7 @@ export function ProgramBrowser() {
             </h2>
           )}
           {g.day === "2026-10-15" && (
-            <p className="mb-4 flex items-start gap-2 rounded-2xl bg-ff-leaf-soft px-4 py-3 text-sm text-ff-ink">
+            <p className="mb-4 flex items-start gap-2 bg-ff-leaf-soft px-4 py-3 text-sm text-ff-ink">
               <Plant size={ICON.md} className="mt-px shrink-0 text-ff-olive" aria-hidden />
               Napközben önkéntes akciók, ahol a résztvevők azt is megtanulhatják, hogyan érdemes kezelni a városi zöldet
               – a részletek hamarosan érkeznek.

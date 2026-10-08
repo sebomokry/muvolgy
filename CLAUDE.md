@@ -1484,6 +1484,16 @@ reduced-motion override plus a non-animated map jump when
 `prefers-reduced-motion` is set, `aria-current`/`aria-pressed`/
 `aria-expanded` on nav/toggles, an `sr-only` label for the search field, and
 darkened day 16's green to `#447f33` so white text on it clears 4.5:1.
+**Sharp-cornered by design** (user's call, modelled on an editorial site's
+square look): no `rounded-*` classes or drop shadows anywhere in the
+section — cards, chips, buttons, inputs, the map frame, the favourite star
+button and even the small day-colour dots are square, and separation comes
+from hairline `ring-1` borders instead of shadows. The map follows suit: the
+exact-venue marker is a square flag with a straight pointer (inline SVG in
+`MapView.tsx`), district badges are square, and `.ff-scope .leaflet-*`
+rules in `globals.css` square off Leaflet's own popup and zoom control. Only
+the geographic district area circles (`L.circle`) stay round — they mark an
+area on the map, they aren't UI chrome. Don't reintroduce rounding here.
 `package-lock.json` was edited to add only the new packages: the
 sandbox's npm 10 rewrites unrelated `libc` fields that the committed lock
 (newer npm) carries, so don't commit a wholesale `npm install` lock rewrite.

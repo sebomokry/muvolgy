@@ -57,18 +57,18 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
       <div className="mt-3 grid gap-6 lg:grid-cols-[1fr_300px]">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="rounded-full px-3 py-1 font-bold text-white" style={{ background: DAY_COLOR[p.day] }}>
+            <span className="px-3 py-1 font-bold text-white" style={{ background: DAY_COLOR[p.day] }}>
               {d.label} {d.weekday}
             </span>
             <span className="font-ff-display text-2xl font-bold">
               {p.start}–{p.durationKnown ? "" : "kb. "}
               {endTime(p)}
             </span>
-            <span className="rounded-full bg-ff-leaf-soft px-2.5 py-1 text-xs font-semibold text-ff-olive">
+            <span className="bg-ff-leaf-soft px-2.5 py-1 text-xs font-semibold text-ff-olive">
               {KINDS[p.kind]}
             </span>
             {p.status === "full" && (
-              <span className="rounded-full bg-ff-mauve px-2.5 py-1 text-xs font-bold text-white">Betelt</span>
+              <span className="bg-ff-mauve px-2.5 py-1 text-xs font-bold text-white">Betelt</span>
             )}
           </div>
           <h1 className="mt-3 font-ff-display text-4xl leading-[1.05] font-bold text-ff-ink sm:text-5xl">{p.title}</h1>
@@ -104,7 +104,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
               {p.features.map((f) => (
                 <li
                   key={f}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold ring-1 ring-ff-olive/15"
+                  className="inline-flex items-center gap-1.5 bg-white px-3 py-1.5 text-sm font-semibold ring-1 ring-ff-olive/15"
                 >
                   {(() => {
                     const Icon = FEATURE_ICON[f];
@@ -118,7 +118,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
         </div>
 
         <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-2xl bg-white p-4 ring-1 ring-ff-olive/10">
+          <div className="bg-white p-4 ring-1 ring-ff-olive/10">
             <p className="inline-flex items-center gap-1 text-xs font-bold tracking-wider text-ff-muted uppercase">
               <MapPin size={ICON.sm} weight="bold" aria-hidden />
               Helyszín
@@ -142,7 +142,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
               <>
                 <p className="mt-1 font-ff-display text-xl font-bold">{p.area ?? DISTRICTS[p.district].name}</p>
                 {p.area && <p className="text-ff-muted">{DISTRICTS[p.district].name}</p>}
-                <p className="mt-2 rounded-xl bg-ff-leaf-soft px-3 py-2 text-sm">
+                <p className="mt-2 bg-ff-leaf-soft px-3 py-2 text-sm">
                   A pontos kezdőpontot a szervezők a regisztráció után küldik el.
                 </p>
               </>
@@ -160,7 +160,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
               href={REGISTRATION_URL}
               target="_blank"
               rel="noreferrer"
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ff-mauve px-5 py-3 font-ff-display text-lg font-semibold tracking-wide text-white uppercase hover:opacity-90"
+              className="flex min-h-12 w-full items-center justify-center gap-2 bg-ff-mauve px-5 py-3 font-ff-display text-lg font-semibold tracking-wide text-white uppercase hover:opacity-90"
             >
               Regisztrálok
               <ArrowRight size={ICON.md} weight="bold" aria-hidden />
@@ -168,12 +168,12 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
             </a>
           )}
           {p.status === "full" && (
-            <p className="rounded-full bg-ff-mauve-soft px-5 py-3 text-center font-ff-display text-lg font-semibold tracking-wide text-ff-mauve uppercase">
+            <p className="bg-ff-mauve-soft px-5 py-3 text-center font-ff-display text-lg font-semibold tracking-wide text-ff-mauve uppercase">
               Betelt
             </p>
           )}
           {p.status === "noRegistration" && (
-            <p className="rounded-2xl bg-ff-leaf-soft px-4 py-3 text-center text-sm font-semibold">
+            <p className="bg-ff-leaf-soft px-4 py-3 text-center text-sm font-semibold">
               Ehhez a programhoz nem kell regisztrálni.
             </p>
           )}

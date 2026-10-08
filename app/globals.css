@@ -79,13 +79,29 @@ body {
   padding: 0 7px;
   justify-content: center;
   border: 2.5px solid;
-  border-radius: 999px;
   background: #fff;
-  box-shadow: 0 2px 6px rgba(47, 51, 36, 0.25);
   font: 700 14px var(--font-ff-display), sans-serif;
   color: var(--ff-ink);
 }
 .ff-badge-dots { display: none; gap: 2px; }
+/* Sharp corners across the Fafesztivál section, including Leaflet's own
+   popup and zoom controls (which ship with rounded corners and shadows). */
+.ff-scope .leaflet-popup-content-wrapper,
+.ff-scope .leaflet-bar,
+.ff-scope .leaflet-bar a {
+  border-radius: 0;
+}
+.ff-scope .leaflet-popup-tip {
+  box-shadow: none;
+}
+.ff-scope .leaflet-popup-content-wrapper,
+.ff-scope .leaflet-bar {
+  box-shadow: none;
+  border: 1px solid rgba(47, 51, 36, 0.25);
+}
+.ff-scope .leaflet-control-zoom.leaflet-bar a {
+  border-bottom-color: rgba(47, 51, 36, 0.25);
+}
 .ff-badge-label { display: none; }
 .ff-map-zoomed .ff-badge-dots { display: inline-flex; }
 .ff-map-zoomed .ff-badge-label { display: inline; }
