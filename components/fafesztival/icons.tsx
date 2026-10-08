@@ -19,6 +19,7 @@ export {
   Clock,
   CloudRain,
   HandHeart,
+  List,
   MagnifyingGlass,
   MapPin,
   Plant,
@@ -26,6 +27,7 @@ export {
   Signpost,
   Star,
   Warning,
+  X,
 } from "@phosphor-icons/react/ssr";
 
 /** Shared icon sizes so inline icons keep one rhythm. */
