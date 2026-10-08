@@ -17,7 +17,7 @@ export function FfNav() {
   return (
     <nav
       aria-label="Fafesztivál"
-      className="flex gap-0.5 rounded-full bg-ff-olive/10 p-1 text-[15px] font-ff-display font-semibold tracking-wide uppercase"
+      className="flex gap-0.5 bg-ff-olive/10 p-1 text-[15px] font-ff-display font-semibold tracking-wide uppercase"
     >
       {LINKS.map((l) => {
         const active =
@@ -29,7 +29,7 @@ export function FfNav() {
             key={l.href}
             href={l.href}
             aria-current={active ? "page" : undefined}
-            className={`inline-flex min-h-10 items-center rounded-full px-3 py-1 whitespace-nowrap transition-colors sm:px-4 ${
+            className={`inline-flex min-h-10 items-center px-3 py-1 whitespace-nowrap transition-colors sm:px-4 ${
               active ? "bg-ff-olive text-white" : "text-ff-olive hover:bg-ff-olive/10"
             }`}
           >

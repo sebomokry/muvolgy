@@ -66,7 +66,7 @@ export function FavoritesView() {
       <h1 className="font-ff-display text-3xl font-bold sm:text-4xl">Kedvenceim</h1>
 
       {incoming.length > 0 && (
-        <div className="mt-4 rounded-2xl bg-ff-mauve-soft p-4">
+        <div className="mt-4 bg-ff-mauve-soft p-4">
           <p className="font-semibold text-ff-ink">
             Valaki megosztott veled {incoming.length} programot
             {incomingNew.length < incoming.length
@@ -94,14 +94,14 @@ export function FavoritesView() {
                   addMany(incomingNew);
                   clearHash();
                 }}
-                className="min-h-11 rounded-full bg-ff-mauve px-4 py-2 font-semibold text-white hover:opacity-90"
+                className="min-h-11 bg-ff-mauve px-4 py-2 font-semibold text-white hover:opacity-90"
               >
                 Hozzáadom a kedvenceimhez
               </button>
             )}
             <button
               onClick={clearHash}
-              className="min-h-11 rounded-full bg-white px-4 py-2 font-semibold text-ff-ink hover:bg-white/70"
+              className="min-h-11 bg-white px-4 py-2 font-semibold text-ff-ink hover:bg-white/70"
             >
               {incomingNew.length > 0 ? "Mégse" : "Rendben"}
             </button>
@@ -110,14 +110,14 @@ export function FavoritesView() {
       )}
 
       {favs.length === 0 ? (
-        <div className="mt-6 rounded-2xl bg-white p-6 text-center ring-1 ring-ff-olive/10">
+        <div className="mt-6 bg-white p-6 text-center ring-1 ring-ff-olive/10">
           <p className="text-ff-muted">
             Még nincs kedvenc programod. A programlistában a csillag gombbal jelölheted meg, amire szeretnél elmenni –
             itt pedig egyben látod a saját programodat, és azt is, ha két program időben ütközik.
           </p>
           <Link
             href="/fafesztival"
-            className="mt-4 inline-flex min-h-11 items-center rounded-full bg-ff-olive px-5 py-2.5 font-semibold text-white hover:opacity-90"
+            className="mt-4 inline-flex min-h-11 items-center bg-ff-olive px-5 py-2.5 font-semibold text-white hover:opacity-90"
           >
             Programok böngészése
           </Link>
@@ -127,7 +127,7 @@ export function FavoritesView() {
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <button
               onClick={share}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ff-olive/10 px-4 py-2 font-semibold text-ff-olive hover:bg-ff-olive/15"
+              className="inline-flex min-h-11 items-center gap-2 bg-ff-olive/10 px-4 py-2 font-semibold text-ff-olive hover:bg-ff-olive/15"
             >
               {copied ? (
                 <Check size={ICON.md} weight="bold" aria-hidden />
@@ -138,7 +138,7 @@ export function FavoritesView() {
             </button>
             {conflicts.size > 0 && (
               <p
-                className="inline-flex items-center gap-2 rounded-full bg-ff-mauve-soft px-4 py-2 text-sm font-semibold text-ff-mauve"
+                className="inline-flex items-center gap-2 bg-ff-mauve-soft px-4 py-2 text-sm font-semibold text-ff-mauve"
                 role="status"
               >
                 <Warning size={ICON.md} weight="bold" aria-hidden />
@@ -150,7 +150,7 @@ export function FavoritesView() {
             <section key={d.id} className="mt-7">
               <h2 className="mb-3 flex items-baseline gap-2 font-ff-display text-2xl font-bold">
                 <span
-                  className="inline-block h-3 w-3 rounded-full"
+                  className="inline-block h-3 w-3"
                   style={{ background: DAY_COLOR[d.id] }}
                   aria-hidden
                 />

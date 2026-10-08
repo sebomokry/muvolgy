@@ -76,7 +76,7 @@ function popupHtml(s: Spot) {
   const items = s.programs
     .map(
       (p) => `<li style="margin:6px 0;line-height:1.25">
-        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${DAY_HEX[p.day]};margin-right:6px"></span>
+        <span style="display:inline-block;width:8px;height:8px;background:${DAY_HEX[p.day]};margin-right:6px"></span>
         <b>${dayInfo(p.day).label} ${p.start}</b>${p.status === "full" ? ' <span style="color:#8e5e6a;font-weight:700">· Betelt</span>' : ""}<br>
         <a href="/fafesztival/program/${p.slug}" style="color:#5f6440;font-weight:700">${esc(p.title)}</a>
         ${s.exact || !p.area ? "" : `<br><span style="color:#5e6155">${esc(p.area)}</span>`}
@@ -100,9 +100,10 @@ function iconFor(s: Spot) {
       iconSize: [34, 44],
       iconAnchor: [17, 42],
       popupAnchor: [0, -38],
+      // Square marker with a straight pointer, matching the section's sharp-cornered style.
       html: `<div style="position:relative;width:34px;height:44px">
-        <svg width="34" height="44" viewBox="0 0 34 44"><path d="M17 43C17 43 32 27 32 16A15 15 0 0 0 2 16C2 27 17 43 17 43Z" fill="${c}" stroke="#fff" stroke-width="2.5"/></svg>
-        <span style="position:absolute;top:7px;left:0;width:34px;text-align:center;color:#fff;font:700 13px var(--font-ff-display),sans-serif">${days.map((d) => dayInfo(d).short).join("/")}</span>
+        <svg width="34" height="44" viewBox="0 0 34 44"><path d="M2 2H32V32H22L17 42L12 32H2Z" fill="${c}" stroke="#fff" stroke-width="2.5" stroke-linejoin="miter"/></svg>
+        <span style="position:absolute;top:9px;left:0;width:34px;text-align:center;color:#fff;font:700 13px var(--font-ff-display),sans-serif">${days.map((d) => dayInfo(d).short).join("/")}</span>
       </div>`,
     });
   }
@@ -110,7 +111,7 @@ function iconFor(s: Spot) {
   const dots = days
     .map(
       (d) =>
-        `<span style="width:7px;height:7px;border-radius:50%;background:${DAY_HEX[d]};display:inline-block"></span>`,
+        `<span style="width:7px;height:7px;background:${DAY_HEX[d]};display:inline-block"></span>`,
     )
     .join("");
   // Compact count badge so neighbouring districts don't collide at city zoom;
@@ -218,7 +219,7 @@ export default function MapView() {
             <button
               key={d.id}
               onClick={() => setDay(d.id)}
-              className={`inline-flex min-h-10 items-center rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${on ? "text-white" : "bg-ff-olive/8 text-ff-olive hover:bg-ff-olive/15"}`}
+              className={`inline-flex min-h-10 items-center px-3.5 py-1.5 text-sm font-bold transition-colors ${on ? "text-white" : "bg-ff-olive/8 text-ff-olive hover:bg-ff-olive/15"}`}
               style={on ? { background: d.id === "all" ? "var(--ff-olive)" : DAY_COLOR[d.id] } : undefined}
             >
               {d.label}
@@ -229,17 +230,17 @@ export default function MapView() {
 
       <div
         ref={elRef}
-        className="relative z-0 mt-3 h-[62vh] min-h-[360px] overflow-hidden rounded-3xl ring-1 ring-ff-olive/15"
+        className="relative z-0 mt-3 h-[62vh] min-h-[360px] overflow-hidden ring-1 ring-ff-olive/15"
       />
 
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ff-muted">
         {DAYS.map((d) => (
           <span key={d.id} className="inline-flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: DAY_COLOR[d.id] }} /> {d.label}
+            <span className="h-2.5 w-2.5" style={{ background: DAY_COLOR[d.id] }} /> {d.label}
           </span>
         ))}
         <span className="inline-flex items-center gap-1.5">
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border-2 border-ff-olive bg-white text-[11px] font-bold text-ff-ink">
+          <span className="inline-flex h-5 w-5 items-center justify-center border-2 border-ff-olive bg-white text-[11px] font-bold text-ff-ink">
             3
           </span>
           séták száma a kerületben (kerületi szint)
@@ -253,7 +254,7 @@ export default function MapView() {
       <h2 className="mt-8 font-ff-display text-2xl font-bold">Helyszínek és kerületek</h2>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         {sortedSpots.map((s) => (
-          <div key={s.key} className="rounded-2xl bg-white p-4 ring-1 ring-ff-olive/10">
+          <div key={s.key} className="bg-white p-4 ring-1 ring-ff-olive/10">
             <button
               onClick={() => flyTo(s)}
               className="min-h-11 text-left"
@@ -269,7 +270,7 @@ export default function MapView() {
               {s.programs.map((p) => (
                 <li key={p.id} className="flex items-baseline gap-2 text-sm">
                   <span
-                    className="h-2 w-2 shrink-0 translate-y-[-1px] rounded-full"
+                    className="h-2 w-2 shrink-0 translate-y-[-1px]"
                     style={{ background: DAY_COLOR[p.day] }}
                   />
                   <span className="shrink-0 font-semibold text-ff-muted">

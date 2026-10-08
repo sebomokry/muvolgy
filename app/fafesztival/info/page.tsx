@@ -93,7 +93,7 @@ export default function FafesztivalInfoPage() {
         href={REGISTRATION_URL}
         target="_blank"
         rel="noreferrer"
-        className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-full bg-ff-mauve px-5 py-2.5 font-ff-display text-lg font-semibold tracking-wide text-white uppercase hover:opacity-90"
+        className="mt-5 inline-flex min-h-12 items-center gap-2 bg-ff-mauve px-5 py-2.5 font-ff-display text-lg font-semibold tracking-wide text-white uppercase hover:opacity-90"
       >
         Regisztráció
         <ArrowRight size={ICON.md} weight="bold" aria-hidden />
@@ -102,9 +102,9 @@ export default function FafesztivalInfoPage() {
       <h2 className="mt-10 font-ff-display text-2xl font-bold">Hasznos tudni</h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {TIPS.map(([Icon, title, text]) => (
-          <div key={title} className="rounded-2xl bg-white p-4 ring-1 ring-ff-olive/10">
+          <div key={title} className="bg-white p-4 ring-1 ring-ff-olive/10">
             <p className="flex items-center gap-2 font-ff-display text-xl font-bold">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ff-leaf-soft text-ff-olive">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-ff-leaf-soft text-ff-olive">
                 <Icon size={ICON.md} aria-hidden />
               </span>
               {title}
@@ -122,7 +122,7 @@ export default function FafesztivalInfoPage() {
               href={url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex min-h-10 items-center rounded-full bg-ff-leaf-soft px-3.5 py-1.5 font-semibold text-ff-olive hover:bg-ff-leaf/50"
+              className="inline-flex min-h-10 items-center bg-ff-leaf-soft px-3.5 py-1.5 font-semibold text-ff-olive hover:bg-ff-leaf/50"
             >
               {name}
             </a>
@@ -138,7 +138,7 @@ export default function FafesztivalInfoPage() {
               href={url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex min-h-10 items-center rounded-full bg-white px-3.5 py-1.5 text-sm font-semibold text-ff-ink ring-1 ring-ff-olive/10 hover:ring-ff-olive/30"
+              className="inline-flex min-h-10 items-center bg-white px-3.5 py-1.5 text-sm font-semibold text-ff-ink ring-1 ring-ff-olive/10 hover:ring-ff-olive/30"
             >
               {name}
             </a>

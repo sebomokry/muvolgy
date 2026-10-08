@@ -16,12 +16,12 @@ export function ProgramCard({
   const full = p.status === "full";
   return (
     <div
-      className={`group relative flex gap-3 rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(47,51,36,0.06)] ring-1 transition-shadow hover:shadow-md has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ff-olive ${
+      className={`group relative flex gap-3 bg-white p-4 ring-1 transition-colors has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ff-olive ${
         conflict ? "ring-2 ring-ff-mauve" : "ring-ff-olive/10 hover:ring-ff-olive/25"
       }`}
     >
       <span
-        className="absolute top-4 bottom-4 left-0 w-1 rounded-r-full"
+        className="absolute top-4 bottom-4 left-0 w-1"
         style={{ background: DAY_COLOR[p.day] }}
         aria-hidden
       />
@@ -35,12 +35,12 @@ export function ProgramCard({
             –{p.durationKnown ? "" : "kb. "}
             {endTime(p)}
           </span>
-          <span className="rounded-full bg-ff-leaf-soft px-2 py-0.5 text-xs font-semibold text-ff-olive">
+          <span className="bg-ff-leaf-soft px-2 py-0.5 text-xs font-semibold text-ff-olive">
             {KINDS[p.kind]}
           </span>
-          {full && <span className="rounded-full bg-ff-mauve px-2 py-0.5 text-xs font-bold text-white">Betelt</span>}
+          {full && <span className="bg-ff-mauve px-2 py-0.5 text-xs font-bold text-white">Betelt</span>}
           {p.status === "noRegistration" && (
-            <span className="rounded-full bg-ff-olive px-2 py-0.5 text-xs font-bold text-white">
+            <span className="bg-ff-olive px-2 py-0.5 text-xs font-bold text-white">
               Regisztráció nélkül
             </span>
           )}
@@ -58,7 +58,7 @@ export function ProgramCard({
               the whole card (has-[a:focus-visible]) instead of on the text. */}
           <Link
             href={`/fafesztival/program/${p.slug}`}
-            className="outline-none after:absolute after:inset-0 after:rounded-2xl"
+            className="outline-none after:absolute after:inset-0"
           >
             {p.title}
           </Link>

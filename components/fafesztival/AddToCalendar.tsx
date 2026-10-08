@@ -47,7 +47,7 @@ export function AddToCalendar({ p }: { p: Program }) {
   return (
     <button
       onClick={download}
-      className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ff-olive/10 px-5 py-3 font-ff-display text-lg font-semibold tracking-wide text-ff-olive uppercase hover:bg-ff-olive/15"
+      className="flex min-h-12 w-full items-center justify-center gap-2 bg-ff-olive/10 px-5 py-3 font-ff-display text-lg font-semibold tracking-wide text-ff-olive uppercase hover:bg-ff-olive/15"
     >
       <CalendarPlus size={ICON.lg} aria-hidden />
       Naptárba
