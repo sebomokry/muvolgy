@@ -31,7 +31,7 @@ export default function FafesztivalLayout({ children }: { children: React.ReactN
     >
       <header className="sticky top-0 z-[1100] bg-ff-bg/90 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 pt-3 pb-2">
-          <Link href="/fafesztival" aria-label="Budapest Fafesztivál – program" className="shrink-0">
+          <Link href="/fafesztival" aria-label="Budapest Fafesztivál – kezdőlap" className="shrink-0">
             <Image
               src="/fafesztival/logo.png"
               alt="Budapest Fafesztivál"

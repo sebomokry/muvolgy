@@ -47,7 +47,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
   return (
     <article className="pt-4">
       <Link
-        href="/fafesztival"
+        href="/fafesztival/program"
         className="-ml-1 inline-flex min-h-10 items-center gap-1.5 px-1 text-sm font-semibold text-ff-olive hover:underline"
       >
         <ArrowLeft size={ICON.sm} weight="bold" aria-hidden />

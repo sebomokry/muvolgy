@@ -1432,9 +1432,12 @@ Fafesztivál (2026-10-15..17), a pitch for its organizers (their WordPress page
 lists ~30 programmes as one long unstructured text). Unlike the
 Könyvfesztivál demo (a static file in `public/`), this one is real App Router
 routes sharing the Next/Tailwind setup: `app/fafesztival/` (`page.tsx`
-programme list, `terkep/` map, `program/[slug]/` one static page per
-programme via `generateStaticParams` + `dynamicParams = false`,
-`kedvenceim/`, `info/`), components in `components/fafesztival/`, data in
+home page with the organizers' intro text verbatim plus Regisztráció/
+Programok buttons, `program/` programme list, `program/[slug]/` one static
+page per programme via `generateStaticParams` + `dynamicParams = false`,
+`terkep/` map, `kedvenceim/`). There used to be an `info/` tab; it became the
+home page, and `next.config.ts` redirects `/fafesztival/info` there so old
+links keep working. components in `components/fafesztival/`, data in
 `lib/fafesztival/data.ts` (hand-transcribed from the public programme page —
 the organizers' Google Form CSV was used only to confirm districts and stated
 durations). Its `layout.tsx` wraps everything in its own `h-full

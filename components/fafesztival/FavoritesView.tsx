@@ -116,7 +116,7 @@ export function FavoritesView() {
             itt pedig egyben látod a saját programodat, és azt is, ha két program időben ütközik.
           </p>
           <Link
-            href="/fafesztival"
+            href="/fafesztival/program"
             className="mt-4 inline-flex min-h-11 items-center bg-ff-olive px-5 py-2.5 font-semibold text-white hover:opacity-90"
           >
             Programok böngészése

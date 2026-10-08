@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import { useFfFavorites } from "@/lib/fafesztival/favorites";
 
 const LINKS = [
-  { href: "/fafesztival", label: "Program" },
+  { href: "/fafesztival", label: "Kezdőlap" },
+  { href: "/fafesztival/program", label: "Program" },
   { href: "/fafesztival/terkep", label: "Térkép" },
   { href: "/fafesztival/kedvenceim", label: "Kedvenceim" },
-  { href: "/fafesztival/info", label: "Infó" },
 ];
 
 export function FfNav() {
@@ -20,10 +20,7 @@ export function FfNav() {
       className="flex gap-0.5 bg-ff-olive/10 p-1 text-[15px] font-ff-display font-semibold tracking-wide uppercase"
     >
       {LINKS.map((l) => {
-        const active =
-          l.href === "/fafesztival"
-            ? pathname === "/fafesztival" || pathname.startsWith("/fafesztival/program")
-            : pathname.startsWith(l.href);
+        const active = l.href === "/fafesztival" ? pathname === l.href : pathname.startsWith(l.href);
         return (
           <Link
             key={l.href}
