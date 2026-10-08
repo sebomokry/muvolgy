@@ -15,8 +15,8 @@ const FAVORITES = "/fafesztival/kedvenceim";
 
 // Below 420px (logo 84 + gap 16 + nav ~283 + 2×16 padding ≈ 415) the logo and
 // the inline nav no longer fit on one row, so
-// the page links collapse into a hamburger menu (the favourites star stays
-// visible next to it). Keep the two `min-[420px]:` classes below in sync.
+// everything — page links and Kedvenceim — collapses into a hamburger menu.
+// Keep the `min-[420px]:` classes below in sync.
 const isActive = (pathname: string, href: string) =>
   href === "/fafesztival" ? pathname === href : pathname.startsWith(href);
 
@@ -27,7 +27,7 @@ function FavoritesStar({ pathname, count }: { pathname: string; count: number })
       href={FAVORITES}
       aria-label={count > 0 ? `Kedvenceim (${count})` : "Kedvenceim"}
       aria-current={active ? "page" : undefined}
-      className={`relative inline-flex h-10 w-11 shrink-0 items-center justify-center transition-colors ${
+      className={`relative hidden h-10 w-11 shrink-0 min-[420px]:inline-flex items-center justify-center transition-colors ${
         active ? "bg-ff-olive text-white" : "text-ff-olive hover:bg-ff-olive/10"
       }`}
     >
@@ -111,6 +111,9 @@ export function FfNav() {
                     }`}
                   >
                     {active && <span aria-hidden className="h-5 w-1 bg-ff-olive" />}
+                    {l.href === FAVORITES && (
+                      <Star size={ICON.md} weight={selectedIds.size > 0 ? "fill" : "bold"} aria-hidden />
+                    )}
                     {l.label}
                     {l.href === FAVORITES && selectedIds.size > 0 && (
                       <span className="text-ff-muted">({selectedIds.size})</span>

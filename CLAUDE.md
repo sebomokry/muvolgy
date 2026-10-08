@@ -1437,13 +1437,7 @@ Programok buttons, `program/` programme list, `program/[slug]/` one static
 page per programme via `generateStaticParams` + `dynamicParams = false`,
 `terkep/` map, `kedvenceim/`). There used to be an `info/` tab; it became the
 home page, and `next.config.ts` redirects `/fafesztival/info` there so old
-links keep working.
-The header nav (`FfNav.tsx`) shows Kezdőlap/Program/Térkép as text and
-Kedvenceim as a star icon with a count badge. Below 420px — measured: logo 84 +
-gap 16 + nav ~283 + padding 32 ≈ 415 — the text links collapse into a
-hamburger dropdown (the star stays visible next to it); remeasure if nav
-labels change. The menu's open state is keyed to the pathname it was opened
-on, so navigating closes it without an effect. components in `components/fafesztival/`, data in
+links keep working. Components live in `components/fafesztival/`, data in
 `lib/fafesztival/data.ts` (hand-transcribed from the public programme page —
 the organizers' Google Form CSV was used only to confirm districts and stated
 durations). Its `layout.tsx` wraps everything in its own `h-full
@@ -1454,6 +1448,14 @@ in `app/globals.css` derived from the logo colours. Favorites use their own
 `createIdSetStore("ff26-favs")` key; shared lists travel in the hash
 (`/fafesztival/kedvenceim#k=1,2`), read via `useSyncExternalStore` (no
 effect + setState).
+
+The header nav (`FfNav.tsx`) shows Kezdőlap/Program/Térkép as text and
+Kedvenceim as a star icon with a count badge. Below 420px — measured: logo 84 +
+gap 16 + nav ~283 + padding 32 ≈ 415 — everything, the star included,
+collapses into a hamburger dropdown (user's call: no separate star next to the
+hamburger; the menu's Kedvenceim row carries the star and count instead);
+remeasure if nav labels change. The menu's open state is keyed to the
+pathname it was opened on, so navigating closes it without an effect.
 
 **Location privacy is a hard rule here**: the organizers only send walk
 meeting points to registered participants, so walks are placed on the map
